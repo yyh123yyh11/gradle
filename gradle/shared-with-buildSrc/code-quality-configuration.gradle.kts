@@ -61,7 +61,7 @@ fun Project.configureCodenarc(codeQualityConfigDir: File) {
         components {
             withModule("org.codenarc:CodeNarc", CodeNarcRule::class.java)
         }
-        val ruleClass = getIntegrationTestFixturesRule()
+        val ruleClass: Class<*>? = null // FIXME getIntegrationTestFixturesRule()
         if (ruleClass != null) {
             "codenarc"(files(ruleClass.protectionDomain!!.codeSource!!.location))
             "codenarc"(embeddedKotlin("stdlib"))

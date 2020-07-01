@@ -30,6 +30,41 @@ plugins {
 
 apply(from = "gradle/shared-with-buildSrc/mirrors.settings.gradle.kts")
 
+includeBuild("buildlogic-conventions")
+
+// Platform: defines shared dependency versions
+includeBuild("buildlogic/build-platform")
+
+// Utilities for updating the build itself which are not part of the usual build process
+includeBuild("buildlogic/build-update-utils")
+
+// Shared basics for all
+includeBuild("buildlogic/basics")
+
+// Compute the identity/version we are building and related details (like current git commit)
+includeBuild("buildlogic/module-identity")
+
+// Shared information about external modules
+includeBuild("buildlogic/dependency-modules")
+
+// Special purpose build logic for root project - please preserve alphabetical order
+includeBuild("buildlogic/cleanup")
+includeBuild("buildlogic/idea")
+includeBuild("buildlogic/lifecycle")
+
+// Special purpose build logic for subproject - please preserve alphabetical order
+includeBuild("buildlogic/binary-compatibility")
+includeBuild("buildlogic/buildquality")
+includeBuild("buildlogic/documentation")
+includeBuild("buildlogic/integration-testing")
+includeBuild("buildlogic/jvm")
+includeBuild("buildlogic/kotlin-dsl")
+includeBuild("buildlogic/uber-plugins")
+includeBuild("buildlogic/packaging")
+includeBuild("buildlogic/performance-testing")
+includeBuild("buildlogic/profiling")
+includeBuild("buildlogic/publishing")
+
 // If you include a new subproject here, you will need to execute the
 // ./gradlew generateSubprojectsInfo
 // task to update metadata about the build for CI

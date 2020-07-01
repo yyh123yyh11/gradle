@@ -38,3 +38,24 @@ buildscript {
         }
     }
 }
+
+tasks.register("buildlogicCheck") {
+    dependsOn(gradle.includedBuild("build-update-utils").task(":check"))
+    dependsOn(gradle.includedBuild("basics").task(":check"))
+    dependsOn(gradle.includedBuild("module-identity").task(":check"))
+    dependsOn(gradle.includedBuild("dependency-modules").task(":check"))
+    dependsOn(gradle.includedBuild("cleanup").task(":check"))
+    dependsOn(gradle.includedBuild("idea").task(":check"))
+    dependsOn(gradle.includedBuild("lifecycle").task(":check"))
+    dependsOn(gradle.includedBuild("binary-compatibility").task(":check"))
+    dependsOn(gradle.includedBuild("buildquality").task(":check"))
+    dependsOn(gradle.includedBuild("documentation").task(":check"))
+    dependsOn(gradle.includedBuild("integration-testing").task(":check"))
+    dependsOn(gradle.includedBuild("jvm").task(":check"))
+    dependsOn(gradle.includedBuild("kotlin-dsl").task(":check"))
+    dependsOn(gradle.includedBuild("uber-plugins").task(":check"))
+    dependsOn(gradle.includedBuild("packaging").task(":check"))
+    dependsOn(gradle.includedBuild("performance-testing").task(":check"))
+    dependsOn(gradle.includedBuild("profiling").task(":check"))
+    dependsOn(gradle.includedBuild("publishing").task(":check"))
+}
