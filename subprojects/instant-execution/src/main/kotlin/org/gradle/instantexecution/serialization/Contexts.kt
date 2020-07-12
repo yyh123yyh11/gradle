@@ -219,8 +219,6 @@ class DefaultReadContext(
         this.projectProvider = projectProvider
     }
 
-    override var immediateMode: Boolean = false
-
     override suspend fun read(): Any? {
         val recur = this.recursionScope
         return if (recur != null) {
