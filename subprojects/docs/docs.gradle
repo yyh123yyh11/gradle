@@ -25,6 +25,7 @@ plugins {
     id 'org.asciidoctor.convert'
     id 'gradlebuild.documentation'
     id 'org.gradle.samples' version "0.16.8"
+    id 'gradlebuild.unittest-and-compile'
 }
 
 repositories { handler ->
@@ -571,6 +572,7 @@ tasks.named("docsTest") { task ->
     testClassesDirs = sourceSets.docsTest.output.classesDirs
     // 'integTest.samplesdir' is set to an absolute path by the 'org.gradle.samples' plugin
     systemProperties.clear()
+
 
     // // TODO (donat) investigate ignored snippets
     filter {
