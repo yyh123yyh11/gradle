@@ -11,8 +11,14 @@ accordingly, and delete the patch script.
 */
 changeProject(uuid("DistributedGradle_Check")) {
     params {
-        add {
+        expect {
             param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%e.grdev.net.access.key%")
+        }
+        update {
+            param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "credentialsJSON:3dadbc2c-a4ef-49ff-a9d2-ed682a4e26ac")
+        }
+        add {
+            password("e.grdev.net.access.key", "credentialsJSON:42999d0a-3b3d-4d43-9700-a6b542b7bd6f")
         }
         add {
             param("gradle.cache.remote.password", "credentialsJSON:7b004bb5-3736-4116-854a-73f2acf39b8a")
