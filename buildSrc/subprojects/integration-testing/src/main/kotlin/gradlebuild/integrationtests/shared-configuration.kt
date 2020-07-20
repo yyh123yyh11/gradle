@@ -114,8 +114,6 @@ fun Project.createTasks(sourceSet: SourceSet, testType: TestType) {
                 // for true multi-version testing, we set up a test task per Gradle version,
                 // (see CrossVersionTestsPlugin).
                 systemProperties["org.gradle.integtest.versions"] = "default"
-
-                shouldRunAfter("embeddedIntegTest")
             }
         })
         if (executer == defaultExecuter) {

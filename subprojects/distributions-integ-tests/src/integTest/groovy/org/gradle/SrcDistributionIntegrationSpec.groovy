@@ -39,7 +39,6 @@ class SrcDistributionIntegrationSpec extends DistributionIntegrationSpec {
         0
     }
 
-    @Ignore
     @Requires(TestPrecondition.NOT_WINDOWS)
     @ToBeFixedForInstantExecution
     def sourceZipContents() {
@@ -58,7 +57,6 @@ class SrcDistributionIntegrationSpec extends DistributionIntegrationSpec {
             usingExecutable('gradlew')
             withTasks(':distributionsFull:binDistributionZip')
             withArguments("-D${PLUGIN_PORTAL_OVERRIDE_URL_PROPERTY}=${gradlePluginRepositoryMirrorUrl()}")
-            // for distributed test
             withEnvironmentVars([BUILD_BRANCH: System.getProperty("gradleBuildBranch"), BUILD_COMMIT_ID: System.getProperty("gradleBuildCommitId")])
             withWarningMode(null)
         }.run()
