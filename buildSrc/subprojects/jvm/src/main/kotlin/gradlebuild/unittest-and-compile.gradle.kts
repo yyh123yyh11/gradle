@@ -31,7 +31,6 @@ plugins {
     id("gradlebuild.module-identity")
     id("gradlebuild.dependency-modules")
     id("gradlebuild.available-java-installations")
-    id("org.gradle.test-retry")
 }
 
 extensions.create<UnitTestAndCompileExtension>("gradlebuildJava", java)
@@ -207,10 +206,6 @@ fun configureTests() {
         val testName = name
 
         if (BuildEnvironment.isCiServer && !this.javaClass.simpleName.endsWith("PerformanceTest")) {
-            retry {
-                maxRetries.set(1)
-                maxFailures.set(10)
-            }
             doFirst {
                 logger.lifecycle("maxParallelForks for '$path' is $maxParallelForks")
             }
