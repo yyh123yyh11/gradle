@@ -39,14 +39,14 @@ subprojects.forEach {
 }
 
 if (BuildEnvironment.isCiServer) {
-    gradle.buildFinished {
-        val failedTasks = failedTasks()
-        val executedTasks = executedTasks()
-        val tmpTestFiles = subprojects.flatMap { it.tmpTestFiles() }
-        prepareReportsForCiPublishing(failedTasks, executedTasks, tmpTestFiles)
-        cleanUp(tmpTestFiles.map { it.first })
-        verifyTestFilesCleanup(failedTasks, tmpTestFiles)
-    }
+//    gradle.buildFinished {
+//        val failedTasks = failedTasks()
+//        val executedTasks = executedTasks()
+//        val tmpTestFiles = subprojects.flatMap { it.tmpTestFiles() }
+//        prepareReportsForCiPublishing(failedTasks, executedTasks, tmpTestFiles)
+//        cleanUp(tmpTestFiles.map { it.first })
+//        verifyTestFilesCleanup(failedTasks, tmpTestFiles)
+//    }
 }
 
 

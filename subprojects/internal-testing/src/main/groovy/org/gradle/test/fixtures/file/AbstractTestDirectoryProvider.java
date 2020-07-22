@@ -73,7 +73,7 @@ abstract class AbstractTestDirectoryProvider implements TestRule, TestDirectoryP
             ConcurrentTestUtil.poll(new Closure(null, null) {
                 @SuppressWarnings("UnusedDeclaration")
                 void doCall() throws IOException {
-                    dir.forceDeleteDir();
+//                    dir.forceDeleteDir();
                 }
             });
         }
