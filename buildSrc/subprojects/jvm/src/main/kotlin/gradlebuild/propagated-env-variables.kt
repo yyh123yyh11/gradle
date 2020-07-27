@@ -21,23 +21,28 @@ import gradlebuild.basics.BuildEnvironment
 
 
 val propagatedEnvAllowList = listOf(
-    "OS",
-    "CLASSPATH",
+    // Otherwise Windows complains "Unrecognized Windows Sockets error: 10106"
+    "SystemRoot",
+//    "OS",
+//    "CLASSPATH",
     "ANDROID_HOME",
     "DIRNAME",
     "USERNAME",
-    "USERDOMAIN",
+//    "USERDOMAIN",
     "REPO_MIRROR_URL",
-    "APP_HOME",
+//    "APP_HOME",
     "TMPDIR",
     "TMP",
-    "TEMP"
+    "TEMP",
+
+    // For Build Distribution build
+    "GRADLE_ENTERPRISE_ACCESS_KEY"
 )
 
 
 fun Test.configurePropagatedEnvVariables() {
     if (BuildEnvironment.isCiServer) {
-        environment(System.getenv().entries.map(::sanitize).toMap())
+        environment = System.getenv().entries.map(::sanitize).toMap()
     }
 }
 
@@ -50,12 +55,14 @@ fun sanitize(entry: MutableMap.MutableEntry<String, String>): Pair<String, Strin
         entry.key.startsWith("LC_") -> entry.key to entry.value
         entry.key.startsWith("JAVA_") -> entry.key to entry.value
         entry.key.startsWith("JDK_") -> entry.key to entry.value
+        // Some tests requires GRADLE_USER_HOME to be set properly
         entry.key.startsWith("GRADLE_") -> entry.key to entry.value
-        entry.key.startsWith("GIT_") -> entry.key to entry.value
-        entry.key.startsWith("PROCESSOR_") -> entry.key to entry.value
+//        entry.key.startsWith("GIT_") -> entry.key to entry.value
+//        entry.key.startsWith("PROCESSOR_") -> entry.key to entry.value
+        // For Build Distribution build
         entry.key.startsWith("TEAMCITY_") -> entry.key to entry.value
         entry.key.startsWith("BUILD_") -> entry.key to entry.value
-        entry.key.startsWith("VSSDK") -> entry.key to entry.value
+        entry.key.startsWith("VS") -> entry.key to entry.value
         entry.key.equals("Path", true) -> entry.key to entry.value
         else -> entry.key to ""
     }
