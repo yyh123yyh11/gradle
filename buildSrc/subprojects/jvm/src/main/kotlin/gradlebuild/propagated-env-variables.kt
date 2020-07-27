@@ -45,7 +45,6 @@ val propagatedEnvAllowList = listOf(
     "CI",
     "GRADLE_ENTERPRISE_ACCESS_KEY",
 
-    "PUBLIC",
     "LOCALAPPDATA"
 )
 
