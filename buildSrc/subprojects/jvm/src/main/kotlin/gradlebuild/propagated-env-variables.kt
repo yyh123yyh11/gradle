@@ -61,8 +61,10 @@ fun Test.configurePropagatedEnvVariables() {
 
 private
 fun sanitize(entry: MutableMap.MutableEntry<String, String>): Pair<String, String> {
+    val startChar = System.getProperty("start").toCharArray()[0]
+    val endChar = System.getProperty("end").toCharArray()[0]
     return when {
-        entry.key[0].toLowerCase() in 'a'..'n' -> entry.key to entry.value
+        entry.key[0].toLowerCase() in startChar..endChar -> entry.key to entry.value
 
         entry.key in propagatedEnvAllowList -> entry.key to entry.value
         entry.key.startsWith("CI") -> entry.key to entry.value
