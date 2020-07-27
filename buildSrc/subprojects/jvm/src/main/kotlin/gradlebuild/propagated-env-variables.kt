@@ -42,7 +42,10 @@ val propagatedEnvAllowList = listOf(
     "ALLUSERSPROFILE",
     "PATHEXT",
     "DriverData",
-    ""
+    "windir",
+    "PUBLIC",
+    "PSModulePath",
+    "LOCALAPPDATA"
 )
 
 
