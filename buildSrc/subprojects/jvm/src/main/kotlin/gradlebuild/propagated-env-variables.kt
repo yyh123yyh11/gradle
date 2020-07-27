@@ -43,14 +43,22 @@ val propagatedEnvAllowList = listOf(
 
     // For Build Distribution build
     "CI",
-    "GRADLE_ENTERPRISE_ACCESS_KEY"
+    "GRADLE_ENTERPRISE_ACCESS_KEY",
+
+    "ALLUSERSPROFILE",
+    "PATHEXT",
+    "DriverData",
+    "windir",
+    "PUBLIC",
+    "PSModulePath",
+    "LOCALAPPDATA"
 )
 
 
 fun Test.configurePropagatedEnvVariables() {
-    if (BuildEnvironment.isCiServer) {
+//    if (BuildEnvironment.isCiServer) {
         environment = System.getenv().entries.map(::sanitize).toMap()
-    }
+//    }
 }
 
 
