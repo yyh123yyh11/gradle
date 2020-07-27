@@ -59,6 +59,8 @@ fun Test.configurePropagatedEnvVariables() {
 //    if (BuildEnvironment.isCiServer) {
         environment = System.getenv().entries.map(::sanitize).toMap()
 //    }
+    System.getenv().forEach { println(it) }
+    environment.forEach { println(it) }
 }
 
 
