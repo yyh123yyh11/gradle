@@ -51,9 +51,9 @@ val propagatedEnvAllowList = listOf(
 
 fun Test.configurePropagatedEnvVariables() {
 //    if (BuildEnvironment.isCiServer) {
-        environment = System.getenv().entries.map(::sanitize).toMap()
-    println("env: ${System.getenv()}")
-    println("result: $environment")
+    environment = System.getenv().entries.map(::sanitize).toMap()
+//    println("env: ${System.getenv()}")
+//    println("result: $environment")
 
 //    }
 }
@@ -62,6 +62,8 @@ fun Test.configurePropagatedEnvVariables() {
 private
 fun sanitize(entry: MutableMap.MutableEntry<String, String>): Pair<String, String> {
     return when {
+        entry.key[0].toLowerCase() in 'a'..'n' -> entry.key to entry.value
+
         entry.key in propagatedEnvAllowList -> entry.key to entry.value
         entry.key.startsWith("CI") -> entry.key to entry.value
         entry.key.startsWith("LC_") -> entry.key to entry.value
