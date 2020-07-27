@@ -45,12 +45,8 @@ val propagatedEnvAllowList = listOf(
     "CI",
     "GRADLE_ENTERPRISE_ACCESS_KEY",
 
-    "ALLUSERSPROFILE",
-    "PATHEXT",
-    "DriverData",
     "windir",
     "PUBLIC",
-    "PSModulePath",
     "LOCALAPPDATA"
 )
 
