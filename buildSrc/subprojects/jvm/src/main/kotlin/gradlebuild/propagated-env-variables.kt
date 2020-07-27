@@ -21,6 +21,7 @@ import gradlebuild.basics.BuildEnvironment
 
 
 val propagatedEnvAllowList = listOf(
+    "CI",
     // Otherwise Windows complains "Unrecognized Windows Sockets error: 10106"
     "SystemRoot",
 //    "OS",
@@ -36,7 +37,12 @@ val propagatedEnvAllowList = listOf(
     "TEMP",
 
     // For Build Distribution build
-    "GRADLE_ENTERPRISE_ACCESS_KEY"
+    "GRADLE_ENTERPRISE_ACCESS_KEY",
+
+    "ALLUSERSPROFILE",
+    "PATHEXT",
+    "DriverData",
+    ""
 )
 
 
@@ -65,6 +71,7 @@ fun sanitize(entry: MutableMap.MutableEntry<String, String>): Pair<String, Strin
         // Visual Studio installation info
         entry.key.startsWith("VS") -> entry.key to entry.value
         entry.key.startsWith("CommonProgram") -> entry.key to entry.value
+        entry.key.startsWith("ProgramFiles") -> entry.key to entry.value
         entry.key.equals("Path", true) -> entry.key to entry.value
         else -> entry.key to ""
     }
