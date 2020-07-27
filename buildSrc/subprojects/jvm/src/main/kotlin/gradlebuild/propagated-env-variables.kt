@@ -28,7 +28,10 @@ val propagatedEnvAllowList = listOf(
 //    "CLASSPATH",
     "ANDROID_HOME",
     "DIRNAME",
+    "USER",
     "USERNAME",
+    "USERDOMAIN",
+    "USERPROFILE",
 //    "USERDOMAIN",
     "REPO_MIRROR_URL",
 //    "APP_HOME",
@@ -61,13 +64,11 @@ fun Test.configurePropagatedEnvVariables() {
 
 private
 fun sanitize(entry: MutableMap.MutableEntry<String, String>): Pair<String, String> {
-    val startChar = System.getProperty("start").toCharArray()[0]
-    val endChar = System.getProperty("end").toCharArray()[0]
     return when {
-        entry.key[0].toLowerCase() in startChar..endChar -> entry.key to entry.value
 
         entry.key in propagatedEnvAllowList -> entry.key to entry.value
         entry.key.startsWith("CI") -> entry.key to entry.value
+        entry.key.startsWith("USER") -> entry.key to entry.value
         entry.key.startsWith("LC_") -> entry.key to entry.value
         entry.key.startsWith("JAVA_") -> entry.key to entry.value
         entry.key.startsWith("JDK_") -> entry.key to entry.value
