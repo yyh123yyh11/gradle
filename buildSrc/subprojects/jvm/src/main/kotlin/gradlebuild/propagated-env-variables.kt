@@ -41,9 +41,9 @@ val propagatedEnvAllowList = listOf(
 
 
 fun Test.configurePropagatedEnvVariables() {
-    if (BuildEnvironment.isCiServer) {
+//    if (BuildEnvironment.isCiServer) {
         environment = System.getenv().entries.map(::sanitize).toMap()
-    }
+//    }
 }
 
 
@@ -62,7 +62,9 @@ fun sanitize(entry: MutableMap.MutableEntry<String, String>): Pair<String, Strin
         // For Build Distribution build
         entry.key.startsWith("TEAMCITY_") -> entry.key to entry.value
         entry.key.startsWith("BUILD_") -> entry.key to entry.value
+        // Visual Studio installation info
         entry.key.startsWith("VS") -> entry.key to entry.value
+        entry.key.startsWith("CommonProgram") -> entry.key to entry.value
         entry.key.equals("Path", true) -> entry.key to entry.value
         else -> entry.key to ""
     }
