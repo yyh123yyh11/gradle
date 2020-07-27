@@ -49,7 +49,7 @@ val propagatedEnvAllowList = listOf(
 fun Test.configurePropagatedEnvVariables() {
 //    if (BuildEnvironment.isCiServer) {
         environment = System.getenv().entries.map(::sanitize).toMap()
-    println("env: ${System.getenv}")
+    println("env: ${System.getenv()}")
     println("result: $environment")
 
 //    }
