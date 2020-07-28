@@ -33,7 +33,7 @@ class FlakyTest {
             file.delete()
         } else {
             file.createNewFile()
-            throw new RuntimeException()
+            throw new RuntimeException("flaky!")
         }
     }
 }
