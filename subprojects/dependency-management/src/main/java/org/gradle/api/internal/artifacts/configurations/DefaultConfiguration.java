@@ -723,15 +723,19 @@ public class DefaultConfiguration extends AbstractFileCollection implements Conf
     private ResolverResults resolveGraphForBuildDependenciesIfRequired() {
         if (getResolutionStrategy().resolveGraphToDetermineTaskDependencies()) {
             // Force graph resolution as this is required to calculate build dependencies
-            resolveToStateOrLater(GRAPH_RESOLVED);
+            return resolveToStateOrLater(GRAPH_RESOLVED).getCachedResolverResults();
         }
+
         ResolveState currentState = currentResolveState.get();
         if (currentState.state == UNRESOLVED) {
             // Traverse graph
             ResolverResults results = new DefaultResolverResults();
             resolver.resolveBuildDependencies(DefaultConfiguration.this, results);
-            currentResolveState.set(new BuildDependenciesResolved(results));
+            BuildDependenciesResolved newState = new BuildDependenciesResolved(results);
+            currentResolveState.set(newState);
+            return newState.getCachedResolverResults();
         }
+
         // Otherwise, already have a result, so reuse it
         return currentState.getCachedResolverResults();
     }
