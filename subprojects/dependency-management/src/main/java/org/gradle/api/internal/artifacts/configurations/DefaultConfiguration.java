@@ -716,10 +716,6 @@ public class DefaultConfiguration extends AbstractFileCollection implements Conf
         return currentState.getCachedResolverResults();
     }
 
-    private ResolverResults getResultsForArtifacts() {
-        return resolveExclusively(ARTIFACTS_RESOLVED).getCachedResolverResults();
-    }
-
     private ResolverResults resolveGraphForBuildDependenciesIfRequired() {
         if (getResolutionStrategy().resolveGraphToDetermineTaskDependencies()) {
             // Force graph resolution as this is required to calculate build dependencies
@@ -738,6 +734,10 @@ public class DefaultConfiguration extends AbstractFileCollection implements Conf
 
         // Otherwise, already have a result, so reuse it
         return currentState.getCachedResolverResults();
+    }
+
+    private ResolverResults getResultsForArtifacts() {
+        return resolveExclusively(ARTIFACTS_RESOLVED).getCachedResolverResults();
     }
 
     @Override
