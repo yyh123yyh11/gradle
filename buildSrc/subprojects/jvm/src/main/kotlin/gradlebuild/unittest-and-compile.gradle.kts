@@ -25,6 +25,8 @@ import org.gradle.internal.os.OperatingSystem
 import java.util.concurrent.Callable
 import java.util.jar.Attributes
 import com.gradle.enterprise.gradleplugin.testdistribution.TestDistributionPlugin
+import com.gradle.enterprise.gradleplugin.testdistribution.internal.TestDistributionExtensionInternal
+import java.net.URI
 
 plugins {
     groovy
@@ -220,6 +222,8 @@ fun configureTests() {
 
         if (project.testDistributionEnabled()) {
             distribution {
+                this as TestDistributionExtensionInternal
+                server.set(URI("https://e.grdev.net"))
                 maxLocalExecutors.set(0)
                 maxRemoteExecutors.set(if ("test" == testName) 5 else 20)
                 enabled.set(true)
