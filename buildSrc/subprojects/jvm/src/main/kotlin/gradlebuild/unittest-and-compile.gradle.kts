@@ -213,6 +213,11 @@ fun configureTests() {
 
         val testName = name
 
+        testLogging {
+            events("PASSED", "FAILED", "SKIPPED")
+            displayGranularity = 1
+        }
+
         if (project.testDistributionEnabled()) {
             distribution {
                 maxLocalExecutors.set(1)
@@ -232,6 +237,7 @@ fun configureTests() {
                 maxFailures.set(10)
             }
             doFirst {
+                logger.lifecycle(">>> running with retry")
                 logger.lifecycle("maxParallelForks for '$path' is $maxParallelForks")
             }
         }
