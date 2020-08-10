@@ -72,7 +72,7 @@ class FunctionalTest(
         }
 
         if (testCoverage.testDistribution) {
-            param("maxParallelForks", "24")
+            param("maxParallelForks", "16")
         }
     }
 
