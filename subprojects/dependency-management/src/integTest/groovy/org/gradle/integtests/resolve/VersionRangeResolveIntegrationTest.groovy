@@ -27,13 +27,61 @@ import spock.lang.Unroll
  * A comprehensive test of dependency resolution of a single module version, given a set of input selectors.
  * This integration test validates all scenarios in {@link VersionRangeResolveTestScenarios}, as well as some adhoc scenarios.
  */
+class VersionRangeResolveIntegrationTest1 extends VersionRangeResolveIntegrationTest {
+    @Unroll
+    def "resolve pair #permutation"() {
+        given:
+        def candidates = permutation.candidates
+        def expectedSingle = permutation.expectedSingle
+        def expectedMulti = permutation.expectedMulti
+
+        expect:
+        checkScenarioResolution(expectedSingle, expectedMulti, candidates)
+
+        where:
+        permutation << VersionRangeResolveTestScenarios.SCENARIOS_TWO_DEPENDENCIES
+    }
+}
+
+class VersionRangeResolveIntegrationTest2 extends VersionRangeResolveIntegrationTest {
+    @Unroll
+    def "resolve prefer pair #permutation"() {
+        given:
+        def candidates = permutation.candidates
+        def expectedSingle = permutation.expectedSingle
+        def expectedMulti = permutation.expectedMulti
+
+        expect:
+        checkScenarioResolution(expectedSingle, expectedMulti, candidates)
+
+        where:
+        permutation << VersionRangeResolveTestScenarios.SCENARIOS_PREFER
+    }
+}
+
+class VersionRangeResolveIntegrationTest3 extends VersionRangeResolveIntegrationTest {
+    @Unroll
+    def "resolve reject pair #permutation"() {
+        given:
+        def candidates = permutation.candidates
+        def expectedSingle = permutation.expectedSingle
+        def expectedMulti = permutation.expectedMulti
+
+        expect:
+        checkScenarioResolution(expectedSingle, expectedMulti, candidates)
+
+        where:
+        permutation << VersionRangeResolveTestScenarios.SCENARIOS_DEPENDENCY_WITH_REJECT
+    }
+}
+
 @IgnoreIf({
     // This test is very expensive. Ideally we shouldn't need an integration test here, but lack the
     // infrastructure to simulate everything done here, so we're only going to execute this test in
     // embedded mode
     !GradleContextualExecuter.embedded
 })
-class VersionRangeResolveIntegrationTest extends AbstractDependencyResolutionTest {
+abstract class VersionRangeResolveIntegrationTest extends AbstractDependencyResolutionTest {
 
     def baseBuild
     def baseSettings
@@ -58,48 +106,6 @@ class VersionRangeResolveIntegrationTest extends AbstractDependencyResolutionTes
         baseSettings = settingsFile.text
     }
 
-    @Unroll
-    def "resolve pair #permutation"() {
-        given:
-        def candidates = permutation.candidates
-        def expectedSingle = permutation.expectedSingle
-        def expectedMulti = permutation.expectedMulti
-
-        expect:
-        checkScenarioResolution(expectedSingle, expectedMulti, candidates)
-
-        where:
-        permutation << VersionRangeResolveTestScenarios.SCENARIOS_TWO_DEPENDENCIES
-    }
-
-    @Unroll
-    def "resolve prefer pair #permutation"() {
-        given:
-        def candidates = permutation.candidates
-        def expectedSingle = permutation.expectedSingle
-        def expectedMulti = permutation.expectedMulti
-
-        expect:
-        checkScenarioResolution(expectedSingle, expectedMulti, candidates)
-
-        where:
-        permutation << VersionRangeResolveTestScenarios.SCENARIOS_PREFER
-    }
-
-    @Unroll
-    def "resolve reject pair #permutation"() {
-        given:
-        def candidates = permutation.candidates
-        def expectedSingle = permutation.expectedSingle
-        def expectedMulti = permutation.expectedMulti
-
-        expect:
-        checkScenarioResolution(expectedSingle, expectedMulti, candidates)
-
-        where:
-        permutation << VersionRangeResolveTestScenarios.SCENARIOS_DEPENDENCY_WITH_REJECT
-    }
-
     void checkScenarioResolution(String expectedSingle, String expectedMulti, VersionRangeResolveTestScenarios.RenderableVersion... versions) {
         checkScenarioResolution(expectedSingle, expectedMulti, versions as List)
     }
@@ -118,7 +124,7 @@ class VersionRangeResolveIntegrationTest extends AbstractDependencyResolutionTes
             allprojects {
                 configurations { conf }
             }
-            
+
             configurations {
                 ${singleProjectConfs.join('\n')}
                 single {
@@ -131,12 +137,12 @@ class VersionRangeResolveIntegrationTest extends AbstractDependencyResolutionTes
                 conf project(path: ':p1', configuration: 'conf')
                 ${singleProjectDeps.join('\n')}
             }
-            
+
             task resolveMultiProject(type: Sync) {
                 from configurations.conf
                 into 'libs-multi'
             }
-            
+
             task resolveSingleProject(type: Sync) {
                 from configurations.single
                 into 'libs-single'

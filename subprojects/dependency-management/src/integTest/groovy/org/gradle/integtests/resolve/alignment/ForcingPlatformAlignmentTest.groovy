@@ -29,8 +29,7 @@ import spock.lang.Unroll
     // Se we run the tests only in embedded mode
     !GradleContextualExecuter.embedded
 })
-class ForcingPlatformAlignmentTest extends AbstractAlignmentSpec {
-
+class ForcingPlatformAlignmentTest1 extends AbstractAlignmentSpec {
     def "can force a virtual platform version by forcing one of its leaves"() {
         repository {
             ['2.7.9', '2.9.4', '2.9.4.1'].each {
@@ -137,7 +136,9 @@ class ForcingPlatformAlignmentTest extends AbstractAlignmentSpec {
             }
         }
     }
+}
 
+class ForcingPlatformAlignmentTest2 extends AbstractAlignmentSpec {
     def "can force a virtual platform version by forcing one of its leaves through resolutionStrategy.substitution"() {
         repository {
             ['2.7.9', '2.9.4', '2.9.4.1'].each {
@@ -273,6 +274,9 @@ class ForcingPlatformAlignmentTest extends AbstractAlignmentSpec {
         failureCauseContains("Multiple forces on different versions for virtual platform org:platform")
     }
 
+}
+
+class ForcingPlatformAlignmentTest3 extends AbstractAlignmentSpec {
     def "fails if forcing a virtual platform version by forcing multiple leaves with different versions through resolutionStrategy.dependencySubstitution"() {
         repository {
             ['2.7.9', '2.9.4', '2.9.4.1'].each {
@@ -468,6 +472,14 @@ include 'other'
         succeeds ':checkDeps'
     }
 
+}
+@IgnoreIf({
+    // This test is very expensive due to the permutation testing.
+    // Because it tests the internal state of the resolution engine, the Gradle execution model does not matter.
+    // Se we run the tests only in embedded mode
+    !GradleContextualExecuter.embedded
+})
+class ForcingPlatformAlignmentTest4 extends AbstractAlignmentSpec {
     def "succeeds if forcing a virtual platform version by forcing multiple leaves with same version through resolutionStrategy"() {
         repository {
             ['2.7.9', '2.9.4', '2.9.4.1'].each {
