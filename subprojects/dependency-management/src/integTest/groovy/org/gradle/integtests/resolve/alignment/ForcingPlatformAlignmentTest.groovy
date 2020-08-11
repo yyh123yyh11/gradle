@@ -23,13 +23,7 @@ import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Unroll
 
-@IgnoreIf({
-    // This test is very expensive due to the permutation testing.
-    // Because it tests the internal state of the resolution engine, the Gradle execution model does not matter.
-    // Se we run the tests only in embedded mode
-    !GradleContextualExecuter.embedded
-})
-class ForcingPlatformAlignmentTest1 extends AbstractAlignmentSpec {
+class ForcingPlatformAlignmentTest1 extends AbstractForcingPlatformAlignmentTest {
     def "can force a virtual platform version by forcing one of its leaves"() {
         repository {
             ['2.7.9', '2.9.4', '2.9.4.1'].each {
@@ -138,7 +132,7 @@ class ForcingPlatformAlignmentTest1 extends AbstractAlignmentSpec {
     }
 }
 
-class ForcingPlatformAlignmentTest2 extends AbstractAlignmentSpec {
+class ForcingPlatformAlignmentTest2 extends AbstractForcingPlatformAlignmentTest {
     def "can force a virtual platform version by forcing one of its leaves through resolutionStrategy.substitution"() {
         repository {
             ['2.7.9', '2.9.4', '2.9.4.1'].each {
@@ -276,7 +270,7 @@ class ForcingPlatformAlignmentTest2 extends AbstractAlignmentSpec {
 
 }
 
-class ForcingPlatformAlignmentTest3 extends AbstractAlignmentSpec {
+class ForcingPlatformAlignmentTest3 extends AbstractForcingPlatformAlignmentTest {
     def "fails if forcing a virtual platform version by forcing multiple leaves with different versions through resolutionStrategy.dependencySubstitution"() {
         repository {
             ['2.7.9', '2.9.4', '2.9.4.1'].each {
@@ -473,13 +467,8 @@ include 'other'
     }
 
 }
-@IgnoreIf({
-    // This test is very expensive due to the permutation testing.
-    // Because it tests the internal state of the resolution engine, the Gradle execution model does not matter.
-    // Se we run the tests only in embedded mode
-    !GradleContextualExecuter.embedded
-})
-class ForcingPlatformAlignmentTest4 extends AbstractAlignmentSpec {
+
+class ForcingPlatformAlignmentTest4 extends AbstractForcingPlatformAlignmentTest {
     def "succeeds if forcing a virtual platform version by forcing multiple leaves with same version through resolutionStrategy"() {
         repository {
             ['2.7.9', '2.9.4', '2.9.4.1'].each {
@@ -703,10 +692,10 @@ class ForcingPlatformAlignmentTest4 extends AbstractAlignmentSpec {
 
         where: "order of dependencies doesn't matter"
         dependencies << [
-                'conf("org:core:2.9.4")',
-                'conf("org:databind:2.9.4")',
-                'conf("org:kotlin:2.9.4.1")',
-                'conf enforcedPlatform("org:platform:2.7.9")'
+            'conf("org:core:2.9.4")',
+            'conf("org:databind:2.9.4")',
+            'conf("org:kotlin:2.9.4.1")',
+            'conf enforcedPlatform("org:platform:2.7.9")'
         ].permutations()*.join("\n")
     }
 
@@ -756,10 +745,10 @@ class ForcingPlatformAlignmentTest4 extends AbstractAlignmentSpec {
 
         where: "order of dependencies doesn't matter"
         dependencies << [
-                'conf("org:core:2.9.4")',
-                'conf("org:databind:2.7.9")',
-                'conf("org:kotlin:2.9.4.1")',
-                'constraints { conf enforcedPlatform("org:platform:2.7.9") }'
+            'conf("org:core:2.9.4")',
+            'conf("org:databind:2.7.9")',
+            'conf("org:kotlin:2.9.4.1")',
+            'constraints { conf enforcedPlatform("org:platform:2.7.9") }'
         ].permutations()*.join("\n")
     }
 
@@ -817,7 +806,6 @@ class ForcingPlatformAlignmentTest4 extends AbstractAlignmentSpec {
     }
 
 
-
     @RequiredFeature(feature = GradleMetadataResolveRunner.REPOSITORY_TYPE, value = "maven")
     @Unroll("can constrain a virtual platforms components by adding the platform itself via a constraint")
     def "can constrain a virtual platforms components by adding the platform itself via a constraint"() {
@@ -857,10 +845,10 @@ class ForcingPlatformAlignmentTest4 extends AbstractAlignmentSpec {
         }
         where: "order of dependencies doesn't matter"
         dependencies << [
-                'conf("org:core:2.7.9")',
-                'conf("org:databind:2.7.9")',
-                'conf("org:kotlin:2.9.4")',
-                'constraints { conf "org:platform:2.9.4.1" }'
+            'conf("org:core:2.7.9")',
+            'conf("org:databind:2.7.9")',
+            'conf("org:kotlin:2.9.4")',
+            'constraints { conf "org:platform:2.9.4.1" }'
         ].permutations()*.join("\n")
     }
 
@@ -875,10 +863,10 @@ class ForcingPlatformAlignmentTest4 extends AbstractAlignmentSpec {
                 path "kotlin:$v -> annotations:$v"
 
                 platform("org", "platform", v, [
-                        "org:core:$v",
-                        "org:databind:$v",
-                        "org:kotlin:$v",
-                        "org:annotations:$v",
+                    "org:core:$v",
+                    "org:databind:$v",
+                    "org:kotlin:$v",
+                    "org:annotations:$v",
                 ])
             }
         }
@@ -932,10 +920,10 @@ class ForcingPlatformAlignmentTest4 extends AbstractAlignmentSpec {
 
         where: "order of dependencies doesn't matter"
         dependencies << [
-                'conf("org:core:2.9.4")',
-                'conf("org:databind:2.7.9")',
-                'conf("org:kotlin:2.9.4.1")',
-                'conf enforcedPlatform("org:platform:2.7.9")',
+            'conf("org:core:2.9.4")',
+            'conf("org:databind:2.7.9")',
+            'conf("org:kotlin:2.9.4.1")',
+            'conf enforcedPlatform("org:platform:2.7.9")',
         ].permutations()*.join("\n")
     }
 
@@ -951,10 +939,10 @@ class ForcingPlatformAlignmentTest4 extends AbstractAlignmentSpec {
                 path "kotlin:$v -> annotations:$v"
 
                 platform("org", "platform", v, [
-                        "org:core:$v",
-                        "org:databind:$v",
-                        "org:kotlin:$v",
-                        "org:annotations:$v",
+                    "org:core:$v",
+                    "org:databind:$v",
+                    "org:kotlin:$v",
+                    "org:annotations:$v",
                 ])
             }
         }
@@ -1030,9 +1018,9 @@ class ForcingPlatformAlignmentTest4 extends AbstractAlignmentSpec {
 
         where:
         forceNotation << [
-                "configurations.all { resolutionStrategy { force 'org:databind:2.8.11.1' } }",
-                "dependencies { conf enforcedPlatform('org:platform:2.8.11.1') }",
-                "dependencies { conf('org:databind:2.8.11.1') { force = true } }",
+            "configurations.all { resolutionStrategy { force 'org:databind:2.8.11.1' } }",
+            "dependencies { conf enforcedPlatform('org:platform:2.8.11.1') }",
+            "dependencies { conf('org:databind:2.8.11.1') { force = true } }",
         ]
     }
 
@@ -1087,12 +1075,20 @@ class ForcingPlatformAlignmentTest4 extends AbstractAlignmentSpec {
 
         where:
         forceNotation << [
-                "configurations.all { resolutionStrategy { force 'org:databind:2.6.7.1' } }",
-                "dependencies { conf enforcedPlatform('org:platform:2.6.7.1') }",
-                "dependencies { conf('org:databind:2.6.7.1') { force = true } }",
+            "configurations.all { resolutionStrategy { force 'org:databind:2.6.7.1' } }",
+            "dependencies { conf enforcedPlatform('org:platform:2.6.7.1') }",
+            "dependencies { conf('org:databind:2.6.7.1') { force = true } }",
         ]
     }
+}
 
+@IgnoreIf({
+    // This test is very expensive due to the permutation testing.
+    // Because it tests the internal state of the resolution engine, the Gradle execution model does not matter.
+    // Se we run the tests only in embedded mode
+    !GradleContextualExecuter.embedded
+})
+abstract class AbstractForcingPlatformAlignmentTest extends AbstractAlignmentSpec {
     def setup() {
         repoSpec.metaClass.platform = this.&platform.curry(repoSpec)
     }
