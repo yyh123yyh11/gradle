@@ -73,7 +73,7 @@ fun Project.registerLifecycleTasks() {
     plugins.withId("gradlebuild.java-library") {
         tasks.registerEarlyFeedbackLifecycleTasks()
         tasks.named(quickTest) {
-            dependsOn("test")
+//            dependsOn("test")
         }
         tasks.named(platformTest) {
             dependsOn("test")
@@ -279,7 +279,7 @@ fun TaskContainer.configureCIIntegrationTestDistributionLifecycleTasks() {
 
 fun TaskContainer.configureCICrossVersionTestDistributionLifecycleTasks() {
     named(quickTest) {
-        dependsOn("embeddedCrossVersionTest")
+//        dependsOn("embeddedCrossVersionTest")
     }
 
     named(platformTest) {
