@@ -109,6 +109,6 @@ fun IsolateContext.logPropertyProblem(documentationSection: DocumentationSection
 
 private
 fun IsolateContext.logPropertyProblem(action: String, problem: PropertyProblem) {
-    logger.warn("configuration-cache > failed to {} {} because {}", action, problem.trace, problem.message)
+    logger.debug("configuration-cache > failed to {} {} because {}", action, problem.trace, problem.message)
     onProblem(problem)
 }
