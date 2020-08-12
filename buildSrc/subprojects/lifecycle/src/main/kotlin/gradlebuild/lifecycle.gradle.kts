@@ -243,7 +243,7 @@ fun TaskContainer.registerCITestDistributionLifecycleTasks() {
 
 fun TaskContainer.configureCIIntegrationTestDistributionLifecycleTasks() {
     named(quickTest) {
-        dependsOn("embeddedIntegTest")
+//        dependsOn("embeddedIntegTest")
     }
 
     named(platformTest) {
@@ -279,7 +279,7 @@ fun TaskContainer.configureCIIntegrationTestDistributionLifecycleTasks() {
 
 fun TaskContainer.configureCICrossVersionTestDistributionLifecycleTasks() {
     named(quickTest) {
-//        dependsOn("embeddedCrossVersionTest")
+        dependsOn("embeddedCrossVersionTest")
     }
 
     named(platformTest) {
