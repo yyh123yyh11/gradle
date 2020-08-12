@@ -33,11 +33,32 @@ import static org.hamcrest.CoreMatchers.containsString
 import static org.hamcrest.CoreMatchers.hasItem
 import static org.hamcrest.MatcherAssert.assertThat
 
+class KotlinDslScriptsModelCrossVersionSpec1 extends AbstractKotlinDslScriptsModelCrossVersionSpec {
+    def "single request models equal multi requests models"() {
 
-@TargetGradleVersion(">=6.0")
-@LeaksFileHandles("Kotlin Compiler Daemon taking time to shut down")
-class KotlinDslScriptsModelCrossVersionSpec extends AbstractKotlinScriptModelCrossVersionTest {
+        given:
+        toolingApi.requireIsolatedUserHome()
 
+        and:
+        def spec = withMultiProjectBuildWithBuildSrc()
+
+        when:
+        Map<File, KotlinDslScriptModel> singleRequestModels = kotlinDslScriptsModelFor().scriptModels
+
+        and:
+        Map<File, KotlinBuildScriptModel> multiRequestsModels = spec.scripts.values().collectEntries {
+            [(it): kotlinBuildScriptModelFor(projectDir, it)]
+        }
+
+        then:
+        spec.scripts.values().each { script ->
+            assert singleRequestModels[script].classPath == multiRequestsModels[script].classPath
+            assert singleRequestModels[script].sourcePath == multiRequestsModels[script].sourcePath
+            assert singleRequestModels[script].implicitImports == multiRequestsModels[script].implicitImports
+        }
+    }
+}
+class KotlinDslScriptsModelCrossVersionSpec2 extends AbstractKotlinDslScriptsModelCrossVersionSpec {
     def "can fetch model for the scripts of a build"() {
 
         given:
@@ -52,7 +73,8 @@ class KotlinDslScriptsModelCrossVersionSpec extends AbstractKotlinScriptModelCro
         and:
         assertModelMatchesBuildSpec(model, spec)
     }
-
+}
+class KotlinDslScriptsModelCrossVersionSpec3 extends AbstractKotlinDslScriptsModelCrossVersionSpec {
     def "can fetch model for the scripts of a build in lenient mode"() {
 
         given:
@@ -130,29 +152,6 @@ class KotlinDslScriptsModelCrossVersionSpec extends AbstractKotlinScriptModelCro
         )
     }
 
-    def "single request models equal multi requests models"() {
-
-        given:
-        toolingApi.requireIsolatedUserHome()
-
-        and:
-        def spec = withMultiProjectBuildWithBuildSrc()
-
-        when:
-        Map<File, KotlinDslScriptModel> singleRequestModels = kotlinDslScriptsModelFor().scriptModels
-
-        and:
-        Map<File, KotlinBuildScriptModel> multiRequestsModels = spec.scripts.values().collectEntries {
-            [(it): kotlinBuildScriptModelFor(projectDir, it)]
-        }
-
-        then:
-        spec.scripts.values().each { script ->
-            assert singleRequestModels[script].classPath == multiRequestsModels[script].classPath
-            assert singleRequestModels[script].sourcePath == multiRequestsModels[script].sourcePath
-            assert singleRequestModels[script].implicitImports == multiRequestsModels[script].implicitImports
-        }
-    }
 
     def "multi-scripts model is dehydrated over the wire"() {
 
@@ -189,12 +188,16 @@ class KotlinDslScriptsModelCrossVersionSpec extends AbstractKotlinScriptModelCro
         buildFileKtsModel.editorReports.isEmpty()
         buildFileKtsModel.exceptions.isEmpty()
     }
+}
 
-    private KotlinDslScriptsModel kotlinDslScriptsModelFor(boolean lenient = false, File... scripts) {
+@TargetGradleVersion(">=6.0")
+@LeaksFileHandles("Kotlin Compiler Daemon taking time to shut down")
+class AbstractKotlinDslScriptsModelCrossVersionSpec extends AbstractKotlinScriptModelCrossVersionTest {
+    KotlinDslScriptsModel kotlinDslScriptsModelFor(boolean lenient = false, File... scripts) {
         return kotlinDslScriptsModelFor(lenient, scripts.toList())
     }
 
-    private KotlinDslScriptsModel kotlinDslScriptsModelFor(boolean lenient = false, Iterable<File> scripts) {
+    KotlinDslScriptsModel kotlinDslScriptsModelFor(boolean lenient = false, Iterable<File> scripts) {
         return withConnection { connection ->
             new KotlinDslScriptsModelClient().fetchKotlinDslScriptsModel(
                 connection,
@@ -206,17 +209,17 @@ class KotlinDslScriptsModelCrossVersionSpec extends AbstractKotlinScriptModelCro
         }
     }
 
-    private static List<File> canonicalClasspathOf(KotlinDslScriptsModel model, File script) {
+    static List<File> canonicalClasspathOf(KotlinDslScriptsModel model, File script) {
         return model.scriptModels[script].classPath.collect { it.canonicalFile }
     }
 
-    private static class BuildSpec {
+    static class BuildSpec {
         Map<String, TestFile> scripts
         Map<String, TestFile> appliedScripts
         Map<String, TestFile> jars
     }
 
-    private BuildSpec withMultiProjectBuildWithBuildSrc() {
+    BuildSpec withMultiProjectBuildWithBuildSrc() {
         withBuildSrc()
         def someJar = withEmptyJar("classes_some.jar")
         def settingsJar = withEmptyJar("classes_settings.jar")
@@ -297,7 +300,7 @@ class KotlinDslScriptsModelCrossVersionSpec extends AbstractKotlinScriptModelCro
         )
     }
 
-    private static void assertModelMatchesBuildSpec(KotlinDslScriptsModel model, BuildSpec spec) {
+    static void assertModelMatchesBuildSpec(KotlinDslScriptsModel model, BuildSpec spec) {
 
         model.scriptModels.values().each { script ->
             assertContainsGradleKotlinDslJars(script.classPath)
@@ -330,7 +333,7 @@ class KotlinDslScriptsModelCrossVersionSpec extends AbstractKotlinScriptModelCro
         assertExcludes(precompiledClassPath, spec.jars.root, spec.jars.a, spec.jars.b)
     }
 
-    private static void assertModelAppliedScripts(KotlinDslScriptsModel model, BuildSpec spec) {
+    static void assertModelAppliedScripts(KotlinDslScriptsModel model, BuildSpec spec) {
         spec.appliedScripts.each { appliedScript ->
             def classPath = model.scriptModels[appliedScript.value].classPath
             assertContainsGradleKotlinDslJars(classPath)
@@ -341,7 +344,7 @@ class KotlinDslScriptsModelCrossVersionSpec extends AbstractKotlinScriptModelCro
         }
     }
 
-    private static void assertHasExceptionMessage(KotlinDslScriptsModel model, TestFile script, String message) {
+    static void assertHasExceptionMessage(KotlinDslScriptsModel model, TestFile script, String message) {
         assertThat(model.scriptModels[script].exceptions, hasItem(containsString(message)))
     }
 }
