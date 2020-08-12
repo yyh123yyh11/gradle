@@ -37,144 +37,7 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-class ToolingApiIntegrationTest extends AbstractIntegrationSpec {
-
-    final ToolingApi toolingApi = new ToolingApi(distribution, temporaryFolder)
-    final GradleDistribution otherVersion = new ReleasedVersionDistributions().mostRecentRelease
-
-    TestFile projectDir
-
-    def setup() {
-        projectDir = temporaryFolder.testDirectory
-        // When adding support for a new JDK version, the previous release might not work with it yet.
-        Assume.assumeTrue(otherVersion.worksWith(Jvm.current()))
-    }
-
-    def "tooling api uses to the current version of gradle when none has been specified"() {
-        projectDir.file('build.gradle') << "assert gradle.gradleVersion == '${GradleVersion.current().version}'"
-
-        when:
-        GradleProject model = toolingApi.withConnection { connection -> connection.getModel(GradleProject.class) }
-
-        then:
-        model != null
-    }
-
-    def "tooling api output reports 'CONFIGURE SUCCESSFUL' for model requests"() {
-        projectDir.file('build.gradle') << "assert gradle.gradleVersion == '${GradleVersion.current().version}'"
-
-        when:
-        def stdOut = new ByteArrayOutputStream()
-        toolingApi.withConnection { ProjectConnection connection ->
-            connection.model(GradleProject.class).setStandardOutput(stdOut).get()
-        }
-
-        then:
-        stdOut.toString().contains("CONFIGURE SUCCESSFUL")
-        !stdOut.toString().contains("BUILD SUCCESSFUL")
-    }
-
-    def "can configure Kotlin DSL project with gradleApi() dependency via tooling API"() {
-        given:
-        buildKotlinFile << """
-        plugins {
-            java
-        }
-
-        dependencies {
-            implementation(gradleApi())
-        }
-        """
-
-        when:
-        def stdOut = new ByteArrayOutputStream()
-        toolingApi.withConnection { ProjectConnection connection ->
-            connection.action(new KotlinIdeaModelBuildAction()).setStandardOutput(stdOut).run()
-        }
-
-        then:
-        stdOut.toString().contains("CONFIGURE SUCCESSFUL")
-    }
-
-    def "tooling api uses the wrapper properties to determine which version to use"() {
-        projectDir.file('build.gradle').text = """
-wrapper { distributionUrl = '${otherVersion.binDistribution.toURI()}' }
-task check { doLast { assert gradle.gradleVersion == '${otherVersion.version.version}' } }
-"""
-        executer.withTasks('wrapper').run()
-
-        when:
-        toolingApi.withConnector { connector ->
-            connector.useBuildDistribution()
-        }
-        toolingApi.withConnection { connection -> connection.newBuild().forTasks('check').run() }
-
-        then:
-        notThrown(Throwable)
-    }
-
-    def "tooling api searches up from the project directory to find the wrapper properties"() {
-        projectDir.file('settings.gradle') << "include 'child'"
-        projectDir.file('build.gradle') << """
-wrapper { distributionUrl = '${otherVersion.binDistribution.toURI()}' }
-allprojects {
-    task check { doLast { assert gradle.gradleVersion == '${otherVersion.version.version}' } }
-}
-"""
-        projectDir.file('child').createDir()
-        executer.withTasks('wrapper').run()
-
-        when:
-        toolingApi.withConnector { connector ->
-            connector.useBuildDistribution()
-            connector.searchUpwards(true)
-            connector.forProjectDirectory(projectDir.file('child'))
-        }
-        toolingApi.withConnection { connection -> connection.newBuild().forTasks('check').run() }
-
-        then:
-        notThrown(Throwable)
-    }
-
-    def "can specify a gradle installation to use"() {
-        projectDir.file('build.gradle').text = "assert gradle.gradleVersion == '${otherVersion.version.version}'"
-
-        when:
-        toolingApi.withConnector { connector ->
-            connector.useInstallation(otherVersion.gradleHomeDir)
-        }
-        GradleProject model = toolingApi.withConnection { connection -> connection.getModel(GradleProject.class) }
-
-        then:
-        model != null
-    }
-
-    def "can specify a gradle distribution to use"() {
-        projectDir.file('build.gradle').text = "assert gradle.gradleVersion == '${otherVersion.version.version}'"
-
-        when:
-        toolingApi.withConnector { connector ->
-            connector.useDistribution(otherVersion.binDistribution.toURI())
-        }
-        GradleProject model = toolingApi.withConnection { connection -> connection.getModel(GradleProject.class) }
-
-        then:
-        model != null
-    }
-
-    def "can specify a gradle version to use"() {
-        projectDir.file('build.gradle').text = "assert gradle.gradleVersion == '${otherVersion.version.version}'"
-
-        when:
-        toolingApi.withConnector { GradleConnector connector ->
-            connector.useGradleVersion(otherVersion.version.version)
-        }
-        GradleProject model = toolingApi.withConnection { connection -> connection.getModel(GradleProject.class) }
-
-        then:
-        model != null
-    }
-
+class ToolingApiIntegrationTest1 extends AbstractToolingApiIntegrationTest {
     @Issue("GRADLE-2419")
     def "tooling API does not hold JVM open"() {
         given:
@@ -333,5 +196,147 @@ allprojects {
 
         where:
         withColor << [true, false]
+    }
+}
+
+class ToolingApiIntegrationTest2 extends AbstractToolingApiIntegrationTest {
+
+    def "tooling api uses to the current version of gradle when none has been specified"() {
+        projectDir.file('build.gradle') << "assert gradle.gradleVersion == '${GradleVersion.current().version}'"
+
+        when:
+        GradleProject model = toolingApi.withConnection { connection -> connection.getModel(GradleProject.class) }
+
+        then:
+        model != null
+    }
+
+    def "tooling api output reports 'CONFIGURE SUCCESSFUL' for model requests"() {
+        projectDir.file('build.gradle') << "assert gradle.gradleVersion == '${GradleVersion.current().version}'"
+
+        when:
+        def stdOut = new ByteArrayOutputStream()
+        toolingApi.withConnection { ProjectConnection connection ->
+            connection.model(GradleProject.class).setStandardOutput(stdOut).get()
+        }
+
+        then:
+        stdOut.toString().contains("CONFIGURE SUCCESSFUL")
+        !stdOut.toString().contains("BUILD SUCCESSFUL")
+    }
+
+    def "can configure Kotlin DSL project with gradleApi() dependency via tooling API"() {
+        given:
+        buildKotlinFile << """
+        plugins {
+            java
+        }
+
+        dependencies {
+            implementation(gradleApi())
+        }
+        """
+
+        when:
+        def stdOut = new ByteArrayOutputStream()
+        toolingApi.withConnection { ProjectConnection connection ->
+            connection.action(new KotlinIdeaModelBuildAction()).setStandardOutput(stdOut).run()
+        }
+
+        then:
+        stdOut.toString().contains("CONFIGURE SUCCESSFUL")
+    }
+
+    def "tooling api uses the wrapper properties to determine which version to use"() {
+        projectDir.file('build.gradle').text = """
+wrapper { distributionUrl = '${otherVersion.binDistribution.toURI()}' }
+task check { doLast { assert gradle.gradleVersion == '${otherVersion.version.version}' } }
+"""
+        executer.withTasks('wrapper').run()
+
+        when:
+        toolingApi.withConnector { connector ->
+            connector.useBuildDistribution()
+        }
+        toolingApi.withConnection { connection -> connection.newBuild().forTasks('check').run() }
+
+        then:
+        notThrown(Throwable)
+    }
+
+    def "tooling api searches up from the project directory to find the wrapper properties"() {
+        projectDir.file('settings.gradle') << "include 'child'"
+        projectDir.file('build.gradle') << """
+wrapper { distributionUrl = '${otherVersion.binDistribution.toURI()}' }
+allprojects {
+    task check { doLast { assert gradle.gradleVersion == '${otherVersion.version.version}' } }
+}
+"""
+        projectDir.file('child').createDir()
+        executer.withTasks('wrapper').run()
+
+        when:
+        toolingApi.withConnector { connector ->
+            connector.useBuildDistribution()
+            connector.searchUpwards(true)
+            connector.forProjectDirectory(projectDir.file('child'))
+        }
+        toolingApi.withConnection { connection -> connection.newBuild().forTasks('check').run() }
+
+        then:
+        notThrown(Throwable)
+    }
+
+    def "can specify a gradle installation to use"() {
+        projectDir.file('build.gradle').text = "assert gradle.gradleVersion == '${otherVersion.version.version}'"
+
+        when:
+        toolingApi.withConnector { connector ->
+            connector.useInstallation(otherVersion.gradleHomeDir)
+        }
+        GradleProject model = toolingApi.withConnection { connection -> connection.getModel(GradleProject.class) }
+
+        then:
+        model != null
+    }
+
+    def "can specify a gradle distribution to use"() {
+        projectDir.file('build.gradle').text = "assert gradle.gradleVersion == '${otherVersion.version.version}'"
+
+        when:
+        toolingApi.withConnector { connector ->
+            connector.useDistribution(otherVersion.binDistribution.toURI())
+        }
+        GradleProject model = toolingApi.withConnection { connection -> connection.getModel(GradleProject.class) }
+
+        then:
+        model != null
+    }
+
+    def "can specify a gradle version to use"() {
+        projectDir.file('build.gradle').text = "assert gradle.gradleVersion == '${otherVersion.version.version}'"
+
+        when:
+        toolingApi.withConnector { GradleConnector connector ->
+            connector.useGradleVersion(otherVersion.version.version)
+        }
+        GradleProject model = toolingApi.withConnection { connection -> connection.getModel(GradleProject.class) }
+
+        then:
+        model != null
+    }
+}
+
+abstract class AbstractToolingApiIntegrationTest extends AbstractIntegrationSpec {
+
+    final ToolingApi toolingApi = new ToolingApi(distribution, temporaryFolder)
+    final GradleDistribution otherVersion = new ReleasedVersionDistributions().mostRecentRelease
+
+    TestFile projectDir
+
+    def setup() {
+        projectDir = temporaryFolder.testDirectory
+        // When adding support for a new JDK version, the previous release might not work with it yet.
+        Assume.assumeTrue(otherVersion.worksWith(Jvm.current()))
     }
 }
