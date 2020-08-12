@@ -72,7 +72,7 @@ public class ProjectArtifactSetResolver {
         ImmutableAttributes variantAttributes = artifactTypeRegistry.mapAttributesFor(variant.getAttributes().asImmutable(), variant.getArtifacts());
 
         if (exclusions.mayExcludeArtifacts()) {
-            // Some artifact may be excluded, so do not reuse. It might be better to apply the exclusions and reuse if none of them apply
+            // Some artifact may be excluded, so do not reuse. It might be better to apply the exclusions and reuse the variant if none of them apply
             return DefaultArtifactSet.toResolvedVariant(variant, ownerId, moduleSources, exclusions, artifactResolver, allProjectArtifacts, variantAttributes);
         }
 

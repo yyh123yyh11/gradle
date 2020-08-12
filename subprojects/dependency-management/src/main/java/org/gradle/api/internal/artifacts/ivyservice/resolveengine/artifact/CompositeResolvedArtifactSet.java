@@ -65,9 +65,9 @@ public class CompositeResolvedArtifactSet implements ResolvedArtifactSet {
     }
 
     @Override
-    public void visitExternalArtifacts(Action<ResolvableArtifact> visitor) {
+    public void visitArtifacts(Action<ResolvableArtifact> visitor) {
         for (ResolvedArtifactSet set : sets) {
-            set.visitExternalArtifacts(visitor);
+            set.visitArtifacts(visitor);
         }
     }
 

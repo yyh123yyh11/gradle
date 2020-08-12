@@ -28,6 +28,9 @@ import org.gradle.api.internal.file.FileCollectionStructureVisitor;
 import org.gradle.internal.operations.BuildOperationQueue;
 import org.gradle.internal.operations.RunnableBuildOperation;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,20 +42,26 @@ public abstract class AbstractTransformedArtifactSet implements ResolvedArtifact
     private final Transformation transformation;
     private final TransformationNodeRegistry transformationNodeRegistry;
     private final ExecutionGraphDependenciesResolver dependenciesResolver;
+    private final ComponentIdentifier ownerId;
 
     public AbstractTransformedArtifactSet(
-        ComponentIdentifier componentIdentifier,
+        ComponentIdentifier ownerId,
         ResolvedArtifactSet delegate,
         ImmutableAttributes targetVariantAttributes,
         Transformation transformation,
         ExtraExecutionGraphDependenciesResolverFactory dependenciesResolverFactory,
         TransformationNodeRegistry transformationNodeRegistry
     ) {
+        this.ownerId = ownerId;
         this.delegate = delegate;
         this.targetVariantAttributes = targetVariantAttributes;
         this.transformation = transformation;
         this.transformationNodeRegistry = transformationNodeRegistry;
-        this.dependenciesResolver = dependenciesResolverFactory.create(componentIdentifier);
+        this.dependenciesResolver = dependenciesResolverFactory.create(ownerId);
+    }
+
+    public ComponentIdentifier getOwnerId() {
+        return ownerId;
     }
 
     public ImmutableAttributes getTargetVariantAttributes() {
@@ -89,8 +98,25 @@ public abstract class AbstractTransformedArtifactSet implements ResolvedArtifact
     }
 
     @Override
-    public void visitExternalArtifacts(Action<ResolvableArtifact> visitor) {
+    public void visitArtifacts(Action<ResolvableArtifact> visitor) {
         // Should never be called
         throw new IllegalStateException();
+    }
+
+    public void visitSourceArtifacts(Action<ResolvableArtifact> visitor) {
+        delegate.visitArtifacts(visitor);
+    }
+
+    public List<File> calculateResult() {
+        // Ensure that the transform is ready to execute
+        getTransformation().isolateParameters();
+
+        List<File> files = new ArrayList<>();
+        delegate.visitArtifacts(artifact -> {
+            TransformationSubject subject = TransformationSubject.initial(artifact.getId(), artifact.getFile());
+            TransformationSubject transformed = getTransformation().createInvocation(subject, getDependenciesResolver(), null).invoke().get();
+            files.addAll(transformed.getFiles());
+        });
+        return files;
     }
 }

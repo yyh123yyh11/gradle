@@ -44,9 +44,9 @@ public interface ResolvedArtifactSet extends TaskDependencyContainer {
     void visitLocalArtifacts(LocalArtifactVisitor visitor);
 
     /**
-     * Visits the external artifacts of this set.
+     * Visits the artifacts of this set.
      */
-    void visitExternalArtifacts(Action<ResolvableArtifact> visitor);
+    void visitArtifacts(Action<ResolvableArtifact> visitor);
 
     Completion EMPTY_RESULT = visitor -> {
     };
@@ -62,7 +62,7 @@ public interface ResolvedArtifactSet extends TaskDependencyContainer {
         }
 
         @Override
-        public void visitExternalArtifacts(Action<ResolvableArtifact> visitor) {
+        public void visitArtifacts(Action<ResolvableArtifact> visitor) {
         }
 
         @Override

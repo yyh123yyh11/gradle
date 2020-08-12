@@ -45,7 +45,7 @@ public class BrokenResolvedArtifactSet implements ResolvedArtifactSet, ResolvedA
     }
 
     @Override
-    public void visitExternalArtifacts(Action<ResolvableArtifact> visitor) {
+    public void visitArtifacts(Action<ResolvableArtifact> visitor) {
         throw UncheckedException.throwAsUncheckedException(failure);
     }
 

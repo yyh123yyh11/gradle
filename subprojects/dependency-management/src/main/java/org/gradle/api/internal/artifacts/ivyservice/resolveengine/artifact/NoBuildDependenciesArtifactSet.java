@@ -58,8 +58,8 @@ public class NoBuildDependenciesArtifactSet implements ArtifactSet {
         }
 
         @Override
-        public void visitExternalArtifacts(Action<ResolvableArtifact> visitor) {
-            selectedArtifacts.visitExternalArtifacts(visitor);
+        public void visitArtifacts(Action<ResolvableArtifact> visitor) {
+            selectedArtifacts.visitArtifacts(visitor);
         }
 
         @Override

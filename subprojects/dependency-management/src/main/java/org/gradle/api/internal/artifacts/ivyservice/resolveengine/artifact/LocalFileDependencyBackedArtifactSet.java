@@ -122,7 +122,9 @@ public class LocalFileDependencyBackedArtifactSet implements ResolvedArtifactSet
     }
 
     @Override
-    public void visitExternalArtifacts(Action<ResolvableArtifact> visitor) {
+    public void visitArtifacts(Action<ResolvableArtifact> visitor) {
+        // Not implemented yet
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -199,7 +201,8 @@ public class LocalFileDependencyBackedArtifactSet implements ResolvedArtifactSet
         }
 
         @Override
-        public void visitExternalArtifacts(Action<ResolvableArtifact> visitor) {
+        public void visitArtifacts(Action<ResolvableArtifact> visitor) {
+            visitor.execute(artifact);
         }
 
         @Override
@@ -230,10 +233,6 @@ public class LocalFileDependencyBackedArtifactSet implements ResolvedArtifactSet
             super(delegate.getComponentId(), delegate, attributes, transformation, dependenciesResolver, transformationNodeRegistry);
             this.delegate = delegate;
             this.transformation = transformation;
-        }
-
-        public ComponentIdentifier getOwnerId() {
-            return delegate.getComponentId();
         }
 
         public File getFile() {

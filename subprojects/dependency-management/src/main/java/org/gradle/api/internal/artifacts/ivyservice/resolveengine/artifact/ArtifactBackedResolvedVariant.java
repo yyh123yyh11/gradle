@@ -137,10 +137,8 @@ public class ArtifactBackedResolvedVariant implements ResolvedVariant {
         }
 
         @Override
-        public void visitExternalArtifacts(Action<ResolvableArtifact> visitor) {
-            if (!(artifact.getId().getComponentIdentifier() instanceof ProjectComponentIdentifier)) {
-                visitor.execute(artifact);
-            }
+        public void visitArtifacts(Action<ResolvableArtifact> visitor) {
+            visitor.execute(artifact);
         }
 
         @Override

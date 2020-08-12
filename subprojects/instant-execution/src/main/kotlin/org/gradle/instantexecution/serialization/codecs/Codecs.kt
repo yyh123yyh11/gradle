@@ -53,6 +53,7 @@ import org.gradle.instantexecution.serialization.codecs.transform.Transformation
 import org.gradle.instantexecution.serialization.codecs.transform.TransformationNodeReferenceCodec
 import org.gradle.instantexecution.serialization.codecs.transform.TransformationStepCodec
 import org.gradle.instantexecution.serialization.codecs.transform.TransformedExternalArtifactSetCodec
+import org.gradle.instantexecution.serialization.codecs.transform.TransformedProjectArtifactSetCodec
 import org.gradle.instantexecution.serialization.ownerServiceCodec
 import org.gradle.instantexecution.serialization.reentrant
 import org.gradle.instantexecution.serialization.unsupported
@@ -153,6 +154,7 @@ class Codecs(
         bind(TransformDependenciesCodec)
         bind(PublishArtifactLocalArtifactMetadataCodec)
         bind(TransformedExternalArtifactSetCodec(transformationNodeRegistry))
+        bind(TransformedProjectArtifactSetCodec(transformationNodeRegistry))
 
         bind(DefaultCopySpecCodec(patternSetFactory, fileCollectionFactory, instantiator))
         bind(DestinationRootCopySpecCodec(fileResolver))
