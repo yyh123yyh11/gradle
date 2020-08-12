@@ -20,21 +20,7 @@ import org.gradle.integtests.tooling.fixture.ContinuousBuildToolingApiSpecificat
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.model.GradleProject
 
-class ContinuousBuildCrossVersionSpec extends ContinuousBuildToolingApiSpecification {
-
-    def "can run continuous build with tooling api"() {
-        when:
-        def javaSrcFile = sourceDir.file("Thing.java") << 'public class Thing {}'
-
-        then:
-        runBuild {
-            succeeds()
-            waitBeforeModification javaSrcFile
-            javaSrcFile.text = 'public class Thing { public static final int FOO=1; }'
-            succeeds()
-        }
-    }
-
+class ContinuousBuildCrossVersionSpec1 extends ContinuousBuildToolingApiSpecification {
     def "can recover from failures"() {
         when:
         def javaSrcFile = sourceDir.file("Thing.java") << 'public class Thing {}'
@@ -50,6 +36,23 @@ class ContinuousBuildCrossVersionSpec extends ContinuousBuildToolingApiSpecifica
             succeeds()
         }
     }
+}
+
+class ContinuousBuildCrossVersionSpec2 extends ContinuousBuildToolingApiSpecification {
+
+    def "can run continuous build with tooling api"() {
+        when:
+        def javaSrcFile = sourceDir.file("Thing.java") << 'public class Thing {}'
+
+        then:
+        runBuild {
+            succeeds()
+            waitBeforeModification javaSrcFile
+            javaSrcFile.text = 'public class Thing { public static final int FOO=1; }'
+            succeeds()
+        }
+    }
+
 
     def "client can request continuous mode when building a model, but request is effectively ignored"() {
         when:

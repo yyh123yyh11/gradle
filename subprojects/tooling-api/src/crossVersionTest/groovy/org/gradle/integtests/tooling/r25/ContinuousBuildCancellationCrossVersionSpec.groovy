@@ -22,11 +22,42 @@ import org.gradle.test.fixtures.server.http.BlockingHttpServer
 import org.gradle.tooling.BuildCancelledException
 import org.junit.Rule
 
-class ContinuousBuildCancellationCrossVersionSpec extends ContinuousBuildToolingApiSpecification {
+class ContinuousBuildCancellationCrossVersionSpec1 extends AbstractContinuousBuildCancellationCrossVersionSpec {
+    def "after cancelling a continuous build, we can subsequently run another"() {
+        when:
+        withConnection {
+            runBuild {
+                succeeds()
+                cancel()
+            }
+            assert !buildResult.failure
+            runBuild {
+                succeeds()
+                cancel()
+            }
+        }
 
-    @Rule
-    BlockingHttpServer server = new BlockingHttpServer()
+        then:
+        !buildResult.failure
+    }
+}
 
+class ContinuousBuildCancellationCrossVersionSpec2 extends AbstractContinuousBuildCancellationCrossVersionSpec {
+    def "can cancel in subsequent wait period"() {
+        when:
+        runBuild {
+            succeeds()
+            sourceDir.file("Thing.java") << "class Thing {}"
+            succeeds()
+            cancel()
+        }
+
+        then:
+        !buildResult.failure
+    }
+}
+
+class ContinuousBuildCancellationCrossVersionSpec3 extends AbstractContinuousBuildCancellationCrossVersionSpec {
     def "client can cancel during execution of a continuous build"() {
         given:
         setupCancellationBuild()
@@ -44,7 +75,26 @@ class ContinuousBuildCancellationCrossVersionSpec extends ContinuousBuildTooling
         !stdout.toString().contains(WAITING_MESSAGE)
     }
 
-    private TestFile setupCancellationBuild() {
+    def "logging does not include message to use ctrl-d to exit"() {
+        when:
+        runBuild {
+            succeeds()
+            cancel()
+        }
+
+        then:
+        !result.output.contains("ctrl-d")
+        result.output.contains(WAITING_MESSAGE)
+    }
+
+}
+
+abstract class AbstractContinuousBuildCancellationCrossVersionSpec extends ContinuousBuildToolingApiSpecification {
+    @Rule
+    BlockingHttpServer server = new BlockingHttpServer()
+
+
+    TestFile setupCancellationBuild() {
         server.start()
         buildFile << """
 import org.gradle.initialization.BuildCancellationToken
@@ -63,48 +113,4 @@ gradle.taskGraph.whenReady {
 }
 """
     }
-
-    def "logging does not include message to use ctrl-d to exit"() {
-        when:
-        runBuild {
-            succeeds()
-            cancel()
-        }
-
-        then:
-        !result.output.contains("ctrl-d")
-        result.output.contains(WAITING_MESSAGE)
-    }
-
-    def "after cancelling a continuous build, we can subsequently run another"() {
-        when:
-        withConnection {
-            runBuild {
-                succeeds()
-                cancel()
-            }
-            assert !buildResult.failure
-            runBuild {
-                succeeds()
-                cancel()
-            }
-        }
-
-        then:
-        !buildResult.failure
-    }
-
-    def "can cancel in subsequent wait period"() {
-        when:
-        runBuild {
-            succeeds()
-            sourceDir.file("Thing.java") << "class Thing {}"
-            succeeds()
-            cancel()
-        }
-
-        then:
-        !buildResult.failure
-    }
-
 }

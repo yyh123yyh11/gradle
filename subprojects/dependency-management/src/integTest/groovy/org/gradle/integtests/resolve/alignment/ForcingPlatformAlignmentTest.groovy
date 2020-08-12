@@ -130,6 +130,60 @@ class ForcingPlatformAlignmentTest1 extends AbstractForcingPlatformAlignmentTest
             }
         }
     }
+
+
+    @Unroll("can force a virtual platform version by forcing the platform itself via a constraint")
+    def "can force a virtual platform version by forcing the platform itself via a constraint"() {
+        repository {
+            ['2.7.9', '2.9.4', '2.9.4.1'].each {
+                path "databind:$it -> core:$it"
+                path "databind:$it -> annotations:$it"
+                path "kotlin:$it -> core:$it"
+                path "kotlin:$it -> annotations:$it"
+            }
+        }
+
+        given:
+        buildFile << """
+            dependencies {
+                $dependencies
+            }
+        """
+
+        and:
+        "a rule which infers module set from group and version"()
+
+        when:
+        allowAllRepositoryInteractions()
+        run ':checkDeps'
+
+        then:
+        resolve.expectGraph {
+            root(":", ":test:") {
+                edge("org:core:2.9.4", "org:core:2.7.9") {
+                    forced()
+                }
+                module("org:databind:2.7.9") {
+                    module('org:annotations:2.7.9')
+                    module('org:core:2.7.9')
+                }
+                edge("org:kotlin:2.9.4.1", "org:kotlin:2.7.9") {
+                    forced()
+                    module('org:core:2.7.9')
+                    module('org:annotations:2.7.9')
+                }
+            }
+            virtualConfiguration('org:platform:2.7.9')
+        }
+
+        where: "order of dependencies doesn't matter"
+        dependencies << [
+            'conf("org:core:2.9.4")',
+            'conf("org:databind:2.7.9")',
+            'conf("org:kotlin:2.9.4.1")',
+            'constraints { conf enforcedPlatform("org:platform:2.7.9") }'
+        ].permutations()*.join("\n")
+    }
 }
 
 class ForcingPlatformAlignmentTest2 extends AbstractForcingPlatformAlignmentTest {
@@ -266,6 +320,57 @@ class ForcingPlatformAlignmentTest2 extends AbstractForcingPlatformAlignmentTest
 
         then:
         failureCauseContains("Multiple forces on different versions for virtual platform org:platform")
+    }
+    @Unroll("can force a virtual platform version by forcing the platform itself via a dependency")
+    def "can force a virtual platform version by forcing the platform itself via a dependency"() {
+        repository {
+            ['2.7.9', '2.9.4', '2.9.4.1'].each {
+                path "databind:$it -> core:$it"
+                path "databind:$it -> annotations:$it"
+                path "kotlin:$it -> core:$it"
+                path "kotlin:$it -> annotations:$it"
+            }
+        }
+
+        given:
+        buildFile << """
+            dependencies {
+                $dependencies
+            }
+        """
+
+        and:
+        "a rule which infers module set from group and version"()
+
+        when:
+        allowAllRepositoryInteractions()
+        run ':checkDeps'
+
+        then:
+        resolve.expectGraph {
+            root(":", ":test:") {
+                edge("org:core:2.9.4", "org:core:2.7.9") {
+                    forced()
+                }
+                edge("org:databind:2.9.4", "org:databind:2.7.9") {
+                    module('org:annotations:2.7.9')
+                    module('org:core:2.7.9')
+                }
+                edge("org:kotlin:2.9.4.1", "org:kotlin:2.7.9") {
+                    forced()
+                    module('org:core:2.7.9')
+                    module('org:annotations:2.7.9')
+                }
+            }
+        }
+
+        where: "order of dependencies doesn't matter"
+        dependencies << [
+            'conf("org:core:2.9.4")',
+            'conf("org:databind:2.9.4")',
+            'conf("org:kotlin:2.9.4.1")',
+            'conf enforcedPlatform("org:platform:2.7.9")'
+        ].permutations()*.join("\n")
     }
 
 }
@@ -466,6 +571,60 @@ include 'other'
         succeeds ':checkDeps'
     }
 
+
+
+    @Unroll("can force a virtual platform version by forcing the platform itself via a constraint using a strict version")
+    def "can force a virtual platform version by forcing the platform itself via a constraint using a strict version"() {
+        repository {
+            ['2.7.9', '2.9.4', '2.9.4.1'].each {
+                path "databind:$it -> core:$it"
+                path "databind:$it -> annotations:$it"
+                path "kotlin:$it -> core:$it"
+                path "kotlin:$it -> annotations:$it"
+            }
+        }
+
+        given:
+        buildFile << """
+            dependencies {
+                $dependencies
+            }
+        """
+
+        and:
+        "a rule which infers module set from group and version"()
+
+        when:
+        allowAllRepositoryInteractions()
+        run ':checkDeps'
+
+        then:
+        resolve.expectGraph {
+            root(":", ":test:") {
+                edge("org:core:2.9.4", "org:core:2.7.9") {
+                    forced()
+                }
+                module("org:databind:2.7.9") {
+                    module('org:annotations:2.7.9')
+                    module('org:core:2.7.9')
+                }
+                edge("org:kotlin:2.9.4.1", "org:kotlin:2.7.9") {
+                    forced()
+                    module('org:core:2.7.9')
+                    module('org:annotations:2.7.9')
+                }
+            }
+            virtualConfiguration('org:platform:2.7.9')
+        }
+
+        where: "order of dependencies doesn't matter"
+        dependencies << [
+            'conf("org:core:2.9.4")',
+            'conf("org:databind:2.7.9")',
+            'conf("org:kotlin:2.9.4.1")',
+            'constraints { conf ("org:platform") { version { strictly("2.7.9") } } }'
+        ].permutations()*.join("\n")
+    }
 }
 
 class ForcingPlatformAlignmentTest4 extends AbstractForcingPlatformAlignmentTest {
@@ -645,164 +804,6 @@ class ForcingPlatformAlignmentTest4 extends AbstractForcingPlatformAlignmentTest
         }
 
 
-    }
-
-    @Unroll("can force a virtual platform version by forcing the platform itself via a dependency")
-    def "can force a virtual platform version by forcing the platform itself via a dependency"() {
-        repository {
-            ['2.7.9', '2.9.4', '2.9.4.1'].each {
-                path "databind:$it -> core:$it"
-                path "databind:$it -> annotations:$it"
-                path "kotlin:$it -> core:$it"
-                path "kotlin:$it -> annotations:$it"
-            }
-        }
-
-        given:
-        buildFile << """
-            dependencies {
-                $dependencies
-            }
-        """
-
-        and:
-        "a rule which infers module set from group and version"()
-
-        when:
-        allowAllRepositoryInteractions()
-        run ':checkDeps'
-
-        then:
-        resolve.expectGraph {
-            root(":", ":test:") {
-                edge("org:core:2.9.4", "org:core:2.7.9") {
-                    forced()
-                }
-                edge("org:databind:2.9.4", "org:databind:2.7.9") {
-                    module('org:annotations:2.7.9')
-                    module('org:core:2.7.9')
-                }
-                edge("org:kotlin:2.9.4.1", "org:kotlin:2.7.9") {
-                    forced()
-                    module('org:core:2.7.9')
-                    module('org:annotations:2.7.9')
-                }
-            }
-        }
-
-        where: "order of dependencies doesn't matter"
-        dependencies << [
-            'conf("org:core:2.9.4")',
-            'conf("org:databind:2.9.4")',
-            'conf("org:kotlin:2.9.4.1")',
-            'conf enforcedPlatform("org:platform:2.7.9")'
-        ].permutations()*.join("\n")
-    }
-
-    @Unroll("can force a virtual platform version by forcing the platform itself via a constraint")
-    def "can force a virtual platform version by forcing the platform itself via a constraint"() {
-        repository {
-            ['2.7.9', '2.9.4', '2.9.4.1'].each {
-                path "databind:$it -> core:$it"
-                path "databind:$it -> annotations:$it"
-                path "kotlin:$it -> core:$it"
-                path "kotlin:$it -> annotations:$it"
-            }
-        }
-
-        given:
-        buildFile << """
-            dependencies {
-                $dependencies
-            }
-        """
-
-        and:
-        "a rule which infers module set from group and version"()
-
-        when:
-        allowAllRepositoryInteractions()
-        run ':checkDeps'
-
-        then:
-        resolve.expectGraph {
-            root(":", ":test:") {
-                edge("org:core:2.9.4", "org:core:2.7.9") {
-                    forced()
-                }
-                module("org:databind:2.7.9") {
-                    module('org:annotations:2.7.9')
-                    module('org:core:2.7.9')
-                }
-                edge("org:kotlin:2.9.4.1", "org:kotlin:2.7.9") {
-                    forced()
-                    module('org:core:2.7.9')
-                    module('org:annotations:2.7.9')
-                }
-            }
-            virtualConfiguration('org:platform:2.7.9')
-        }
-
-        where: "order of dependencies doesn't matter"
-        dependencies << [
-            'conf("org:core:2.9.4")',
-            'conf("org:databind:2.7.9")',
-            'conf("org:kotlin:2.9.4.1")',
-            'constraints { conf enforcedPlatform("org:platform:2.7.9") }'
-        ].permutations()*.join("\n")
-    }
-
-    @Unroll("can force a virtual platform version by forcing the platform itself via a constraint using a strict version")
-    def "can force a virtual platform version by forcing the platform itself via a constraint using a strict version"() {
-        repository {
-            ['2.7.9', '2.9.4', '2.9.4.1'].each {
-                path "databind:$it -> core:$it"
-                path "databind:$it -> annotations:$it"
-                path "kotlin:$it -> core:$it"
-                path "kotlin:$it -> annotations:$it"
-            }
-        }
-
-        given:
-        buildFile << """
-            dependencies {
-                $dependencies
-            }
-        """
-
-        and:
-        "a rule which infers module set from group and version"()
-
-        when:
-        allowAllRepositoryInteractions()
-        run ':checkDeps'
-
-        then:
-        resolve.expectGraph {
-            root(":", ":test:") {
-                edge("org:core:2.9.4", "org:core:2.7.9") {
-                    forced()
-                }
-                module("org:databind:2.7.9") {
-                    module('org:annotations:2.7.9')
-                    module('org:core:2.7.9')
-                }
-                edge("org:kotlin:2.9.4.1", "org:kotlin:2.7.9") {
-                    forced()
-                    module('org:core:2.7.9')
-                    module('org:annotations:2.7.9')
-                }
-            }
-            virtualConfiguration('org:platform:2.7.9')
-        }
-
-        where: "order of dependencies doesn't matter"
-        dependencies << [
-            'conf("org:core:2.9.4")',
-            'conf("org:databind:2.7.9")',
-            'conf("org:kotlin:2.9.4.1")',
-            'constraints { conf ("org:platform") { version { strictly("2.7.9") } } }'
-        ].permutations()*.join("\n")
     }
 
 

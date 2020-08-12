@@ -26,25 +26,7 @@ import org.gradle.test.fixtures.file.TestFile
 import org.gradle.test.fixtures.server.http.IvyHttpModule
 import org.gradle.test.fixtures.server.http.MavenHttpModule
 
-class DynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest extends AbstractModuleDependencyResolveTest implements CachingIntegrationFixture {
-
-    def setup() {
-        addDependenciesTo(buildFile)
-
-        repository {
-            'group:projectA' {
-                '1.1'()
-                '1.2'()
-                '2.0'()
-            }
-            'group:projectB' {
-                '1.1'()
-                '2.2'()
-            }
-        }
-
-    }
-
+class DynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest1 extends AbstractDynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest {
     def "can use a custom metadata provider"() {
         given:
         def supplierInteractions = withPerVersionStatusSupplier()
@@ -244,6 +226,9 @@ class DynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest extends Ab
         checkResolve "group:projectA:1.+": ["group:projectA:1.2", "didn't match version 2.0"], "group:projectB:latest.release": "group:projectB:2.3"
     }
 
+}
+
+class DynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest2 extends AbstractDynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest {
     @ToBeFixedForInstantExecution
     def "can use --offline to use cached result after remote failure"() {
         given:
@@ -453,6 +438,9 @@ class DynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest extends Ab
         checkResolve "group:projectA:1.+": ["group:projectA:1.2", "didn't match version 2.0"], "group:projectB:latest.release": ["group:projectB:1.1", "didn't match version 2.2"]
     }
 
+}
+
+class DynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest3 extends AbstractDynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest {
     @ToBeFixedForInstantExecution
     def "can inject configuration into metadata provider"() {
         given:
@@ -594,7 +582,6 @@ class DynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest extends Ab
         failure.assertHasCause('broken')
     }
 
-
     @RequiredFeature(feature = GradleMetadataResolveRunner.REPOSITORY_TYPE, value = "ivy")
     def "custom metadata provider doesn't have to do something"() {
         given:
@@ -635,7 +622,9 @@ class DynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest extends Ab
         checkResolve "group:projectA:1.+": ["group:projectA:1.2", "didn't match version 2.0"],
             "group:projectB:latest.release": "group:projectB:3.3"
     }
+}
 
+class DynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest4 extends AbstractDynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest {
     @ToBeFixedForInstantExecution
     def "can use a single remote request to get status of multiple components"() {
         given:
@@ -1265,7 +1254,28 @@ group:projectB:2.2;release
         outputContains("Providing metadata for group:projectB:1.1")
     }
 
-    private SimpleSupplierInteractions withPerVersionStatusSupplier(TestFile file = buildFile, boolean cacheable = true, String implementationChange = '') {
+}
+
+abstract class AbstractDynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest extends AbstractModuleDependencyResolveTest implements CachingIntegrationFixture {
+
+    def setup() {
+        addDependenciesTo(buildFile)
+
+        repository {
+            'group:projectA' {
+                '1.1'()
+                '1.2'()
+                '2.0'()
+            }
+            'group:projectB' {
+                '1.1'()
+                '2.2'()
+            }
+        }
+
+    }
+
+    SimpleSupplierInteractions withPerVersionStatusSupplier(TestFile file = buildFile, boolean cacheable = true, String implementationChange = '') {
         file << """import org.gradle.api.artifacts.ComponentMetadataSupplier
           import org.gradle.api.artifacts.ComponentMetadataSupplierDetails
           import org.gradle.api.artifacts.repositories.RepositoryResourceAccessor
@@ -1299,7 +1309,7 @@ group:projectB:2.2;release
         new SimpleSupplierInteractions()
     }
 
-    private SupplierInteractions withSupplierWithAttributes(Map<String, Map<String, String>> attributesPerVersion) {
+    SupplierInteractions withSupplierWithAttributes(Map<String, Map<String, String>> attributesPerVersion) {
         def cases = attributesPerVersion.collect { version, attributes ->
             def attributesBlock = attributes.collect { k, v ->
                 "it.attribute($k, $v)"

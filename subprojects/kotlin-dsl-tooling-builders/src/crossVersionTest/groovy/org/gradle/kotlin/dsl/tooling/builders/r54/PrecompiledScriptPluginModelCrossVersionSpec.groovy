@@ -26,12 +26,9 @@ import static org.hamcrest.CoreMatchers.hasItems
 import static org.hamcrest.CoreMatchers.startsWith
 import static org.hamcrest.MatcherAssert.assertThat
 
-@TargetGradleVersion(">=5.4")
-class PrecompiledScriptPluginModelCrossVersionSpec extends AbstractKotlinScriptModelCrossVersionTest {
-
+class PrecompiledScriptPluginModelCrossVersionSpec1 extends AbstractPrecompiledScriptPluginModelCrossVersionSpec {
     @LeaksFileHandles("Kotlin Compiler Daemon working directory")
     def "given a single project build, the classpath of a precompiled script plugin is the compile classpath of its enclosing source-set"() {
-
         given:
         def implementationDependency = withEmptyJar("implementation.jar")
         def classpathDependency = withEmptyJar("classpath.jar")
@@ -66,7 +63,9 @@ class PrecompiledScriptPluginModelCrossVersionSpec extends AbstractKotlinScriptM
             [classpathDependency] as Set
         )
     }
+}
 
+class PrecompiledScriptPluginModelCrossVersionSpec2 extends AbstractPrecompiledScriptPluginModelCrossVersionSpec {
     def "given a multi-project build, the classpath of a precompiled script plugin is the compile classpath of its enclosing source-set"() {
 
         given:
@@ -76,7 +75,7 @@ class PrecompiledScriptPluginModelCrossVersionSpec extends AbstractKotlinScriptM
         and:
         withDefaultSettings().append("""
             include("project-a")
-            include("project-b")        
+            include("project-b")
         """.stripIndent())
 
         and:
@@ -128,12 +127,15 @@ class PrecompiledScriptPluginModelCrossVersionSpec extends AbstractKotlinScriptM
             )
         )
     }
+}
 
-    private TestFile withPrecompiledKotlinScript(String fileName, String code) {
+@TargetGradleVersion(">=5.4")
+abstract class AbstractPrecompiledScriptPluginModelCrossVersionSpec extends AbstractKotlinScriptModelCrossVersionTest {
+    TestFile withPrecompiledKotlinScript(String fileName, String code) {
         return withFile("src/main/kotlin/$fileName", code)
     }
 
-    private TestFile withImplementationDependencyOn(String basedir, TestFile jar) {
+    TestFile withImplementationDependencyOn(String basedir, TestFile jar) {
         return withBuildScriptIn(basedir, """
             plugins {
                 `kotlin-dsl`

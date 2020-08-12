@@ -37,9 +37,7 @@ import org.gradle.tooling.exceptions.UnsupportedBuildArgumentException
 import org.gradle.util.GradleVersion
 import spock.lang.Timeout
 
-@Timeout(120)
-class TestLauncherCrossVersionSpec extends TestLauncherSpec {
-    public static final GradleVersion GRADLE_VERSION_34 = GradleVersion.version("3.4")
+class TestLauncherCrossVersionSpec1 extends AbstractTestLauncherCrossVersionSpec {
 
     def "test launcher api fires progress events"() {
         given:
@@ -273,6 +271,9 @@ class TestLauncherCrossVersionSpec extends TestLauncherSpec {
         e.message.contains("Unknown command-line option '--someInvalidArgument'.")
     }
 
+}
+
+class TestLauncherCrossVersionSpec2 extends AbstractTestLauncherCrossVersionSpec {
     def "fails with BuildException when build fails"() {
         given:
         buildFile << "some invalid build code"
@@ -425,6 +426,11 @@ class TestLauncherCrossVersionSpec extends TestLauncherSpec {
         assertTaskExecuted(":sub8:test")
         assertTaskExecuted(":sub9:test")
     }
+
+}
+@Timeout(120)
+abstract class AbstractTestLauncherCrossVersionSpec extends TestLauncherSpec {
+    public static final GradleVersion GRADLE_VERSION_34 = GradleVersion.version("3.4")
 
     ProgressListener failingProgressListener() {
         new ProgressListener() {

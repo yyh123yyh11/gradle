@@ -33,10 +33,7 @@ import static org.hamcrest.CoreMatchers.hasItems
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.junit.Assert.assertTrue
 
-
-@TargetGradleVersion(">=5.4")
-class KotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCrossVersionTest {
-
+class BuildScriptModelCrossVersionSpec1 extends AbstractKotlinBuildScriptModelCrossVersionSpec {
     def "can fetch buildSrc classpath in face of compilation errors"() {
 
         given:
@@ -51,7 +48,9 @@ class KotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCr
         expect:
         assertContainsBuildSrc(canonicalClassPath())
     }
+}
 
+class BuildScriptModelCrossVersionSpec2 extends AbstractKotlinBuildScriptModelCrossVersionSpec {
     def "can fetch buildSrc classpath in face of buildscript exceptions"() {
 
         given:
@@ -112,7 +111,9 @@ class KotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCr
         expect:
         assertContainsBuildSrc(canonicalClassPath())
     }
+}
 
+class BuildScriptModelCrossVersionSpec3 extends AbstractKotlinBuildScriptModelCrossVersionSpec {
     def "can fetch buildscript classpath of top level Groovy script"() {
 
         given:
@@ -183,52 +184,9 @@ class KotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCr
         expect:
         assertCanFetchClassPathForSubProjectScriptIn("nested-project")
     }
+}
 
-    @CompileStatic
-    private void assertCanFetchClassPathForSubProjectScriptIn(String location) {
-
-        withDefaultSettingsIn(location).append("""
-            include("foo", "bar")
-        """)
-
-        def parentJar = withEmptyJar("$location/libs/parent.jar")
-        def fooJar = withEmptyJar("$location/libs/foo.jar")
-        def barJar = withEmptyJar("$location/libs/bar.jar")
-
-        assertTrue parentJar.isFile()
-        assertTrue fooJar.isFile()
-        assertTrue barJar.isFile()
-
-        def parentBuildScript = withFile("$location/build.gradle.kts", buildScriptDependencyOn(parentJar))
-        def fooBuildScript = withFile("$location/foo/build.gradle.kts", buildScriptDependencyOn(fooJar))
-        def barBuildScript = withFile("$location/bar/build.gradle.kts", buildScriptDependencyOn(barJar))
-
-        assertTrue parentBuildScript.text.contains(normalizedPathOf(parentJar))
-        assertTrue fooBuildScript.text.contains(normalizedPathOf(fooJar))
-        assertTrue barBuildScript.text.contains(normalizedPathOf(barJar))
-
-        assertClassPathFor(
-            parentBuildScript,
-            [parentJar] as Set,
-            [fooJar, barJar] as Set,
-            projectDir
-        )
-
-        assertClassPathFor(
-            fooBuildScript,
-            [parentJar, fooJar] as Set,
-            [barJar] as Set,
-            projectDir
-        )
-
-        assertClassPathFor(
-            barBuildScript,
-            [parentJar, barJar] as Set,
-            [fooJar] as Set,
-            projectDir
-        )
-    }
-
+class BuildScriptModelCrossVersionSpec4 extends AbstractKotlinBuildScriptModelCrossVersionSpec {
     def "can fetch buildscript classpath for sub-project script outside root project dir"() {
 
         given:
@@ -283,46 +241,6 @@ class KotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCr
         thrown(AssertionError)
     }
 
-    private void assertCanFetchClassPathForSubProjectScriptOfNestedProjectOutsideProjectRoot(String nestedProjectName) {
-
-        withDefaultSettings()
-
-        def rootDependency = withEmptyJar("libs/root-dep.jar")
-        def nestedRootDependency = withEmptyJar("libs/$nestedProjectName-root-dep.jar")
-        def nestedSubDependency = withEmptyJar("libs/$nestedProjectName-sub-dep.jar")
-
-        withDefaultSettingsIn(nestedProjectName).append("""
-            include("sub")
-            project(":sub").apply {
-                projectDir = file("../$nestedProjectName-sub")
-                buildFileName = "sub.gradle.kts"
-            }
-        """)
-        file("$nestedProjectName-sub").mkdirs()
-
-        def rootBuildScript = withFile("build.gradle", buildScriptDependencyOn(rootDependency))
-        def nestedBuildScript = withFile("$nestedProjectName/build.gradle.kts", buildScriptDependencyOn(nestedRootDependency))
-        def nestedSubBuildScript = withFile("$nestedProjectName-sub/sub.gradle.kts", buildScriptDependencyOn(nestedSubDependency))
-
-        assertClassPathFor(
-            rootBuildScript,
-            [rootDependency] as Set,
-            [nestedRootDependency, nestedSubDependency] as Set
-        )
-
-        assertClassPathFor(
-            nestedBuildScript,
-            [nestedRootDependency] as Set,
-            [rootDependency, nestedSubDependency] as Set
-        )
-
-        assertClassPathFor(
-            nestedSubBuildScript,
-            [nestedRootDependency, nestedSubDependency] as Set,
-            [rootDependency] as Set
-        )
-    }
-
     def "can fetch classpath of script plugin"() {
 
         expect:
@@ -340,41 +258,9 @@ class KotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCr
         expect:
         assertCanFetchClassPathOfScriptPlugin("buildscript { val p = }")
     }
+}
 
-    private void assertCanFetchClassPathOfScriptPlugin(String scriptPluginCode) {
-
-        withBuildSrc()
-
-        def buildSrcDependency =
-            withEmptyJar("buildSrc-dependency.jar")
-
-        withFile("buildSrc/build.gradle", """
-            dependencies { compile(files("../${buildSrcDependency.name}")) }
-        """)
-
-        def rootProjectDependency = withEmptyJar("rootProject-dependency.jar")
-
-        withDefaultSettings()
-        withFile("build.gradle", """
-            buildscript {
-                dependencies { classpath(files("${rootProjectDependency.name}")) }
-            }
-        """)
-
-        def scriptPlugin = withFile("plugin.gradle.kts", scriptPluginCode)
-
-        def scriptPluginClassPath = canonicalClassPathFor(projectDir, scriptPlugin)
-        assertThat(
-            scriptPluginClassPath.collect { it.name },
-            allOf(
-                not(hasItem(rootProjectDependency.name)),
-                hasItem(buildSrcDependency.name)
-            )
-        )
-        assertContainsBuildSrc(scriptPluginClassPath)
-        assertContainsGradleKotlinDslJars(scriptPluginClassPath)
-    }
-
+class BuildScriptModelCrossVersionSpec5 extends AbstractKotlinBuildScriptModelCrossVersionSpec {
 
     def "can fetch classpath of plugin portal plugin in plugins block"() {
 
@@ -522,8 +408,132 @@ class KotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCr
             matchesProjectsSourceRoots(sourceRoots)
         )
     }
+}
 
-    private void assertSourcePathIncludesGradleSourcesGiven(String rootProjectScript, String subProjectScript) {
+
+@TargetGradleVersion(">=5.4")
+abstract class AbstractKotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCrossVersionTest {
+
+    @CompileStatic
+    void assertCanFetchClassPathForSubProjectScriptIn(String location) {
+
+        withDefaultSettingsIn(location).append("""
+            include("foo", "bar")
+        """)
+
+        def parentJar = withEmptyJar("$location/libs/parent.jar")
+        def fooJar = withEmptyJar("$location/libs/foo.jar")
+        def barJar = withEmptyJar("$location/libs/bar.jar")
+
+        assertTrue parentJar.isFile()
+        assertTrue fooJar.isFile()
+        assertTrue barJar.isFile()
+
+        def parentBuildScript = withFile("$location/build.gradle.kts", buildScriptDependencyOn(parentJar))
+        def fooBuildScript = withFile("$location/foo/build.gradle.kts", buildScriptDependencyOn(fooJar))
+        def barBuildScript = withFile("$location/bar/build.gradle.kts", buildScriptDependencyOn(barJar))
+
+        assertTrue parentBuildScript.text.contains(normalizedPathOf(parentJar))
+        assertTrue fooBuildScript.text.contains(normalizedPathOf(fooJar))
+        assertTrue barBuildScript.text.contains(normalizedPathOf(barJar))
+
+        assertClassPathFor(
+            parentBuildScript,
+            [parentJar] as Set,
+            [fooJar, barJar] as Set,
+            projectDir
+        )
+
+        assertClassPathFor(
+            fooBuildScript,
+            [parentJar, fooJar] as Set,
+            [barJar] as Set,
+            projectDir
+        )
+
+        assertClassPathFor(
+            barBuildScript,
+            [parentJar, barJar] as Set,
+            [fooJar] as Set,
+            projectDir
+        )
+    }
+
+    void assertCanFetchClassPathForSubProjectScriptOfNestedProjectOutsideProjectRoot(String nestedProjectName) {
+
+        withDefaultSettings()
+
+        def rootDependency = withEmptyJar("libs/root-dep.jar")
+        def nestedRootDependency = withEmptyJar("libs/$nestedProjectName-root-dep.jar")
+        def nestedSubDependency = withEmptyJar("libs/$nestedProjectName-sub-dep.jar")
+
+        withDefaultSettingsIn(nestedProjectName).append("""
+            include("sub")
+            project(":sub").apply {
+                projectDir = file("../$nestedProjectName-sub")
+                buildFileName = "sub.gradle.kts"
+            }
+        """)
+        file("$nestedProjectName-sub").mkdirs()
+
+        def rootBuildScript = withFile("build.gradle", buildScriptDependencyOn(rootDependency))
+        def nestedBuildScript = withFile("$nestedProjectName/build.gradle.kts", buildScriptDependencyOn(nestedRootDependency))
+        def nestedSubBuildScript = withFile("$nestedProjectName-sub/sub.gradle.kts", buildScriptDependencyOn(nestedSubDependency))
+
+        assertClassPathFor(
+            rootBuildScript,
+            [rootDependency] as Set,
+            [nestedRootDependency, nestedSubDependency] as Set
+        )
+
+        assertClassPathFor(
+            nestedBuildScript,
+            [nestedRootDependency] as Set,
+            [rootDependency, nestedSubDependency] as Set
+        )
+
+        assertClassPathFor(
+            nestedSubBuildScript,
+            [nestedRootDependency, nestedSubDependency] as Set,
+            [rootDependency] as Set
+        )
+    }
+
+    void assertCanFetchClassPathOfScriptPlugin(String scriptPluginCode) {
+
+        withBuildSrc()
+
+        def buildSrcDependency =
+            withEmptyJar("buildSrc-dependency.jar")
+
+        withFile("buildSrc/build.gradle", """
+            dependencies { compile(files("../${buildSrcDependency.name}")) }
+        """)
+
+        def rootProjectDependency = withEmptyJar("rootProject-dependency.jar")
+
+        withDefaultSettings()
+        withFile("build.gradle", """
+            buildscript {
+                dependencies { classpath(files("${rootProjectDependency.name}")) }
+            }
+        """)
+
+        def scriptPlugin = withFile("plugin.gradle.kts", scriptPluginCode)
+
+        def scriptPluginClassPath = canonicalClassPathFor(projectDir, scriptPlugin)
+        assertThat(
+            scriptPluginClassPath.collect { it.name },
+            allOf(
+                not(hasItem(rootProjectDependency.name)),
+                hasItem(buildSrcDependency.name)
+            )
+        )
+        assertContainsBuildSrc(scriptPluginClassPath)
+        assertContainsGradleKotlinDslJars(scriptPluginClassPath)
+    }
+
+    void assertSourcePathIncludesGradleSourcesGiven(String rootProjectScript, String subProjectScript) {
         assertSourcePathGiven(
             rootProjectScript,
             subProjectScript,
@@ -531,7 +541,7 @@ class KotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCr
         )
     }
 
-    private void assertSourcePathIncludesKotlinStdlibSourcesGiven(String rootProjectScript, String subProjectScript) {
+    void assertSourcePathIncludesKotlinStdlibSourcesGiven(String rootProjectScript, String subProjectScript) {
         assertSourcePathGiven(
             rootProjectScript,
             subProjectScript,
@@ -539,7 +549,7 @@ class KotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCr
         )
     }
 
-    private void assertSourcePathIncludesKotlinPluginSourcesGiven(String rootProjectScript, String subProjectScript) {
+    void assertSourcePathIncludesKotlinPluginSourcesGiven(String rootProjectScript, String subProjectScript) {
         assertSourcePathGiven(
             rootProjectScript,
             subProjectScript,
@@ -550,7 +560,7 @@ class KotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCr
         )
     }
 
-    private void assertSourcePathGiven(
+    void assertSourcePathGiven(
         String rootProjectScript,
         String subProjectScript,
         Matcher<Iterable<String>> matches
@@ -575,7 +585,7 @@ class KotlinBuildScriptModelCrossVersionSpec extends AbstractKotlinScriptModelCr
         assertThat(sourcePath, matches)
     }
 
-    private static String buildScriptDependencyOn(File jar) {
+    static String buildScriptDependencyOn(File jar) {
         return """
             buildscript {
                 dependencies { classpath(files("${normalizedPathOf(jar)}")) }
