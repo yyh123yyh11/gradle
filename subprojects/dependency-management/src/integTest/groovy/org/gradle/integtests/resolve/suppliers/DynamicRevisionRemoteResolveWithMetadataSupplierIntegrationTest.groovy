@@ -346,7 +346,7 @@ class DynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest2 extends A
           }
 """
         metadataSupplierClass = 'MP'
-        def supplierInteractions = new SimpleSupplierInteractions()
+        def supplierInteractions = new SimpleSupplierInteractions(this)
 
         when: "Resolves when online"
         repositoryInteractions {
@@ -1306,7 +1306,7 @@ abstract class AbstractDynamicRevisionRemoteResolveWithMetadataSupplierIntegrati
 
 """
         metadataSupplierClass = 'MP'
-        new SimpleSupplierInteractions()
+        new SimpleSupplierInteractions(this)
     }
 
     SupplierInteractions withSupplierWithAttributes(Map<String, Map<String, String>> attributesPerVersion) {
@@ -1376,10 +1376,12 @@ abstract class AbstractDynamicRevisionRemoteResolveWithMetadataSupplierIntegrati
         void refresh(String... modules)
     }
 
-    class SimpleSupplierInteractions implements SupplierInteractions {
+    static class SimpleSupplierInteractions implements SupplierInteractions {
         private final Map<String, File> statusFiles = [:]
+        AbstractDynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest outer
 
-        SimpleSupplierInteractions() {
+        SimpleSupplierInteractions(AbstractDynamicRevisionRemoteResolveWithMetadataSupplierIntegrationTest outer) {
+            this.outer = outer
         }
 
         @Override
@@ -1397,12 +1399,12 @@ abstract class AbstractDynamicRevisionRemoteResolveWithMetadataSupplierIntegrati
         }
 
         private File expectGetStatusOf(String path, String status, boolean broken) {
-            def file = temporaryFolder.createFile("cheap-${path.replace('/', '_')}.status")
+            def file = outer.temporaryFolder.createFile("cheap-${path.replace('/', '_')}.status")
             file.text = status
             if (!broken) {
-                server.expectGet("/repo/${path}/status.txt", file)
+                outer.server.expectGet("/repo/${path}/status.txt", file)
             } else {
-                server.expectGetBroken("/repo/${path}/status.txt")
+                outer.server.expectGetBroken("/repo/${path}/status.txt")
             }
             file
         }
@@ -1410,7 +1412,7 @@ abstract class AbstractDynamicRevisionRemoteResolveWithMetadataSupplierIntegrati
         @Override
         void refresh(String... modules) {
             modules.each {
-                server.expectHead("/repo/${it.replace(':', '/')}/status.txt", statusFiles[it])
+                outer.server.expectHead("/repo/${it.replace(':', '/')}/status.txt", statusFiles[it])
             }
         }
     }
