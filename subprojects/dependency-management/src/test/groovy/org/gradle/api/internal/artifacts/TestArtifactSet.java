@@ -70,7 +70,7 @@ public class TestArtifactSet implements ResolvedArtifactSet {
     }
 
     @Override
-    public void visitExternalArtifacts(Action<ResolvableArtifact> visitor) {
+    public void visitArtifacts(Action<ResolvableArtifact> visitor) {
     }
 
     @Override
