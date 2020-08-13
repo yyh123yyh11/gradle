@@ -16,8 +16,6 @@
 
 package org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact;
 
-import org.gradle.api.Action;
-import org.gradle.api.internal.artifacts.transform.TransformationSubject;
 import org.gradle.api.internal.file.FileCollectionInternal;
 import org.gradle.api.internal.file.FileCollectionStructureVisitor;
 import org.gradle.api.internal.tasks.TaskDependencyContainer;
@@ -25,7 +23,7 @@ import org.gradle.api.internal.tasks.TaskDependencyResolveContext;
 import org.gradle.internal.operations.BuildOperationQueue;
 import org.gradle.internal.operations.RunnableBuildOperation;
 
-import java.io.File;
+import java.util.function.Consumer;
 
 /**
  * A container for a set of files or artifacts. May or may not be immutable, and may require building and further resolution.
@@ -39,14 +37,9 @@ public interface ResolvedArtifactSet extends TaskDependencyContainer {
     Completion startVisit(BuildOperationQueue<RunnableBuildOperation> actions, AsyncArtifactListener listener);
 
     /**
-     * Visits the local artifacts of this set, if known without further resolution. Ignores artifacts that are not build locally and local artifacts that cannot be determined without further resolution.
-     */
-    void visitLocalArtifacts(LocalArtifactVisitor visitor);
-
-    /**
      * Visits the artifacts of this set.
      */
-    void visitArtifacts(Action<ResolvableArtifact> visitor);
+    void visitArtifacts(Consumer<ResolvableArtifact> visitor);
 
     Completion EMPTY_RESULT = visitor -> {
     };
@@ -58,11 +51,7 @@ public interface ResolvedArtifactSet extends TaskDependencyContainer {
         }
 
         @Override
-        public void visitLocalArtifacts(LocalArtifactVisitor visitor) {
-        }
-
-        @Override
-        public void visitArtifacts(Action<ResolvableArtifact> visitor) {
+        public void visitArtifacts(Consumer<ResolvableArtifact> visitor) {
         }
 
         @Override
@@ -98,21 +87,5 @@ public interface ResolvedArtifactSet extends TaskDependencyContainer {
          * Returns true here allows the collection to preemptively resolve the files in parallel.
          */
         boolean requireArtifactFiles();
-    }
-
-    interface LocalArtifactSet {
-        Object getId();
-
-        String getDisplayName();
-
-        TaskDependencyContainer getTaskDependencies();
-
-        TransformationSubject calculateSubject();
-
-        ResolvableArtifact transformedTo(File output);
-    }
-
-    interface LocalArtifactVisitor {
-        void visitArtifact(LocalArtifactSet artifactSet);
     }
 }

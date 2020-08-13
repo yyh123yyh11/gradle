@@ -16,7 +16,6 @@
 
 package org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact;
 
-import org.gradle.api.Action;
 import org.gradle.api.internal.tasks.TaskDependencyResolveContext;
 import org.gradle.internal.operations.BuildOperationQueue;
 import org.gradle.internal.operations.RunnableBuildOperation;
@@ -24,6 +23,7 @@ import org.gradle.internal.operations.RunnableBuildOperation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class CompositeResolvedArtifactSet implements ResolvedArtifactSet {
     private final List<ResolvedArtifactSet> sets;
@@ -58,14 +58,7 @@ public class CompositeResolvedArtifactSet implements ResolvedArtifactSet {
     }
 
     @Override
-    public void visitLocalArtifacts(LocalArtifactVisitor visitor) {
-        for (ResolvedArtifactSet set : sets) {
-            set.visitLocalArtifacts(visitor);
-        }
-    }
-
-    @Override
-    public void visitArtifacts(Action<ResolvableArtifact> visitor) {
+    public void visitArtifacts(Consumer<ResolvableArtifact> visitor) {
         for (ResolvedArtifactSet set : sets) {
             set.visitArtifacts(visitor);
         }

@@ -16,11 +16,12 @@
 
 package org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact;
 
-import org.gradle.api.Action;
 import org.gradle.api.internal.tasks.TaskDependencyResolveContext;
 import org.gradle.internal.UncheckedException;
 import org.gradle.internal.operations.BuildOperationQueue;
 import org.gradle.internal.operations.RunnableBuildOperation;
+
+import java.util.function.Consumer;
 
 public class BrokenResolvedArtifactSet implements ResolvedArtifactSet, ResolvedArtifactSet.Completion {
     private final Throwable failure;
@@ -40,12 +41,7 @@ public class BrokenResolvedArtifactSet implements ResolvedArtifactSet, ResolvedA
     }
 
     @Override
-    public void visitLocalArtifacts(LocalArtifactVisitor visitor) {
-        throw UncheckedException.throwAsUncheckedException(failure);
-    }
-
-    @Override
-    public void visitArtifacts(Action<ResolvableArtifact> visitor) {
+    public void visitArtifacts(Consumer<ResolvableArtifact> visitor) {
         throw UncheckedException.throwAsUncheckedException(failure);
     }
 

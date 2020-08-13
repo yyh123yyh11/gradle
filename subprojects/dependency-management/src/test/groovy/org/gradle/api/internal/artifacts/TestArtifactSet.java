@@ -17,7 +17,6 @@
 package org.gradle.api.internal.artifacts;
 
 import com.google.common.collect.ImmutableSet;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier;
 import org.gradle.api.attributes.AttributeContainer;
@@ -32,6 +31,7 @@ import org.gradle.internal.operations.RunnableBuildOperation;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public class TestArtifactSet implements ResolvedArtifactSet {
     public static final String DEFAULT_TEST_VARIANT = "test variant";
@@ -66,11 +66,7 @@ public class TestArtifactSet implements ResolvedArtifactSet {
     }
 
     @Override
-    public void visitLocalArtifacts(LocalArtifactVisitor visitor) {
-    }
-
-    @Override
-    public void visitArtifacts(Action<ResolvableArtifact> visitor) {
+    public void visitArtifacts(Consumer<ResolvableArtifact> visitor) {
     }
 
     @Override

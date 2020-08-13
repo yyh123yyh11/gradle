@@ -17,7 +17,6 @@
 package org.gradle.api.internal.artifacts.transform;
 
 import com.google.common.collect.Maps;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ResolvableArtifact;
@@ -32,6 +31,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Transformed artifact set that performs the transformation itself when visited.
@@ -76,6 +76,10 @@ public abstract class AbstractTransformedArtifactSet implements ResolvedArtifact
         return dependenciesResolver;
     }
 
+    protected TransformationNodeRegistry getTransformationNodeRegistry() {
+        return transformationNodeRegistry;
+    }
+
     @Override
     public Completion startVisit(BuildOperationQueue<RunnableBuildOperation> actions, AsyncArtifactListener listener) {
         FileCollectionStructureVisitor.VisitType visitType = listener.prepareForVisit(this);
@@ -92,18 +96,12 @@ public abstract class AbstractTransformedArtifactSet implements ResolvedArtifact
     }
 
     @Override
-    public void visitLocalArtifacts(LocalArtifactVisitor visitor) {
+    public void visitArtifacts(Consumer<ResolvableArtifact> visitor) {
         // Should never be called
         throw new IllegalStateException();
     }
 
-    @Override
-    public void visitArtifacts(Action<ResolvableArtifact> visitor) {
-        // Should never be called
-        throw new IllegalStateException();
-    }
-
-    public void visitSourceArtifacts(Action<ResolvableArtifact> visitor) {
+    public void visitSourceArtifacts(Consumer<ResolvableArtifact> visitor) {
         delegate.visitArtifacts(visitor);
     }
 

@@ -16,10 +16,11 @@
 
 package org.gradle.instantexecution.serialization.codecs.transform
 
-import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ArtifactBackedResolvedVariant
+import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ResolvableArtifact
 import org.gradle.api.internal.artifacts.transform.ArtifactTransformListener
 import org.gradle.api.internal.artifacts.transform.TransformationNode
 import org.gradle.api.internal.artifacts.transform.TransformationStep
+import org.gradle.api.internal.artifacts.transform.TransformedArtifactSet
 import org.gradle.instantexecution.serialization.Codec
 import org.gradle.instantexecution.serialization.ReadContext
 import org.gradle.instantexecution.serialization.WriteContext
@@ -38,19 +39,19 @@ class InitialTransformationNodeCodec(
     override suspend fun WriteContext.doEncode(value: TransformationNode.InitialTransformationNode) {
         withCodec(userTypesCodec) {
             write(value.transformationStep)
-            write(transformDependencies(value))
+            write(value.source)
         }
-        write((value.inputArtifacts as ArtifactBackedResolvedVariant.SingleLocalArtifactSet).artifact)
+        write(value.inputArtifact)
     }
 
     override suspend fun ReadContext.doDecode(): TransformationNode.InitialTransformationNode {
         val transformationStep = withCodec(userTypesCodec) {
             readNonNull<TransformationStep>()
         }
-        val resolver = withCodec(userTypesCodec) {
-            (read() as TransformDependencies).recreate()
+        val source = withCodec(userTypesCodec) {
+            readNonNull<TransformedArtifactSet>()
         }
-        val artifacts = ArtifactBackedResolvedVariant.SingleLocalArtifactSet(readNonNull())
-        return TransformationNode.initial(transformationStep, artifacts, resolver, buildOperationExecutor, transformListener)
+        val artifact = readNonNull<ResolvableArtifact>()
+        return TransformationNode.initial(transformationStep, artifact, source, buildOperationExecutor, transformListener)
     }
 }

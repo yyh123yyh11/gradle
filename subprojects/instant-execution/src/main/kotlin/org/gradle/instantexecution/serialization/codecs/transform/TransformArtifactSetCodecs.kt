@@ -16,7 +16,6 @@
 
 package org.gradle.instantexecution.serialization.codecs.transform
 
-import org.gradle.api.Action
 import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.artifacts.PreResolvedResolvableArtifact
@@ -47,6 +46,7 @@ import org.gradle.internal.component.model.DefaultIvyArtifactName
 import org.gradle.internal.operations.BuildOperationQueue
 import org.gradle.internal.operations.RunnableBuildOperation
 import java.io.File
+import java.util.function.Consumer
 
 
 abstract class AbstractTransformedArtifactSetCodec<T : AbstractTransformedArtifactSet>(
@@ -133,13 +133,9 @@ class FixedFilesArtifactSet(private val ownerId: ComponentIdentifier, private va
         throw UnsupportedOperationException("should not be called")
     }
 
-    override fun visitLocalArtifacts(visitor: ResolvedArtifactSet.LocalArtifactVisitor) {
-        throw UnsupportedOperationException("should not be called")
-    }
-
-    override fun visitArtifacts(visitor: Action<ResolvableArtifact>) {
+    override fun visitArtifacts(visitor: Consumer<ResolvableArtifact>) {
         for (file in files) {
-            visitor.execute(PreResolvedResolvableArtifact(null, DefaultIvyArtifactName.forFile(file, null), ComponentFileArtifactIdentifier(ownerId, file.name), file, TaskDependencyContainer.EMPTY))
+            visitor.accept(PreResolvedResolvableArtifact(null, DefaultIvyArtifactName.forFile(file, null), ComponentFileArtifactIdentifier(ownerId, file.name), file, TaskDependencyContainer.EMPTY))
         }
     }
 }

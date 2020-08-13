@@ -37,7 +37,6 @@ class ChainedTransformationNodeCodec(
     override suspend fun WriteContext.doEncode(value: TransformationNode.ChainedTransformationNode) {
         withCodec(userTypesCodec) {
             write(value.transformationStep)
-            write(transformDependencies(value))
         }
         write(value.previousTransformationNode)
     }
@@ -46,10 +45,7 @@ class ChainedTransformationNodeCodec(
         val transformationStep = withCodec(userTypesCodec) {
             readNonNull<TransformationStep>()
         }
-        val resolver = withCodec(userTypesCodec) {
-            (read() as TransformDependencies).recreate()
-        }
         val previousStep = readNonNull<TransformationNode>()
-        return TransformationNode.chained(transformationStep, previousStep, resolver, buildOperationExecutor, transformListener)
+        return TransformationNode.chained(transformationStep, previousStep, buildOperationExecutor, transformListener)
     }
 }

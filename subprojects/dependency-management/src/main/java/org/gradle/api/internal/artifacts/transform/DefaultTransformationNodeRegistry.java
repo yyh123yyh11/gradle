@@ -20,7 +20,7 @@ import com.google.common.base.Equivalence;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier;
-import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ResolvedArtifactSet;
+import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ResolvableArtifact;
 import org.gradle.internal.operations.BuildOperationExecutor;
 
 import java.util.Collection;
@@ -39,11 +39,11 @@ public class DefaultTransformationNodeRegistry implements TransformationNodeRegi
     }
 
     @Override
-    public Collection<TransformationNode> getOrCreate(ResolvedArtifactSet artifactSet, Transformation transformation, ExecutionGraphDependenciesResolver dependenciesResolver) {
-        final List<Equivalence.Wrapper<TransformationStep>> transformationChain = unpackTransformation(transformation);
+    public Collection<TransformationNode> getOrCreate(TransformedArtifactSet source) {
+        final List<Equivalence.Wrapper<TransformationStep>> transformationChain = unpackTransformation(source.getTransformation());
         final ImmutableList.Builder<TransformationNode> builder = ImmutableList.builder();
-        artifactSet.visitLocalArtifacts(localArtifacts -> {
-            TransformationNode transformationNode = getOrCreateInternal(localArtifacts, transformationChain, dependenciesResolver);
+        source.visitSourceArtifacts(artifact -> {
+            TransformationNode transformationNode = getOrCreateInternal(artifact, source, transformationChain);
             builder.add(transformationNode);
         });
         return builder.build();
@@ -60,15 +60,15 @@ public class DefaultTransformationNodeRegistry implements TransformationNodeRegi
         return Optional.empty();
     }
 
-    private TransformationNode getOrCreateInternal(ResolvedArtifactSet.LocalArtifactSet localArtifacts, List<Equivalence.Wrapper<TransformationStep>> transformationChain, ExecutionGraphDependenciesResolver dependenciesResolver) {
-        ArtifactTransformKey key = new ArtifactTransformKey(localArtifacts.getId(), transformationChain);
+    private TransformationNode getOrCreateInternal(ResolvableArtifact artifact, TransformedArtifactSet source, List<Equivalence.Wrapper<TransformationStep>> transformationChain) {
+        ArtifactTransformKey key = new ArtifactTransformKey(artifact.getId(), transformationChain);
         TransformationNode transformationNode = transformations.get(key);
         if (transformationNode == null) {
             if (transformationChain.size() == 1) {
-                transformationNode = TransformationNode.initial(transformationChain.get(0).get(), localArtifacts, dependenciesResolver, buildOperationExecutor, transformListener);
+                transformationNode = TransformationNode.initial(transformationChain.get(0).get(), artifact, source, buildOperationExecutor, transformListener);
             } else {
-                TransformationNode previous = getOrCreateInternal(localArtifacts, transformationChain.subList(0, transformationChain.size() - 1), dependenciesResolver);
-                transformationNode = TransformationNode.chained(transformationChain.get(transformationChain.size() - 1).get(), previous, dependenciesResolver, buildOperationExecutor, transformListener);
+                TransformationNode previous = getOrCreateInternal(artifact, source, transformationChain.subList(0, transformationChain.size() - 1));
+                transformationNode = TransformationNode.chained(transformationChain.get(transformationChain.size() - 1).get(), previous, buildOperationExecutor, transformListener);
             }
             transformations.put(key, transformationNode);
         }
@@ -82,11 +82,11 @@ public class DefaultTransformationNodeRegistry implements TransformationNodeRegi
     }
 
     private static class ArtifactTransformKey {
-        private final Object artifactSetId;
+        private final ComponentArtifactIdentifier artifactId;
         private final List<Equivalence.Wrapper<TransformationStep>> transformations;
 
-        private ArtifactTransformKey(Object artifactSetId, List<Equivalence.Wrapper<TransformationStep>> transformations) {
-            this.artifactSetId = artifactSetId;
+        private ArtifactTransformKey(ComponentArtifactIdentifier artifactId, List<Equivalence.Wrapper<TransformationStep>> transformations) {
+            this.artifactId = artifactId;
             this.transformations = transformations;
         }
 
@@ -101,7 +101,7 @@ public class DefaultTransformationNodeRegistry implements TransformationNodeRegi
 
             ArtifactTransformKey that = (ArtifactTransformKey) o;
 
-            if (!artifactSetId.equals(that.artifactSetId)) {
+            if (!artifactId.equals(that.artifactId)) {
                 return false;
             }
             return transformations.equals(that.transformations);
@@ -109,7 +109,7 @@ public class DefaultTransformationNodeRegistry implements TransformationNodeRegi
 
         @Override
         public int hashCode() {
-            int result = artifactSetId.hashCode();
+            int result = artifactId.hashCode();
             result = 31 * result + transformations.hashCode();
             return result;
         }

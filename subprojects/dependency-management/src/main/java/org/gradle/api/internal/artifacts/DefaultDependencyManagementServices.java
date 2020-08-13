@@ -65,7 +65,6 @@ import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.verification.Depe
 import org.gradle.api.internal.artifacts.ivyservice.modulecache.FileStoreAndIndexProvider;
 import org.gradle.api.internal.artifacts.ivyservice.moduleconverter.LocalComponentMetadataBuilder;
 import org.gradle.api.internal.artifacts.ivyservice.moduleconverter.dependencies.LocalConfigurationMetadataBuilder;
-import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ResolvedArtifactSet;
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.result.AttributeContainerSerializer;
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.result.ComponentSelectionDescriptorFactory;
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.store.ResolutionResultsStoreFactory;
@@ -86,7 +85,6 @@ import org.gradle.api.internal.artifacts.transform.DefaultTransformationRegistra
 import org.gradle.api.internal.artifacts.transform.DefaultTransformedVariantFactory;
 import org.gradle.api.internal.artifacts.transform.DefaultTransformerInvocationFactory;
 import org.gradle.api.internal.artifacts.transform.DefaultVariantTransformRegistry;
-import org.gradle.api.internal.artifacts.transform.ExecutionGraphDependenciesResolver;
 import org.gradle.api.internal.artifacts.transform.ImmutableCachingTransformationWorkspaceProvider;
 import org.gradle.api.internal.artifacts.transform.MutableCachingTransformationWorkspaceProvider;
 import org.gradle.api.internal.artifacts.transform.MutableTransformationWorkspaceProvider;
@@ -94,6 +92,7 @@ import org.gradle.api.internal.artifacts.transform.Transformation;
 import org.gradle.api.internal.artifacts.transform.TransformationNode;
 import org.gradle.api.internal.artifacts.transform.TransformationNodeRegistry;
 import org.gradle.api.internal.artifacts.transform.TransformationRegistrationFactory;
+import org.gradle.api.internal.artifacts.transform.TransformedArtifactSet;
 import org.gradle.api.internal.artifacts.transform.TransformedVariantFactory;
 import org.gradle.api.internal.artifacts.transform.TransformerInvocationFactory;
 import org.gradle.api.internal.artifacts.type.ArtifactTypeRegistry;
@@ -240,7 +239,7 @@ public class DefaultDependencyManagementServices implements DependencyManagement
         TransformationNodeRegistry createTransformationNodeRegistry() {
             return new TransformationNodeRegistry() {
                 @Override
-                public Collection<TransformationNode> getOrCreate(ResolvedArtifactSet artifactSet, Transformation transformation, ExecutionGraphDependenciesResolver dependenciesResolver) {
+                public Collection<TransformationNode> getOrCreate(TransformedArtifactSet source) {
                     throw new UnsupportedOperationException("Cannot schedule transforms for build script dependencies");
                 }
 

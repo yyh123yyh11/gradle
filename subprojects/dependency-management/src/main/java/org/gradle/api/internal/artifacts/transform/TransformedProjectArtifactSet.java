@@ -26,11 +26,7 @@ import java.util.Collection;
 /**
  * An artifact set containing transformed project artifacts.
  */
-public class TransformedProjectArtifactSet extends AbstractTransformedArtifactSet {
-    private final ResolvedArtifactSet delegate;
-    private final Transformation transformation;
-    private final TransformationNodeRegistry transformationNodeRegistry;
-
+public class TransformedProjectArtifactSet extends AbstractTransformedArtifactSet implements TransformedArtifactSet {
     public TransformedProjectArtifactSet(
         ComponentIdentifier componentIdentifier,
         ResolvedArtifactSet delegate,
@@ -40,14 +36,11 @@ public class TransformedProjectArtifactSet extends AbstractTransformedArtifactSe
         TransformationNodeRegistry transformationNodeRegistry
     ) {
         super(componentIdentifier, delegate, target, transformation, dependenciesResolverFactory, transformationNodeRegistry);
-        this.delegate = delegate;
-        this.transformation = transformation;
-        this.transformationNodeRegistry = transformationNodeRegistry;
     }
 
     @Override
     public void visitDependencies(TaskDependencyResolveContext context) {
-        Collection<TransformationNode> scheduledNodes = transformationNodeRegistry.getOrCreate(delegate, transformation, getDependenciesResolver());
+        Collection<TransformationNode> scheduledNodes = getTransformationNodeRegistry().getOrCreate(this);
         if (!scheduledNodes.isEmpty()) {
             context.add(new DefaultTransformationDependency(scheduledNodes));
         }

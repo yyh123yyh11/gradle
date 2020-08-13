@@ -17,7 +17,6 @@
 package org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact;
 
 import com.google.common.collect.ImmutableList;
-import org.gradle.api.Action;
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.internal.artifacts.PreResolvedResolvableArtifact;
@@ -49,6 +48,7 @@ import org.gradle.internal.operations.RunnableBuildOperation;
 import java.io.File;
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class LocalFileDependencyBackedArtifactSet implements ResolvedArtifactSet, LocalDependencyFiles, VariantSelector.Factory {
     private static final DisplayName LOCAL_FILE = Describables.of("local file");
@@ -117,12 +117,7 @@ public class LocalFileDependencyBackedArtifactSet implements ResolvedArtifactSet
     }
 
     @Override
-    public void visitLocalArtifacts(LocalArtifactVisitor visitor) {
-        // Artifacts are not known until the file collection is queried
-    }
-
-    @Override
-    public void visitArtifacts(Action<ResolvableArtifact> visitor) {
+    public void visitArtifacts(Consumer<ResolvableArtifact> visitor) {
         // Not implemented yet
         throw new UnsupportedOperationException();
     }
@@ -197,12 +192,8 @@ public class LocalFileDependencyBackedArtifactSet implements ResolvedArtifactSet
         }
 
         @Override
-        public void visitLocalArtifacts(LocalArtifactVisitor visitor) {
-        }
-
-        @Override
-        public void visitArtifacts(Action<ResolvableArtifact> visitor) {
-            visitor.execute(artifact);
+        public void visitArtifacts(Consumer<ResolvableArtifact> visitor) {
+            visitor.accept(artifact);
         }
 
         @Override
