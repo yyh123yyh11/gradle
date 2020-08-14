@@ -53,7 +53,8 @@ class InitialTransformationNodeCodec(
         return TransformationNode.initial(transformationStep, artifact, source, buildOperationExecutor, transformListener)
     }
 
-    private fun artifactWithIndex(source: TransformedArtifactSet, artifactIndex: Int): ResolvableArtifact {
+    private
+    fun artifactWithIndex(source: TransformedArtifactSet, artifactIndex: Int): ResolvableArtifact {
         var artifact: ResolvableArtifact? = null
         var counter = 0
         source.visitSourceArtifacts {
@@ -65,7 +66,8 @@ class InitialTransformationNodeCodec(
         return artifact!!
     }
 
-    private fun indexForArtifact(value: TransformationNode.InitialTransformationNode): Int {
+    private
+    fun indexForArtifact(value: TransformationNode.InitialTransformationNode): Int {
         var artifactIndex = -1
         var counter = 0
         value.source.visitSourceArtifacts {
