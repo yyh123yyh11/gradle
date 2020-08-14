@@ -174,7 +174,7 @@ fun buildFileNameFor(projectDirName: String) =
     "$projectDirName${buildFileExtensionFor(projectDirName)}"
 
 fun buildFileExtensionFor(projectDirName: String) =
-    if (projectDirName in groovyBuildScriptProjects) ".gradle" else ".gradle.kts"
+    if (projectDirName in groovyBuildScriptProjects) ".gradle" else ".gradle"
 
 for (project in rootProject.children) {
     val projectDirName = project.name.toKebabCase()
