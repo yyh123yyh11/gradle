@@ -62,13 +62,8 @@ class ChainedTransformerTest extends Specification {
         }
 
         @Override
-        boolean endsWith(Transformation otherTransform) {
-            return false
-        }
-
-        @Override
-        int stepsCount() {
-            return 1
+        TransformationStep getFirstStep() {
+            throw new UnsupportedOperationException()
         }
 
         @Override

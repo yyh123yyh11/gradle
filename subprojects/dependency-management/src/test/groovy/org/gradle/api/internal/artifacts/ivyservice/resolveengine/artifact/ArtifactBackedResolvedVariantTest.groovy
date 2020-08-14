@@ -18,16 +18,15 @@ package org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact
 
 import org.gradle.api.Buildable
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier
-import org.gradle.api.artifacts.component.ModuleComponentIdentifier
-import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.internal.attributes.AttributeContainerInternal
 import org.gradle.api.internal.file.FileCollectionInternal
 import org.gradle.api.internal.tasks.TaskDependencyResolveContext
 import org.gradle.internal.Describables
-import org.gradle.internal.component.local.model.ComponentFileArtifactIdentifier
 import org.gradle.internal.component.model.VariantResolveMetadata
 import org.gradle.internal.operations.TestBuildOperationExecutor
 import spock.lang.Specification
+
+import java.util.function.Consumer
 
 class ArtifactBackedResolvedVariantTest extends Specification {
     def variant = Mock(AttributeContainerInternal)
@@ -49,12 +48,12 @@ class ArtifactBackedResolvedVariantTest extends Specification {
         0 * _
     }
 
-    def "visits local artifacts of empty variant"() {
-        def visitor = Mock(ResolvedArtifactSet.LocalArtifactVisitor)
+    def "visits artifacts of empty variant"() {
+        def visitor = Mock(Consumer)
         def set1 = of([])
 
         when:
-        set1.artifacts.visitLocalArtifacts(visitor)
+        set1.artifacts.visitArtifacts(visitor)
 
         then:
         0 * _
@@ -144,26 +143,24 @@ class ArtifactBackedResolvedVariantTest extends Specification {
         0 * _
     }
 
-    def "visits local artifacts"() {
-        def visitor = Mock(ResolvedArtifactSet.LocalArtifactVisitor)
+    def "visits artifacts"() {
+        def visitor = Mock(Consumer)
         def set1 = of([artifact1, artifact2])
         def set2 = of([artifact1])
 
         when:
-        set1.artifacts.visitLocalArtifacts(visitor)
+        set1.artifacts.visitArtifacts(visitor)
 
         then:
-        1 * artifact1.id >> new ComponentFileArtifactIdentifier(Stub(ProjectComponentIdentifier), "some-file")
-        1 * artifact2.id >> new ComponentFileArtifactIdentifier(Stub(ModuleComponentIdentifier), "some-file")
-        1 * visitor.visitArtifact({ it.artifact == artifact1 })
+        1 * visitor.accept(artifact1)
+        1 * visitor.accept(artifact2)
         0 * _
 
         when:
-        set2.artifacts.visitLocalArtifacts(visitor)
+        set2.artifacts.visitArtifacts(visitor)
 
         then:
-        1 * artifact1.id >> new ComponentFileArtifactIdentifier(Stub(ProjectComponentIdentifier), "some-file")
-        1 * visitor.visitArtifact({ it.artifact == artifact1 })
+        1 * visitor.accept(artifact1)
         0 * _
     }
 

@@ -18,6 +18,7 @@ package org.gradle.instantexecution.serialization.codecs.transform
 
 import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.file.FileCollection
+import org.gradle.api.internal.artifacts.DefaultResolvedArtifact
 import org.gradle.api.internal.artifacts.PreResolvedResolvableArtifact
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ResolvableArtifact
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ResolvedArtifactSet
@@ -39,7 +40,11 @@ import org.gradle.instantexecution.serialization.ReadContext
 import org.gradle.instantexecution.serialization.WriteContext
 import org.gradle.instantexecution.serialization.decodePreservingSharedIdentity
 import org.gradle.instantexecution.serialization.encodePreservingSharedIdentityOf
+import org.gradle.instantexecution.serialization.readCollection
+import org.gradle.instantexecution.serialization.readFile
 import org.gradle.instantexecution.serialization.readNonNull
+import org.gradle.instantexecution.serialization.writeCollection
+import org.gradle.instantexecution.serialization.writeFile
 import org.gradle.internal.Try
 import org.gradle.internal.component.local.model.ComponentFileArtifactIdentifier
 import org.gradle.internal.component.model.DefaultIvyArtifactName
@@ -56,10 +61,8 @@ abstract class AbstractTransformedArtifactSetCodec<T : AbstractTransformedArtifa
         encodePreservingSharedIdentityOf(value) {
             write(value.ownerId)
             write(value.targetVariantAttributes)
-            val files = mutableListOf<File>()
-            value.visitSourceArtifacts { files.add(it.file) }
-            write(files)
             write(value.transformation)
+            encodeArtifacts(value)
             val unpacked = unpackTransformation(value.transformation, value.dependenciesResolver)
             write(unpacked.dependencies)
         }
@@ -69,16 +72,20 @@ abstract class AbstractTransformedArtifactSetCodec<T : AbstractTransformedArtifa
         return decodePreservingSharedIdentity {
             val ownerId = readNonNull<ComponentIdentifier>()
             val targetAttributes = readNonNull<ImmutableAttributes>()
-            val files = readNonNull<List<File>>()
             val transformation = readNonNull<Transformation>()
+            val artifacts = decodeArtifacts(ownerId)
             val dependencies = readNonNull<List<TransformDependencies>>()
             val dependenciesPerTransformer = mutableMapOf<Transformer, TransformDependencies>()
             transformation.visitTransformationSteps {
                 dependenciesPerTransformer.put(it.transformer, dependencies[dependenciesPerTransformer.size])
             }
-            createInstance(ownerId, FixedFilesArtifactSet(ownerId, files), targetAttributes, transformation, FixedDependenciesResolverFactory(dependenciesPerTransformer), transformationNodeRegistry)
+            createInstance(ownerId, artifacts, targetAttributes, transformation, FixedDependenciesResolverFactory(dependenciesPerTransformer), transformationNodeRegistry)
         }
     }
+
+    abstract suspend fun WriteContext.encodeArtifacts(value: T)
+
+    abstract suspend fun ReadContext.decodeArtifacts(ownerId: ComponentIdentifier): ResolvedArtifactSet
 
     abstract
     fun createInstance(ownerId: ComponentIdentifier, sourceArtifacts: ResolvedArtifactSet, targetAttributes: ImmutableAttributes, transformation: Transformation, dependenciesResolverFactory: ExtraExecutionGraphDependenciesResolverFactory, transformationNodeRegistry: TransformationNodeRegistry): T
@@ -88,6 +95,18 @@ abstract class AbstractTransformedArtifactSetCodec<T : AbstractTransformedArtifa
 class TransformedExternalArtifactSetCodec(
     transformationNodeRegistry: TransformationNodeRegistry
 ) : AbstractTransformedArtifactSetCodec<TransformedExternalArtifactSet>(transformationNodeRegistry) {
+
+    override suspend fun WriteContext.encodeArtifacts(value: TransformedExternalArtifactSet) {
+        val files = mutableListOf<File>()
+        value.visitSourceArtifacts { files.add(it.file) }
+        write(files)
+    }
+
+    override suspend fun ReadContext.decodeArtifacts(ownerId: ComponentIdentifier): ResolvedArtifactSet {
+        val files = readNonNull<List<File>>()
+        return FixedFilesArtifactSet(ownerId, files)
+    }
+
     override fun createInstance(ownerId: ComponentIdentifier, sourceArtifacts: ResolvedArtifactSet, targetAttributes: ImmutableAttributes, transformation: Transformation, dependenciesResolverFactory: ExtraExecutionGraphDependenciesResolverFactory, transformationNodeRegistry: TransformationNodeRegistry): TransformedExternalArtifactSet {
         return TransformedExternalArtifactSet(ownerId, sourceArtifacts, targetAttributes, transformation, dependenciesResolverFactory, transformationNodeRegistry)
     }
@@ -99,6 +118,28 @@ class TransformedProjectArtifactSetCodec(
 ) : AbstractTransformedArtifactSetCodec<TransformedProjectArtifactSet>(transformationNodeRegistry) {
     override fun createInstance(ownerId: ComponentIdentifier, sourceArtifacts: ResolvedArtifactSet, targetAttributes: ImmutableAttributes, transformation: Transformation, dependenciesResolverFactory: ExtraExecutionGraphDependenciesResolverFactory, transformationNodeRegistry: TransformationNodeRegistry): TransformedProjectArtifactSet {
         return TransformedProjectArtifactSet(ownerId, sourceArtifacts, targetAttributes, transformation, dependenciesResolverFactory, transformationNodeRegistry)
+    }
+
+    override suspend fun WriteContext.encodeArtifacts(value: TransformedProjectArtifactSet) {
+        val artifacts = mutableListOf<DefaultResolvedArtifact>()
+        value.visitSourceArtifacts { artifacts.add(it as DefaultResolvedArtifact) }
+        writeCollection(artifacts) { artifact ->
+            writeFile(artifact.file)
+            writeString(artifact.artifactName.name)
+            writeString(artifact.artifactName.type)
+            writeNullableString(artifact.artifactName.extension)
+            writeNullableString(artifact.artifactName.classifier)
+        }
+    }
+
+    override suspend fun ReadContext.decodeArtifacts(ownerId: ComponentIdentifier): ResolvedArtifactSet {
+        val artifacts = mutableListOf<ResolvableArtifact>()
+        readCollection {
+            val file = readFile()
+            val artifactName = DefaultIvyArtifactName(readString(), readString(), readNullableString(), readNullableString())
+            artifacts.add(PreResolvedResolvableArtifact(null, artifactName, ComponentFileArtifactIdentifier(ownerId, file.name), file, TaskDependencyContainer.EMPTY))
+        }
+        return FixedArtifactSet(artifacts)
     }
 }
 
@@ -136,6 +177,24 @@ class FixedFilesArtifactSet(private val ownerId: ComponentIdentifier, private va
     override fun visitArtifacts(visitor: Consumer<ResolvableArtifact>) {
         for (file in files) {
             visitor.accept(PreResolvedResolvableArtifact(null, DefaultIvyArtifactName.forFile(file, null), ComponentFileArtifactIdentifier(ownerId, file.name), file, TaskDependencyContainer.EMPTY))
+        }
+    }
+}
+
+
+private
+class FixedArtifactSet(private val artifacts: List<ResolvableArtifact>) : ResolvedArtifactSet {
+    override fun visitDependencies(context: TaskDependencyResolveContext) {
+        throw UnsupportedOperationException("should not be called")
+    }
+
+    override fun startVisit(actions: BuildOperationQueue<RunnableBuildOperation>, listener: ResolvedArtifactSet.AsyncArtifactListener): ResolvedArtifactSet.Completion {
+        throw UnsupportedOperationException("should not be called")
+    }
+
+    override fun visitArtifacts(visitor: Consumer<ResolvableArtifact>) {
+        for (artifact in artifacts) {
+            visitor.accept(artifact)
         }
     }
 }

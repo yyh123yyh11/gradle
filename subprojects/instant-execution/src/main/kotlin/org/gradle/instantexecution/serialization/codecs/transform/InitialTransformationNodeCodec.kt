@@ -19,7 +19,6 @@ package org.gradle.instantexecution.serialization.codecs.transform
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ResolvableArtifact
 import org.gradle.api.internal.artifacts.transform.ArtifactTransformListener
 import org.gradle.api.internal.artifacts.transform.TransformationNode
-import org.gradle.api.internal.artifacts.transform.TransformationStep
 import org.gradle.api.internal.artifacts.transform.TransformedArtifactSet
 import org.gradle.instantexecution.serialization.Codec
 import org.gradle.instantexecution.serialization.ReadContext
@@ -38,20 +37,44 @@ class InitialTransformationNodeCodec(
 
     override suspend fun WriteContext.doEncode(value: TransformationNode.InitialTransformationNode) {
         withCodec(userTypesCodec) {
-            write(value.transformationStep)
             write(value.source)
         }
-        write(value.inputArtifact)
+        val artifactIndex = indexForArtifact(value)
+        writeSmallInt(artifactIndex)
     }
 
     override suspend fun ReadContext.doDecode(): TransformationNode.InitialTransformationNode {
-        val transformationStep = withCodec(userTypesCodec) {
-            readNonNull<TransformationStep>()
-        }
         val source = withCodec(userTypesCodec) {
             readNonNull<TransformedArtifactSet>()
         }
-        val artifact = readNonNull<ResolvableArtifact>()
+        val transformationStep = source.transformation.firstStep
+        val artifactIndex = readSmallInt()
+        val artifact = artifactWithIndex(source, artifactIndex)
         return TransformationNode.initial(transformationStep, artifact, source, buildOperationExecutor, transformListener)
+    }
+
+    private fun artifactWithIndex(source: TransformedArtifactSet, artifactIndex: Int): ResolvableArtifact {
+        var artifact: ResolvableArtifact? = null
+        var counter = 0
+        source.visitSourceArtifacts {
+            if (counter == artifactIndex) {
+                artifact = it
+            }
+            counter++
+        }
+        return artifact!!
+    }
+
+    private fun indexForArtifact(value: TransformationNode.InitialTransformationNode): Int {
+        var artifactIndex = -1
+        var counter = 0
+        value.source.visitSourceArtifacts {
+            if (it == value.inputArtifact) {
+                artifactIndex = counter
+            }
+            counter++
+        }
+        require(artifactIndex >= 0)
+        return artifactIndex
     }
 }

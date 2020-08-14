@@ -28,11 +28,6 @@ import javax.annotation.Nullable;
  * This can encapsulate a single transformation step using a single transformer or a chain of transformation steps.
  */
 public interface Transformation extends Describable {
-
-    boolean endsWith(Transformation otherTransform);
-
-    int stepsCount();
-
     /**
      * Creates an invocation for invoking the transformation.
      *
@@ -50,6 +45,8 @@ public interface Transformation extends Describable {
      * Extract the transformation steps from this transformation.
      */
     void visitTransformationSteps(Action<? super TransformationStep> action);
+
+    TransformationStep getFirstStep();
 
     /**
      * Isolates the parameters of this transformation, if not already.
