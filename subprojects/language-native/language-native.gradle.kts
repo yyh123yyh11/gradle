@@ -85,3 +85,7 @@ classycle {
 }
 
 integrationTestUsesSampleDir("subprojects/language-native/src/main")
+
+tasks.withType<Test>().configureEach {
+    outputs.cacheIf { false }
+}
