@@ -30,7 +30,7 @@ class RealLifeAndroidStudioMockupPerformanceTest extends AbstractAndroidStudioMo
             minimumBaseVersion = "5.4.1"
             targetVersions = ["6.7-20200816220041+0000"]
             action('org.gradle.performance.android.SyncAction') {
-                jvmArguments = ["-Xms5g", "-Xmx5g"]
+                jvmArguments = ["-Xms6g", "-Xmx6g"]
             }
             invocationCount = iterations
             warmUpCount = iterations
