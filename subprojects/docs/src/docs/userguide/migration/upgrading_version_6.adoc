@@ -38,6 +38,10 @@ Some plugins will break with this new version of Gradle, for example because the
 
 === Potential breaking changes
 
+==== Updates to bundled Gradle dependencies
+
+- Groovy has been updated to https://groovy-lang.org/changelogs/changelog-2.5.13.html[Groovy 2.5.13].
+
 === Deprecations
 
 ==== Changing default excludes during the execution phase
