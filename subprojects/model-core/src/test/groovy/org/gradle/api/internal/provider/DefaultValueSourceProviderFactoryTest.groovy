@@ -197,7 +197,7 @@ class DefaultValueSourceProviderFactoryTest extends ValueSourceBasedSpec {
 
         @Override
         String getDisplayName() {
-            "echo(${parameters.value.orElse('?').get()})"
+            "echo(${this.parameters.value.orElse('?').get()})"
         }
     }
 

@@ -27,7 +27,7 @@ import static org.gradle.api.internal.artifacts.DefaultModuleIdentifier.newId
 
 @CompileStatic
 trait ExcludeTestSupport {
-    ExcludeFactory factory = new DefaultExcludeFactory()
+    static ExcludeFactory factory = new DefaultExcludeFactory()
 
     ExcludeSpec group(String group) {
         factory.group(group)
