@@ -210,6 +210,10 @@ fun configureTests() {
 
         val testName = name
 
+        if (testName == "test") {
+            enabled = false
+        }
+
         if (BuildEnvironment.isCiServer) {
             retry {
                 maxRetries.convention(1)
