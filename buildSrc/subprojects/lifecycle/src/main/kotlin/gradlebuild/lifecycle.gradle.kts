@@ -73,7 +73,9 @@ fun Project.registerLifecycleTasks() {
     plugins.withId("gradlebuild.java-library") {
         tasks.registerEarlyFeedbackLifecycleTasks()
         tasks.named(quickTest) {
-//            dependsOn("test")
+            if (System.getProperty("disableTest") == null) {
+                dependsOn("test")
+            }
         }
         tasks.named(platformTest) {
             dependsOn("test")
@@ -243,7 +245,9 @@ fun TaskContainer.registerCITestDistributionLifecycleTasks() {
 
 fun TaskContainer.configureCIIntegrationTestDistributionLifecycleTasks() {
     named(quickTest) {
-//        dependsOn("embeddedIntegTest")
+        if (System.getProperty("disableIT") == null) {
+            dependsOn("embeddedIntegTest")
+        }
     }
 
     named(platformTest) {
@@ -279,7 +283,9 @@ fun TaskContainer.configureCIIntegrationTestDistributionLifecycleTasks() {
 
 fun TaskContainer.configureCICrossVersionTestDistributionLifecycleTasks() {
     named(quickTest) {
-        dependsOn("embeddedCrossVersionTest")
+        if (System.getProperty("disableCVT") == null) {
+            dependsOn("embeddedCrossVersionTest")
+        }
     }
 
     named(platformTest) {
