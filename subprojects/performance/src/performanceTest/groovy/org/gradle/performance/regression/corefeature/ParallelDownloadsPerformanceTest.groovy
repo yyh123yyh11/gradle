@@ -46,7 +46,7 @@ class ParallelDownloadsPerformanceTest extends AbstractCrossVersionGradleInterna
     }
 
     def setup() {
-        runner.targetVersions = ["6.7-20200824220048+0000"]
+        runner.targetVersions = ["6.7-20200723220251+0000"]
         // Example project requires TaskContainer.register
         runner.minimumBaseVersion = "4.9"
         runner.warmUpRuns = 5
@@ -72,7 +72,7 @@ class ParallelDownloadsPerformanceTest extends AbstractCrossVersionGradleInterna
         given:
         runner.tasksToRun = ['resolveDependencies']
         runner.gradleOpts = ["-Xms1g", "-Xmx1g"]
-        runner.args = ['-I', 'init.gradle', "-PmirrorPath=${repoDir.absolutePath}", "-PmavenRepoURL=http://127.0.0.1:${serverPort}/"]
+        runner.args = ['-I', 'init.gradle', "-PmirrorPath=${repoDir.absolutePath.replace('\\', '/')}", "-PmavenRepoURL=http://127.0.0.1:${serverPort}/"]
 
         when:
         def result = runner.run()
@@ -91,7 +91,7 @@ class ParallelDownloadsPerformanceTest extends AbstractCrossVersionGradleInterna
         given:
         runner.tasksToRun = ['resolveDependencies']
         runner.gradleOpts = ["-Xms1g", "-Xmx1g"]
-        runner.args = ['-I', 'init.gradle', "-PmirrorPath=${repoDir.absolutePath}", "-PmavenRepoURL=http://127.0.0.1:${serverPort}/", '--parallel']
+        runner.args = ['-I', 'init.gradle', "-PmirrorPath=${repoDir.absolutePath.replace('\\', '/')}", "-PmavenRepoURL=http://127.0.0.1:${serverPort}/", '--parallel']
 
         when:
         def result = runner.run()
@@ -155,3 +155,4 @@ class ParallelDownloadsPerformanceTest extends AbstractCrossVersionGradleInterna
     }
 
 }
+
