@@ -23,14 +23,14 @@ class IndividualPerformanceScenarioWorkers(model: CIBuildModel, os: Os = Os.linu
     if (os == Os.windows) {
         // to avoid pathname too long error
         vcs {
-            checkoutDir = "C:\\gradle"
+            checkoutDir = "C:\\gradle-perf"
         }
     }
 
     params {
         param("baselines", "defaults")
         param("templates", "")
-        param("channel", os.name)
+        param("channel", if (os == Os.linux) "commits" else "commits-windows")
         param("checks", "all")
         param("runs", "defaults")
         param("warmups", "defaults")
