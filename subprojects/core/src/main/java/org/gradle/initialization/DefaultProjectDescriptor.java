@@ -49,6 +49,7 @@ public class DefaultProjectDescriptor implements ProjectDescriptor, ProjectIdent
     private ProjectDescriptorRegistry projectDescriptorRegistry;
     private Path path;
     private String buildFileName;
+    private boolean isProjectNameEqualsBuildFileName;
 
     public DefaultProjectDescriptor(@Nullable DefaultProjectDescriptor parent, String name, File dir,
                                     ProjectDescriptorRegistry projectDescriptorRegistry, PathToFileResolver fileResolver) {
@@ -160,7 +161,11 @@ public class DefaultProjectDescriptor implements ProjectDescriptor, ProjectIdent
         if (buildFileName != null) {
             return new File(getProjectDir(), buildFileName);
         }
-        File buildScriptFile = scriptFileResolver.resolveScriptFile(getProjectDir(), BUILD_SCRIPT_BASENAME);
+
+        File buildScriptFile = isProjectNameEqualsBuildFileName
+            ? scriptFileResolver.resolveScriptFileWithProjectName(getName(), getProjectDir())
+            : scriptFileResolver.resolveScriptFile(getProjectDir(), BUILD_SCRIPT_BASENAME);
+
         if (buildScriptFile != null) {
             return buildScriptFile;
         }
@@ -200,5 +205,9 @@ public class DefaultProjectDescriptor implements ProjectDescriptor, ProjectIdent
 
     public Path path() {
         return path;
+    }
+
+    public void setProjectNameEqualsBuildFileName(boolean projectNameEqualsBuildFileName) {
+        this.isProjectNameEqualsBuildFileName = projectNameEqualsBuildFileName;
     }
 }

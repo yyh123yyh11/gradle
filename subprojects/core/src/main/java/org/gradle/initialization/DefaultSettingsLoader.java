@@ -19,6 +19,7 @@ package org.gradle.initialization;
 import org.gradle.StartParameter;
 import org.gradle.api.GradleException;
 import org.gradle.api.initialization.ProjectDescriptor;
+import org.gradle.api.internal.FeaturePreviews;
 import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.SettingsInternal;
 import org.gradle.api.internal.StartParameterInternal;
@@ -62,6 +63,12 @@ public class DefaultSettingsLoader implements SettingsLoader {
         }
 
         setDefaultProject(spec, settings);
+
+        boolean projectNameBuildFile = gradle.getServices().get(FeaturePreviews.class).isFeatureEnabled(FeaturePreviews.Feature.USE_PROJECT_NAME_BUILD_FILES);
+        for (DefaultProjectDescriptor project : settings.getProjectRegistry().getAllProjects()) {
+            project.setProjectNameEqualsBuildFileName(projectNameBuildFile);
+        }
+
         return settings;
     }
 

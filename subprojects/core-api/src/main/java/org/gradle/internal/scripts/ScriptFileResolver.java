@@ -49,4 +49,16 @@ public interface ScriptFileResolver {
      * @since 4.6
      */
      List<File> findScriptsIn(File dir);
+
+    /**
+     * Resolves a script file.
+     *
+     * @param projectName the project name
+     * @param projectDir the directory in which to search
+     * @return the resolved script file present on disk, or {@literal null} if none were found
+     *
+     * @since 6.7
+     */
+    @Nullable
+    File resolveScriptFileWithProjectName(String projectName, File projectDir);
 }

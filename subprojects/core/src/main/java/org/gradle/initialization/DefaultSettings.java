@@ -46,7 +46,10 @@ import org.gradle.plugin.management.PluginManagementSpec;
 import org.gradle.vcs.SourceControl;
 
 import javax.inject.Inject;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

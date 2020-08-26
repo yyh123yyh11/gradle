@@ -41,6 +41,18 @@ public class DefaultScriptFileResolver implements ScriptFileResolver {
     }
 
     @Override
+    public File resolveScriptFileWithProjectName(String projectName, File dir) {
+        for (String extension : EXTENSIONS) {
+            File candidate = new File(dir, projectName + extension);
+            if (candidate.isFile()) {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
     public List<File> findScriptsIn(File dir) {
         File[] candidates = dir.listFiles();
         if (candidates == null || candidates.length == 0) {
