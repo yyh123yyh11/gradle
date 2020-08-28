@@ -28,8 +28,6 @@ plugins {
     id("com.gradle.enterprise.gradle-enterprise-conventions-plugin").version("0.7.1")
 }
 
-apply(from = "gradle/shared-with-buildSrc/mirrors.settings.gradle.kts")
-
 // If you include a new subproject here, you will need to execute the
 // ./gradlew generateSubprojectsInfo
 // task to update metadata about the build for CI

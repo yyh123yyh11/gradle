@@ -73,7 +73,7 @@ class RepoScriptBlockUtil {
 
         private MirroredRepository(String originalUrl, String mirrorUrl, String type) {
             this.originalUrl = originalUrl
-            this.mirrorUrl = mirrorUrl ?: originalUrl
+            this.mirrorUrl = originalUrl
             this.name = mirrorUrl ? name() + "_MIRROR" : name()
             this.type = type
         }
@@ -182,67 +182,6 @@ class RepoScriptBlockUtil {
     }
 
     static String mirrorInitScript() {
-        def mirrorConditions = MirroredRepository.values().collect { MirroredRepository mirror ->
-            """
-                if (normalizeUrl(repo.url) == normalizeUrl('${mirror.originalUrl}')) {
-                    repo.url = '${mirror.mirrorUrl}'
-                }
-            """
-        }.join("")
-        return """
-            import groovy.transform.CompileStatic
-            import groovy.transform.CompileDynamic
-            
-            apply plugin: MirrorPlugin
-
-            @CompileStatic
-            class MirrorPlugin implements Plugin<Gradle> {
-                void apply(Gradle gradle) {
-                    gradle.allprojects { Project project ->
-                        project.buildscript.configurations["classpath"].incoming.beforeResolve {
-                            withMirrors(project.buildscript.repositories)
-                        }
-                        project.afterEvaluate {
-                            withMirrors(project.repositories)
-                        }
-                    }
-                    maybeConfigurePluginManagement(gradle)
-                }
-
-                @CompileDynamic
-                void maybeConfigurePluginManagement(Gradle gradle) {
-                    if (gradle.gradleVersion >= "4.4") {
-                        gradle.settingsEvaluated { Settings settings ->
-                            withMirrors(settings.pluginManagement.repositories)
-                        }
-                    }
-                }
-                
-                void withMirrors(RepositoryHandler repos) {
-                    repos.all { repo ->
-                        if (repo instanceof MavenArtifactRepository) {
-                            mirror(repo)
-                        } else if (repo instanceof IvyArtifactRepository) {
-                            mirror(repo)
-                        }
-                    }
-                }
-    
-                void mirror(MavenArtifactRepository repo) {
-                    ${mirrorConditions}
-                }
-
-                void mirror(IvyArtifactRepository repo) {
-                    ${mirrorConditions}
-                }
-                
-                // We see them as equal:
-                // https://repo.maven.apache.org/maven2/ and http://repo.maven.apache.org/maven2
-                String normalizeUrl(Object url) {
-                    String result = url.toString().replace('https://', 'http://')
-                    return result.endsWith("/") ? result : result + "/"
-                }
-            }
-        """
+        return ""
     }
 }
