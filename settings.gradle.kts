@@ -60,10 +60,22 @@ rootProject.name = "gradle"
 fun includeAll(folder : String) {
     file(folder).listFiles()!!.filter { it.isDirectory }.forEach { projectDir ->
         val projectName = projectDir.name
-        include(projectName)
+        val projectPath = ":" + folder.replace("/", ":") + ":" + projectName
 
-        val project = rootProject.children.first { it.name == projectName }
+        include(projectPath)
+
+        /*
+        val folderElements = folder.split("/")
+        val project = if (folderElements.size == 1) {
+            rootProject.children.first { it.name == folder }
+                .children.first { it.name == projectName }
+        } else {
+            rootProject.children.first { it.name == folderElements[0] }
+                .children.first { it.name == folderElements[1] }
+                .children.first { it.name == projectName }
+        }
         project.projectDir = projectDir
+        */
     }
 }
 FeaturePreviews.Feature.values().forEach { feature ->
