@@ -136,7 +136,7 @@ dependencies {
         api(libs.rhino)                 { version { strictly("1.7.10") }}
         api(libs.simple)                { version { strictly("4.1.21") }}
         api(libs.slf4jApi)              { version { strictly(slf4jVersion) }}
-        api(libs.snakeyaml)             { version { strictly("1.17") }}
+        api(libs.snakeyaml)             { version { strictly("1.26") }}
         api(libs.testng)                { version { strictly("6.3.1"); because("later versions break test cross-version test filtering") }}
         api(libs.trove4j)               { version { strictly("1.0.20181211") }}
         api(libs.xbeanReflect)          { version { strictly("3.7") }}
