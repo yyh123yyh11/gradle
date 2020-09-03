@@ -276,6 +276,7 @@ class PerformanceTestPlugin : Plugin<Project> {
             includeCategories(performanceRegressionTestCategory)
             excludeCategories(slowPerformanceRegressionTestCategory)
             channel = "commits$channelSuffix"
+            repeatScenarios(5)
             retryFailedScenarios()
         }
         create("distributedSlowPerformanceTest", DistributedPerformanceTest::class) {
