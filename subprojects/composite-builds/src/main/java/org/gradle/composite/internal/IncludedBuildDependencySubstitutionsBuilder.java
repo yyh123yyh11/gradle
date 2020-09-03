@@ -16,18 +16,24 @@
 
 package org.gradle.composite.internal;
 
+import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.component.ComponentSelector;
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
 import org.gradle.api.capabilities.Capability;
 import org.gradle.api.internal.artifacts.ivyservice.dependencysubstitution.DefaultDependencySubstitutions;
 import org.gradle.api.internal.artifacts.ivyservice.dependencysubstitution.DependencySubstitutionsInternal;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.internal.composite.CompositeBuildContext;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.internal.Pair;
 import org.gradle.internal.build.IncludedBuildState;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.typeconversion.NotationParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class IncludedBuildDependencySubstitutionsBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(IncludedBuildDependencySubstitutionsBuilder.class);
@@ -63,6 +69,10 @@ public class IncludedBuildDependencySubstitutionsBuilder {
             // Register the defined substitutions for included build
             context.registerSubstitution(substitutions.getRuleAction());
         }
+    }
+
+    public void addModule(Set<Pair<ModuleVersionIdentifier, ProjectComponentIdentifier>> modules) {
+        context.addAvailableModules(modules);
     }
 
     private DependencySubstitutionsInternal resolveDependencySubstitutions(IncludedBuildState build) {

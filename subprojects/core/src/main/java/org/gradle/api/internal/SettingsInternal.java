@@ -27,6 +27,7 @@ import org.gradle.groovy.scripts.ScriptSource;
 import org.gradle.initialization.DefaultProjectDescriptor;
 import org.gradle.initialization.IncludedBuildSpec;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 
@@ -68,4 +69,9 @@ public interface SettingsInternal extends Settings, PluginAwareInternal {
 
     @Override
     BuildCacheConfigurationInternal getBuildCache();
+
+    @Nullable
+    String getGroup();
+
+    boolean getGroupIsBase();
 }

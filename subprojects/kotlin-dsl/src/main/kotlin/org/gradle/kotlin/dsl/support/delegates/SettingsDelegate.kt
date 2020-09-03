@@ -127,4 +127,11 @@ abstract class SettingsDelegate : Settings {
 
     override fun getSourceControl(): SourceControl =
         delegate.sourceControl
+
+    override fun fixedGroup(group: String) =
+        delegate.fixedGroup(group)
+
+    override fun baseGroup(baseGroup: String) =
+        delegate.baseGroup(baseGroup)
+
 }

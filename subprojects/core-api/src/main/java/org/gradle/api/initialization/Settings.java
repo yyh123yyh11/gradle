@@ -281,4 +281,8 @@ public interface Settings extends PluginAware, ExtensionAware {
      * @since 4.6
      */
     void enableFeaturePreview(String name);
+
+    void fixedGroup(String group);
+
+    void baseGroup(String baseGroup);
 }

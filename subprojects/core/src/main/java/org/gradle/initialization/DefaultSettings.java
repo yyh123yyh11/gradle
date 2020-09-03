@@ -68,7 +68,10 @@ public abstract class DefaultSettings extends AbstractPluginAware implements Set
     private final ScriptHandler scriptHandler;
     private final ServiceRegistry services;
 
-    private final List<IncludedBuildSpec> includedBuildSpecs = new ArrayList<IncludedBuildSpec>();
+    private final List<IncludedBuildSpec> includedBuildSpecs = new ArrayList<>();
+
+    private String group = null;
+    private boolean groupIsBase = false;
 
     public DefaultSettings(ServiceRegistryFactory serviceRegistryFactory, GradleInternal gradle,
                            ClassLoaderScope classLoaderScope, ClassLoaderScope baseClassLoaderScope, ScriptHandler settingsScriptHandler,
@@ -349,5 +352,27 @@ public abstract class DefaultSettings extends AbstractPluginAware implements Set
                 .withUserManual("feature_lifecycle", "feature_preview")
                 .nagUser();
         }
+    }
+
+    @Override
+    public void fixedGroup(String group) {
+        this.group = group;
+        this.groupIsBase = false;
+    }
+
+    @Override
+    public void baseGroup(String baseGroup) {
+        this.group = baseGroup;
+        this.groupIsBase = true;
+    }
+
+    @Override
+    public String getGroup() {
+        return group;
+    }
+
+    @Override
+    public boolean getGroupIsBase() {
+        return groupIsBase;
     }
 }

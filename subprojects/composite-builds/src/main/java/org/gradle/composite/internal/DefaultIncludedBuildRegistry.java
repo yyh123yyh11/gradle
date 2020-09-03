@@ -19,11 +19,17 @@ package org.gradle.composite.internal;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 import org.gradle.api.GradleException;
+import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.component.BuildIdentifier;
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
+import org.gradle.api.initialization.ProjectDescriptor;
 import org.gradle.api.internal.BuildDefinition;
 import org.gradle.api.internal.SettingsInternal;
 import org.gradle.api.internal.artifacts.DefaultBuildIdentifier;
+import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier;
+import org.gradle.api.internal.artifacts.DefaultProjectComponentIdentifier;
 import org.gradle.initialization.GradleLauncherFactory;
+import org.gradle.internal.Pair;
 import org.gradle.internal.build.BuildAddedListener;
 import org.gradle.internal.build.BuildState;
 import org.gradle.internal.build.BuildStateRegistry;
@@ -42,8 +48,10 @@ import org.gradle.util.Path;
 import java.io.File;
 import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Map;
+import java.util.Set;
 
 @ServiceScope(Scopes.BuildTree.class)
 public class DefaultIncludedBuildRegistry implements BuildStateRegistry, Stoppable {
@@ -140,6 +148,30 @@ public class DefaultIncludedBuildRegistry implements BuildStateRegistry, Stoppab
     @Override
     public void beforeConfigureRootBuild() {
         registerSubstitutions(includedBuildsByRootDir.values());
+        registerSubprojectSubstitutions(getRootBuild().getLoadedSettings().getRootProject());
+    }
+
+    private void registerSubprojectSubstitutions(ProjectDescriptor project) {
+        SettingsInternal settings = rootBuild.getLoadedSettings();
+        String group = settings.getGroup();
+        if (group == null) {
+            return;
+        }
+        if (project.getChildren().isEmpty()) {
+            // real project
+            if (settings.getGroupIsBase()) {
+                group = group + (project.getParent() == settings.getRootProject() ? "" : "." + project.getParent().getPath().substring(1).replace(':', '.'));
+            }
+            Path path = Path.path(project.getPath());
+            ProjectComponentIdentifier projectIdentifier = new DefaultProjectComponentIdentifier(rootBuild.getBuildIdentifier(), path, path, project.getName());
+            Set<Pair<ModuleVersionIdentifier, ProjectComponentIdentifier>> modules =
+                Collections.singleton(Pair.of(DefaultModuleVersionIdentifier.newId(group, project.getName(), ""), projectIdentifier));
+            dependencySubstitutionsBuilder.addModule(modules);
+        } else {
+            for (ProjectDescriptor child : project.getChildren()) {
+                registerSubprojectSubstitutions(child);
+            }
+        }
     }
 
     @Override

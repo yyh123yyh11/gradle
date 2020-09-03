@@ -461,7 +461,14 @@ public class DefaultProject extends AbstractPluginAware implements ProjectIntern
         } else if (this == rootProject) {
             return "";
         }
-        group = rootProject.getName() + (getParent() == rootProject ? "" : "." + getParent().getPath().substring(1).replace(':', '.'));
+        if (getGradle().getSettings().getGroup() != null) {
+            group = getGradle().getSettings().getGroup();
+            if (getGradle().getSettings().getGroupIsBase()) {
+                group = group + (getParent() == getRootProject() ? "" : "." + getParent().getPath().substring(1).replace(':', '.'));
+            }
+        } else {
+            group = rootProject.getName() + (getParent() == rootProject ? "" : "." + getParent().getPath().substring(1).replace(':', '.'));
+        }
         return group;
     }
 
