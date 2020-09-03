@@ -15,6 +15,7 @@
  */
 package org.gradle.integtests.tooling
 
+import org.gradle.api.JavaVersion
 import org.gradle.integtests.fixtures.AbstractIntegrationSpec
 import org.gradle.integtests.fixtures.AvailableJavaHomes
 import org.gradle.internal.jvm.Jvm
@@ -22,6 +23,8 @@ import org.gradle.test.fixtures.file.TestFile
 import org.gradle.tooling.GradleConnector
 import org.gradle.util.Requires
 import org.gradle.util.TestPrecondition
+import org.junit.Assume
+import spock.lang.Unroll
 
 class ToolingApiJdkCompatibilityTest extends AbstractIntegrationSpec {
 
@@ -33,19 +36,24 @@ class ToolingApiJdkCompatibilityTest extends AbstractIntegrationSpec {
         temporaryFolder.testDirectory.file("settings.gradle") << "rootProject.name = 'target-project'"
     }
 
-    @Requires(adhoc = { AvailableJavaHomes.getJdk6() && AvailableJavaHomes.getJdk8() && TestPrecondition.JDK11_OR_LATER.fulfilled })
-    def "compiler java 1.6 tapi client on java 11+ target Gradle on java 1.6"(String gradleVersion) {
+    @Unroll
+    @Requires(adhoc = { TestPrecondition.JDK11_OR_LATER.fulfilled })
+    def "Java #compilerJdkVersion.majorVersion client can launch task on Java #clientJdkVersion.majorVersion with Gradle #gradleVersion on Java 6"(JavaVersion compilerJdkVersion, JavaVersion clientJdkVersion, String gradleVersion) {
         setup:
+        def tapiClientCompilerJdk = AvailableJavaHomes.getJdk(JavaVersion.VERSION_11)
+        def gradleDaemonJdk = AvailableJavaHomes.getJdk6()
+        Assume.assumeTrue(tapiClientCompilerJdk && gradleDaemonJdk)
+
         def classesDir = new File("build/tmp/tapiCompatClasses")
         classesDir.mkdirs()
 
         // TODO We need to use java 1.8 compiler here with -target 6 argument because GradleConnector is compiled with java 8
-        "compileJava${6}TapiClient" (classesDir)
+        "compileJava${compilerJdkVersion.majorVersion}TapiClient" (classesDir)
         def classLoader = new URLClassLoader([classesDir.toURI().toURL()] as URL[], getClass().classLoader)
         def tapiClient = classLoader.loadClass("org.gradle.integtests.tooling.ToolingApiCompatibilityClient")
 
         when:
-        def output = tapiClient.runHelp(gradleVersion, projectDir, AvailableJavaHomes.getJdk6().getJavaHome())
+        def output = tapiClient.runHelp(gradleVersion, projectDir, gradleDaemonJdk.getJavaHome())
 
         then:
         output.contains("BUILD SUCCESSFUL")
@@ -54,7 +62,15 @@ class ToolingApiJdkCompatibilityTest extends AbstractIntegrationSpec {
         classesDir.deleteDir()
 
         where:
-        gradleVersion << ['2.6', '2.14.1'] // 2.6: minimum supported version for Tooling API; 2.14.1: last Gradle version that can run on Java 1.6
+        compilerJdkVersion      | clientJdkVersion      | gradleVersion
+        JavaVersion.VERSION_1_6 | JavaVersion.current() | "2.6"    // 2.6: minimum supported version for Tooling API
+        JavaVersion.VERSION_1_6 | JavaVersion.current() | "2.14.1" // 2.14.1: last Gradle version that can run on Java 1.6
+        JavaVersion.VERSION_1_7 | JavaVersion.current() | "2.6"
+        JavaVersion.VERSION_1_7 | JavaVersion.current() | "2.14.1"
+        JavaVersion.VERSION_1_8 | JavaVersion.current() | "2.6"
+        JavaVersion.VERSION_1_8 | JavaVersion.current() | "2.14.1"
+        JavaVersion.VERSION_11  | JavaVersion.current() | "2.6"
+        JavaVersion.VERSION_11  | JavaVersion.current() | "2.14.1"
     }
 
     @Requires(adhoc = { AvailableJavaHomes.getJdk7() && AvailableJavaHomes.getJdk8() && TestPrecondition.JDK11_OR_LATER.fulfilled })
@@ -126,6 +142,10 @@ class ToolingApiJdkCompatibilityTest extends AbstractIntegrationSpec {
 
     private void compileJava8TapiClient(File targetDir) {
         compileJavaTapiClient(AvailableJavaHomes.getJdk8(), targetDir)
+    }
+
+    private void compileJava11TapiClient(File targetDir) {
+        compileJavaTapiClient(AvailableJavaHomes.getJdk(JavaVersion.VERSION_11), targetDir)
     }
 
     private void compileJavaTapiClient(Jvm jvm, File targetDir, String compilerArgs = '') {
