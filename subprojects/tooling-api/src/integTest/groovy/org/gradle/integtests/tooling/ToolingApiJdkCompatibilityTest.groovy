@@ -18,9 +18,9 @@ package org.gradle.integtests.tooling
 import org.gradle.api.JavaVersion
 import org.gradle.integtests.fixtures.AbstractIntegrationSpec
 import org.gradle.integtests.fixtures.AvailableJavaHomes
+import org.gradle.integtests.fixtures.executer.GradleContextualExecuter
 import org.gradle.internal.jvm.Jvm
 import org.gradle.test.fixtures.file.TestFile
-import org.gradle.tooling.GradleConnector
 import org.gradle.util.Requires
 import org.gradle.util.TestPrecondition
 import org.junit.Assume
@@ -37,61 +37,30 @@ class ToolingApiJdkCompatibilityTest extends AbstractIntegrationSpec {
     }
 
     @Unroll
-    @Requires(adhoc = { TestPrecondition.JDK11_OR_LATER.fulfilled })
-    def "Java #compilerJdkVersion.majorVersion client can launch task on Java #clientJdkVersion.majorVersion with Gradle #gradleVersion on Java 6"(JavaVersion compilerJdkVersion, JavaVersion clientJdkVersion, String gradleVersion) {
+    @Requires(adhoc = { TestPrecondition.JDK11_OR_LATER.fulfilled && !GradleContextualExecuter.embedded })
+    def "Java #compilerJdkVersion.majorVersion client can launch task on Java #clientJdkVersion.majorVersion with Gradle #gradleVersion on Java #gradleDaemonJdkVersion.majorVersion"(JavaVersion compilerJdkVersion, JavaVersion clientJdkVersion, JavaVersion gradleDaemonJdkVersion, String gradleVersion) {
         setup:
-        def tapiClientCompilerJdk = AvailableJavaHomes.getJdk(JavaVersion.VERSION_11)
-        def gradleDaemonJdk = AvailableJavaHomes.getJdk6()
+        def tapiClientCompilerJdk = AvailableJavaHomes.getJdk(compilerJdkVersion)
+        def gradleDaemonJdk = AvailableJavaHomes.getJdk(gradleDaemonJdkVersion)
         Assume.assumeTrue(tapiClientCompilerJdk && gradleDaemonJdk)
 
         def classesDir = new File("build/tmp/tapiCompatClasses")
         classesDir.mkdirs()
-
-        // TODO We need to use java 1.8 compiler here with -target 6 argument because GradleConnector is compiled with java 8
         "compileJava${compilerJdkVersion.majorVersion}TapiClient" (classesDir)
+
         def classLoader = new URLClassLoader([classesDir.toURI().toURL()] as URL[], getClass().classLoader)
         def tapiClient = classLoader.loadClass("org.gradle.integtests.tooling.ToolingApiCompatibilityClient")
 
         when:
-        def output = tapiClient.runHelp(gradleVersion, projectDir, gradleDaemonJdk.getJavaHome())
-
-        then:
-        output.contains("BUILD SUCCESSFUL")
-
-        cleanup:
-        classesDir.deleteDir()
-
-        where:
-        compilerJdkVersion      | clientJdkVersion      | gradleVersion
-        JavaVersion.VERSION_1_6 | JavaVersion.current() | "2.6"    // 2.6: minimum supported version for Tooling API
-        JavaVersion.VERSION_1_6 | JavaVersion.current() | "2.14.1" // 2.14.1: last Gradle version that can run on Java 1.6
-        JavaVersion.VERSION_1_7 | JavaVersion.current() | "2.6"
-        JavaVersion.VERSION_1_7 | JavaVersion.current() | "2.14.1"
-        JavaVersion.VERSION_1_8 | JavaVersion.current() | "2.6"
-        JavaVersion.VERSION_1_8 | JavaVersion.current() | "2.14.1"
-        JavaVersion.VERSION_11  | JavaVersion.current() | "2.6"
-        JavaVersion.VERSION_11  | JavaVersion.current() | "2.14.1"
-    }
-
-    @Requires(adhoc = { AvailableJavaHomes.getJdk7() && AvailableJavaHomes.getJdk8() && TestPrecondition.JDK11_OR_LATER.fulfilled })
-    def "compiler java 1.6 tapi client on java 11+ target Gradle on java 1.7"(String gradleVersion) {
-        setup:
-        def classesDir = new File("build/tmp/tapiCompatClasses")
-        classesDir.mkdirs()
-
-        // TODO We need to use java 1.8 compiler here with -target 7 argument because GradleConnector is compiled with java 8
-        compileJava6TapiClient(classesDir)
-        def classLoader = new URLClassLoader([classesDir.toURI().toURL()] as URL[], getClass().classLoader)
-        def tapiClient = classLoader.loadClass("org.gradle.integtests.tooling.ToolingApiCompatibilityClient")
-
-        when:
-        def javaHome = AvailableJavaHomes.getJdk7().getJavaHome()
-        // workaround for local sdkman issue
-        File actualJavaHome = new File(javaHome, 'zulu-7.jdk/Contents/Home')
+        // workaround for local sdkman issue // TODO delete when opening a PR
+        def gradleDaemonJavaHome = gradleDaemonJdk.getJavaHome()
+        File actualJavaHome = new File(gradleDaemonJavaHome, 'zulu-7.jdk/Contents/Home')
         if (actualJavaHome.exists() && actualJavaHome.isDirectory()) {
-            javaHome = actualJavaHome
+            gradleDaemonJavaHome = actualJavaHome
         }
-        def output = tapiClient.runHelp(gradleVersion, projectDir, javaHome)
+        def output = ("current" == gradleVersion)
+            ? tapiClient.runHelp(gradleVersion, projectDir, gradleDaemonJavaHome, distribution.gradleHomeDir.absoluteFile)
+            : tapiClient.runHelp(gradleVersion, projectDir, gradleDaemonJavaHome)
 
         then:
         output.contains("BUILD SUCCESSFUL")
@@ -100,65 +69,72 @@ class ToolingApiJdkCompatibilityTest extends AbstractIntegrationSpec {
         classesDir.deleteDir()
 
         where:
-        gradleVersion << ['2.6', '4.6', '4.10.3'] // 2.6: minimum supported version for Tooling API
-                                                  // 4.6: last version with reported regression
-                                                  // 4.10.3: last Gradle version that can run on Java 1.7
-    }
+        compilerJdkVersion      | clientJdkVersion      | gradleDaemonJdkVersion  | gradleVersion
+        JavaVersion.VERSION_1_6 | JavaVersion.current() | JavaVersion.VERSION_1_6 | "2.6"    // minimum supported version for Tooling API
+        JavaVersion.VERSION_1_6 | JavaVersion.current() | JavaVersion.VERSION_1_6 | "2.14.1" // last Gradle version that can run on Java 1.6
+        JavaVersion.VERSION_1_7 | JavaVersion.current() | JavaVersion.VERSION_1_6 | "2.6"
+        JavaVersion.VERSION_1_7 | JavaVersion.current() | JavaVersion.VERSION_1_6 | "2.14.1"
+        JavaVersion.VERSION_1_8 | JavaVersion.current() | JavaVersion.VERSION_1_6 | "2.6"
+        JavaVersion.VERSION_1_8 | JavaVersion.current() | JavaVersion.VERSION_1_6 | "2.14.1"
+        JavaVersion.VERSION_11  | JavaVersion.current() | JavaVersion.VERSION_1_6 | "2.6"
+        JavaVersion.VERSION_11  | JavaVersion.current() | JavaVersion.VERSION_1_6 | "2.14.1"
 
-    @Requires(adhoc = { AvailableJavaHomes.getJdk8() && TestPrecondition.JDK11_OR_LATER.fulfilled })
-    def "compiler java 1.6 tapi client on java 11+ target Gradle on java 1.8"(String gradleVersion) {
-        setup:
-        def classesDir = new File("build/tmp/tapiCompatClasses")
-        classesDir.mkdirs()
+        JavaVersion.VERSION_1_6 | JavaVersion.current() | JavaVersion.VERSION_1_7 | "2.6"    // minimum supported version for Tooling API
+        JavaVersion.VERSION_1_6 | JavaVersion.current() | JavaVersion.VERSION_1_7 | "4.6"    // last version with reported regression
+        JavaVersion.VERSION_1_6 | JavaVersion.current() | JavaVersion.VERSION_1_7 | "4.10.3" // last Gradle version that can run on Java 1.7
+        JavaVersion.VERSION_1_7 | JavaVersion.current() | JavaVersion.VERSION_1_7 | "2.6"
+        JavaVersion.VERSION_1_7 | JavaVersion.current() | JavaVersion.VERSION_1_7 | "4.6"
+        JavaVersion.VERSION_1_7 | JavaVersion.current() | JavaVersion.VERSION_1_7 | "4.10.3"
+        JavaVersion.VERSION_1_8 | JavaVersion.current() | JavaVersion.VERSION_1_7 | "2.6"
+        JavaVersion.VERSION_1_8 | JavaVersion.current() | JavaVersion.VERSION_1_7 | "4.6"
+        JavaVersion.VERSION_1_8 | JavaVersion.current() | JavaVersion.VERSION_1_7 | "4.10.3"
+        JavaVersion.VERSION_11  | JavaVersion.current() | JavaVersion.VERSION_1_7 | "2.6"
+        JavaVersion.VERSION_11  | JavaVersion.current() | JavaVersion.VERSION_1_7 | "4.6"
+        JavaVersion.VERSION_11  | JavaVersion.current() | JavaVersion.VERSION_1_7 | "4.10.3"
 
-        compileJava6TapiClient(classesDir)
-        def classLoader = new URLClassLoader([classesDir.toURI().toURL()] as URL[], getClass().classLoader)
-        def tapiClient = classLoader.loadClass("org.gradle.integtests.tooling.ToolingApiCompatibilityClient")
-
-        when:
-        def javaHome = AvailableJavaHomes.getJdk8().getJavaHome()
-        def output = tapiClient.runHelp(gradleVersion, projectDir, javaHome, distribution.gradleHomeDir.absoluteFile)
-
-        then:
-        GradleConnector.newConnector()
-        output.contains("BUILD SUCCESSFUL")
-
-        cleanup:
-        classesDir.deleteDir()
-
-        where:
-        gradleVersion << ['2.6', '4.6', '4.7', 'current'] // 2.6: minimum supported version for Tooling API
-                                                          // 4.6: last version with reported regression
-                                                          // 4.7: first version that had no reported regression
+        JavaVersion.VERSION_1_6 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "2.6"    // minimum supported version for Tooling API
+        JavaVersion.VERSION_1_6 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "4.6"    // last version with reported regression
+        JavaVersion.VERSION_1_6 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "4.7"    // first version that had no reported regression
+        JavaVersion.VERSION_1_6 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "current"
+        JavaVersion.VERSION_1_7 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "2.6"
+        JavaVersion.VERSION_1_7 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "4.6"
+        JavaVersion.VERSION_1_7 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "4.7"
+        JavaVersion.VERSION_1_7 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "current"
+        JavaVersion.VERSION_1_8 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "2.6"
+        JavaVersion.VERSION_1_8 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "4.6"
+        JavaVersion.VERSION_1_8 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "4.7"
+        JavaVersion.VERSION_1_8 | JavaVersion.current() | JavaVersion.VERSION_1_8 | "current"
+        JavaVersion.VERSION_11  | JavaVersion.current() | JavaVersion.VERSION_1_8 | "2.6"
+        JavaVersion.VERSION_11  | JavaVersion.current() | JavaVersion.VERSION_1_8 | "4.6"
+        JavaVersion.VERSION_11  | JavaVersion.current() | JavaVersion.VERSION_1_8 | "4.7"
+        JavaVersion.VERSION_11  | JavaVersion.current() | JavaVersion.VERSION_1_8 | "current"
     }
 
     private void compileJava6TapiClient(File targetDir) {
-        compileJavaTapiClient(AvailableJavaHomes.getJdk8(), targetDir, '-source 6 -target 6')
+        // TODO We need to use java 1.8 compiler here with -target 6 argument because GradleConnector is compiled with java 8
+        compileTapiClient(AvailableJavaHomes.getJdk8(), targetDir, '-source 6 -target 6')
     }
 
     private void compileJava7TapiClient(File targetDir) {
-        compileJavaTapiClient(AvailableJavaHomes.getJdk8(), targetDir, '-source 7 -target 7')
+        // TODO We need to use java 1.8 compiler here with -target 7 argument because GradleConnector is compiled with java 8
+        compileTapiClient(AvailableJavaHomes.getJdk8(), targetDir, '-source 7 -target 7')
     }
 
     private void compileJava8TapiClient(File targetDir) {
-        compileJavaTapiClient(AvailableJavaHomes.getJdk8(), targetDir)
+        compileTapiClient(AvailableJavaHomes.getJdk8(), targetDir)
     }
 
     private void compileJava11TapiClient(File targetDir) {
-        compileJavaTapiClient(AvailableJavaHomes.getJdk(JavaVersion.VERSION_11), targetDir)
+        compileTapiClient(AvailableJavaHomes.getJdk(JavaVersion.VERSION_11), targetDir)
     }
 
-    private void compileJavaTapiClient(Jvm jvm, File targetDir, String compilerArgs = '') {
-        def javac = new File(jvm.getJavaHome(), "/bin/javac").absolutePath
+    private void compileTapiClient(Jvm jvm, File targetDir, String compilerArgs = '') {
         def classpath = System.getProperty("java.class.path")
-
         def sourcePath = getClass().classLoader.getResource("org/gradle/integtests/tooling/ToolingApiCompatibilityClient.java").file
-        def compilationProcess = "$javac -cp $classpath -d ${targetDir.absolutePath} $compilerArgs $sourcePath".execute()
-
+        def compilationProcess = "$jvm.javacExecutable.absolutePath -cp $classpath -d $targetDir.absolutePath $compilerArgs $sourcePath".execute()
         ByteArrayOutputStream out = new ByteArrayOutputStream()
         ByteArrayOutputStream err = new ByteArrayOutputStream()
         compilationProcess.waitForProcessOutput(out, err)
-        compilationProcess.waitFor()
         println out
         println err
     }
