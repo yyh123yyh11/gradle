@@ -35,7 +35,6 @@ plugins {
 
 val moduleIdentity = extensions.create<ModuleIdentityExtension>("moduleIdentity")
 
-group = "org.gradle"
 version = collectVersionDetails(moduleIdentity)
 
 fun Project.collectVersionDetails(moduleIdentity: ModuleIdentityExtension): String {
