@@ -30,42 +30,34 @@ plugins {
 
 apply(from = "gradle/shared-with-buildSrc/mirrors.settings.gradle.kts")
 
-// If you include a new subproject here, you will need to execute the
-// ./gradlew generateSubprojectsInfo
-// task to update metadata about the build for CI
-
-// Gradle Distributions - for testing and for publishing a full distribution
-includeAll("distribution-setup")
-
-// Gradle implementation projects
-includeAll("distribution-core")
-includeAll("distribution-plugins/core")
-includeAll("distribution-plugins/basics")
-includeAll("distribution-plugins/jvm")
-includeAll("distribution-plugins/native")
-includeAll("distribution-plugins/publishing")
-includeAll("distribution-plugins/full")
-
-// Plugin portal projects
-includeAll("portal-plugins")
-
-// Internal utility and verification projects
-includeAll("documentation")
-includeAll("fixtures")
-includeAll("code-quality")
-includeAll("end-2-end-tests")
-
 rootProject.name = "gradle"
 
-fun includeAll(folder : String) {
-    file(folder).listFiles()!!.filter { it.isDirectory }.forEach { projectDir ->
-        val projectName = projectDir.name
-        include(projectName)
+mainBuild("main-build")
 
-        val project = rootProject.children.first { it.name == projectName }
-        project.projectDir = projectDir
+
+
+fun mainBuild(folder : String) {
+    val mainFolder = file(folder)
+    includeAll(mainFolder, mainFolder)
+}
+
+fun includeAll(mainFolder : File, subFolder: File) {
+    subFolder.listFiles()!!.filter { it.isDirectory }.forEach { dir ->
+        if (File(dir, "build.gradle").exists() || File(dir, "build.gradle.kts").exists()) {
+            subproject(dir, ":" + dir.relativeTo(mainFolder).toString().replace(File.separator, ":"))
+        } else {
+            includeAll(mainFolder, dir)
+        }
     }
 }
+
+fun subproject(folder: File, projectPath: String) {
+    include(projectPath)
+    project(projectPath).projectDir = folder
+
+    // TODO deactivate intermediate parent projects (which is not supported currently)
+}
+
 FeaturePreviews.Feature.values().forEach { feature ->
     if (feature.isActive) {
         enableFeaturePreview(feature.name)
