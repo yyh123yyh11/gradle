@@ -3,21 +3,21 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":logging"))
-    implementation(project(":process-services"))
-    implementation(project(":worker-processes"))
-    implementation(project(":file-collections"))
-    implementation(project(":core-api"))
-    implementation(project(":model-core"))
-    implementation(project(":core"))
-    implementation(project(":jvm-services"))
-    implementation(project(":workers"))
-    implementation(project(":platform-base"))
-    implementation(project(":platform-jvm"))
-    implementation(project(":language-jvm"))
-    implementation(project(":language-java"))
-    implementation(project(":files"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:process-services")
+    implementation("org.gradle:worker-processes")
+    implementation("org.gradle:file-collections")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:core")
+    implementation("org.gradle:jvm-services")
+    implementation("org.gradle:workers")
+    implementation("org.gradle:platform-base")
+    implementation("org.gradle:platform-jvm")
+    implementation("org.gradle:language-jvm")
+    implementation("org.gradle:language-java")
+    implementation("org.gradle:files")
 
     implementation(libs.slf4jApi)
     implementation(libs.groovy)
@@ -25,21 +25,21 @@ dependencies {
     implementation(libs.asm)
     implementation(libs.inject)
 
-    testImplementation(project(":base-services-groovy"))
-    testImplementation(project(":internal-testing"))
-    testImplementation(project(":resources"))
-    testImplementation(testFixtures(project(":core")))
+    testImplementation("org.gradle:base-services-groovy")
+    testImplementation("org.gradle:internal-testing")
+    testImplementation("org.gradle:resources")
+    testImplementation(testFixtures("org.gradle:core"))
 
-    testFixturesApi(testFixtures(project(":language-jvm")))
-    testFixturesImplementation(project(":core"))
-    testFixturesImplementation(project(":base-services"))
+    testFixturesApi(testFixtures("org.gradle:language-jvm"))
+    testFixturesImplementation("org.gradle:core")
+    testFixturesImplementation("org.gradle:base-services")
 
     integTestImplementation(libs.commonsLang)
 
-    testRuntimeOnly(project(":distributions-core")) {
+    testRuntimeOnly("org.gradle:distributions-core") {
         because("Tests instantiate DefaultClassLoaderRegistry which requires a 'gradle-plugins.properties' through DefaultPluginModuleRegistry")
     }
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }
 
 classycle {

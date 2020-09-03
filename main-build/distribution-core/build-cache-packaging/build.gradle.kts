@@ -21,23 +21,23 @@ plugins {
 description = "Package build cache results"
 
 dependencies {
-    api(project(":build-cache-base"))
-    api(project(":snapshots"))
-    api(project(":hashing"))
-    api(project(":files"))
+    api("org.gradle:build-cache-base")
+    api("org.gradle:snapshots")
+    api("org.gradle:hashing")
+    api("org.gradle:files")
 
-    implementation(project(":base-annotations"))
+    implementation("org.gradle:base-annotations")
 
     implementation(libs.guava)
     implementation(libs.commonsCompress)
     implementation(libs.commonsIo)
 
-    testImplementation(project(":process-services"))
-    testImplementation(project(":file-collections"))
-    testImplementation(project(":resources"))
+    testImplementation("org.gradle:process-services")
+    testImplementation("org.gradle:file-collections")
+    testImplementation("org.gradle:resources")
 
-    testImplementation(testFixtures(project(":base-services")))
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":snapshots")))
-    testImplementation(testFixtures(project(":core-api")))
+    testImplementation(testFixtures("org.gradle:base-services"))
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:snapshots"))
+    testImplementation(testFixtures("org.gradle:core-api"))
 }

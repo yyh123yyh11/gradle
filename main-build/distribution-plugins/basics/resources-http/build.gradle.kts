@@ -18,12 +18,12 @@ plugins {
 }
 
 dependencies {
-    api(project(":resources"))
-    implementation(project(":base-services"))
-    implementation(project(":core-api"))
-    implementation(project(":core"))
-    implementation(project(":model-core"))
-    implementation(project(":logging"))
+    api("org.gradle:resources")
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:core")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:logging")
 
     implementation(libs.commonsHttpclient)
     implementation(libs.slf4jApi)
@@ -35,15 +35,15 @@ dependencies {
     implementation(libs.xerces)
     implementation(libs.nekohtml)
 
-    testImplementation(project(":internal-integ-testing"))
+    testImplementation("org.gradle:internal-integ-testing")
     testImplementation(libs.jetty)
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":logging")))
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:logging"))
 
-    testFixturesImplementation(project(":base-services"))
-    testFixturesImplementation(project(":logging"))
-    testFixturesImplementation(project(":internal-integ-testing"))
+    testFixturesImplementation("org.gradle:base-services")
+    testFixturesImplementation("org.gradle:logging")
+    testFixturesImplementation("org.gradle:internal-integ-testing")
     testFixturesImplementation(libs.slf4jApi)
 
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }

@@ -19,33 +19,33 @@ plugins {
 }
 
 dependencies {
-    api(project(":build-cache-base"))
-    api(project(":snapshots"))
+    api("org.gradle:build-cache-base")
+    api("org.gradle:snapshots")
 
-    implementation(project(":base-services"))
-    implementation(project(":core-api"))
-    implementation(project(":files"))
-    implementation(project(":native"))
-    implementation(project(":persistent-cache"))
-    implementation(project(":resources"))
-    implementation(project(":logging"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:files")
+    implementation("org.gradle:native")
+    implementation("org.gradle:persistent-cache")
+    implementation("org.gradle:resources")
+    implementation("org.gradle:logging")
 
     implementation(libs.slf4jApi)
     implementation(libs.guava)
     implementation(libs.commonsIo)
     implementation(libs.inject)
 
-    jmhImplementation(platform(project(":distributions-dependencies")))
+    jmhImplementation(platform("org.gradle:distributions-dependencies"))
     jmhImplementation(libs.ant)
     jmhImplementation(libs.commonsCompress)
     jmhImplementation(libs.aircompressor)
     jmhImplementation(libs.snappy)
     jmhImplementation(libs.jtar)
 
-    testImplementation(project(":model-core"))
-    testImplementation(project(":file-collections"))
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":base-services")))
+    testImplementation("org.gradle:model-core")
+    testImplementation("org.gradle:file-collections")
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:base-services"))
 
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }

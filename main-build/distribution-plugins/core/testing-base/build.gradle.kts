@@ -22,18 +22,18 @@ plugins {
 gradlebuildJava.usedInWorkers()
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":messaging"))
-    implementation(project(":native"))
-    implementation(project(":logging"))
-    implementation(project(":process-services"))
-    implementation(project(":worker-processes"))
-    implementation(project(":core-api"))
-    implementation(project(":model-core"))
-    implementation(project(":core"))
-    implementation(project(":base-services-groovy"))
-    implementation(project(":reporting"))
-    implementation(project(":platform-base"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:messaging")
+    implementation("org.gradle:native")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:process-services")
+    implementation("org.gradle:worker-processes")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:core")
+    implementation("org.gradle:base-services-groovy")
+    implementation("org.gradle:reporting")
+    implementation("org.gradle:platform-base")
 
     implementation(libs.slf4jApi)
     implementation(libs.groovy)
@@ -44,23 +44,23 @@ dependencies {
     implementation(libs.inject)
     implementation(libs.ant) // only used for DateUtils
 
-    testImplementation(project(":file-collections"))
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":messaging")))
-    testImplementation(testFixtures(project(":platform-base")))
-    testImplementation(testFixtures(project(":logging")))
-    testImplementation(testFixtures(project(":base-services")))
+    testImplementation("org.gradle:file-collections")
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:messaging"))
+    testImplementation(testFixtures("org.gradle:platform-base"))
+    testImplementation(testFixtures("org.gradle:logging"))
+    testImplementation(testFixtures("org.gradle:base-services"))
 
-    testFixturesImplementation(project(":base-services"))
-    testFixturesImplementation(project(":model-core"))
-    testFixturesImplementation(project(":internal-integ-testing"))
+    testFixturesImplementation("org.gradle:base-services")
+    testFixturesImplementation("org.gradle:model-core")
+    testFixturesImplementation("org.gradle:internal-integ-testing")
     testFixturesImplementation(libs.guava)
     testFixturesImplementation(libs.jsoup)
 
-    testRuntimeOnly(project(":distributions-core")) {
+    testRuntimeOnly("org.gradle:distributions-core") {
         because("ProjectBuilder tests load services from a Gradle distribution.")
     }
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }
 
 strictCompile {

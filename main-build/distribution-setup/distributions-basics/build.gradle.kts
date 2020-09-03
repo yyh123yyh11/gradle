@@ -3,19 +3,19 @@ plugins {
 }
 
 dependencies {
-    coreRuntimeOnly(platform(project(":core-platform")))
+    coreRuntimeOnly(platform("org.gradle:core-platform"))
 
-    pluginsRuntimeOnly(platform(project(":distributions-core")))
+    pluginsRuntimeOnly(platform("org.gradle:distributions-core"))
 
-    pluginsRuntimeOnly(project(":resources-http"))
-    pluginsRuntimeOnly(project(":resources-sftp"))
-    pluginsRuntimeOnly(project(":resources-s3"))
-    pluginsRuntimeOnly(project(":resources-gcs"))
-    pluginsRuntimeOnly(project(":resources-http"))
-    pluginsRuntimeOnly(project(":build-cache-http"))
+    pluginsRuntimeOnly("org.gradle:resources-http")
+    pluginsRuntimeOnly("org.gradle:resources-sftp")
+    pluginsRuntimeOnly("org.gradle:resources-s3")
+    pluginsRuntimeOnly("org.gradle:resources-gcs")
+    pluginsRuntimeOnly("org.gradle:resources-http")
+    pluginsRuntimeOnly("org.gradle:build-cache-http")
 
-    pluginsRuntimeOnly(project(":tooling-api-builders"))
-    pluginsRuntimeOnly(project(":kotlin-dsl-tooling-builders"))
+    pluginsRuntimeOnly("org.gradle:tooling-api-builders")
+    pluginsRuntimeOnly("org.gradle:kotlin-dsl-tooling-builders")
 
-    pluginsRuntimeOnly(project(":test-kit"))
+    pluginsRuntimeOnly("org.gradle:test-kit")
 }

@@ -5,14 +5,14 @@ plugins {
 description = "JVM invocation and inspection abstractions"
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":process-services"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:process-services")
 
-    testImplementation(project(":native"))
-    testImplementation(project(":core-api"))
-    testImplementation(project(":file-collections"))
-    testImplementation(project(":snapshots"))
-    testImplementation(project(":resources"))
+    testImplementation("org.gradle:native")
+    testImplementation("org.gradle:core-api")
+    testImplementation("org.gradle:file-collections")
+    testImplementation("org.gradle:snapshots")
+    testImplementation("org.gradle:resources")
     testImplementation(libs.slf4jApi)
-    testImplementation(testFixtures(project(":core")))
+    testImplementation(testFixtures("org.gradle:core"))
 }

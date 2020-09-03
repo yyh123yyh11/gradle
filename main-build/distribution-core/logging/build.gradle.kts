@@ -9,12 +9,12 @@ gradlebuildJava.usedInWorkers()
 dependencies {
     api(libs.slf4jApi)
 
-    implementation(project(":base-services"))
-    implementation(project(":messaging"))
-    implementation(project(":cli"))
-    implementation(project(":build-option"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:messaging")
+    implementation("org.gradle:cli")
+    implementation("org.gradle:build-option")
 
-    implementation(project(":native"))
+    implementation("org.gradle:native")
     implementation(libs.julToSlf4j)
     implementation(libs.ant)
     implementation(libs.commonsLang)
@@ -24,15 +24,15 @@ dependencies {
     runtimeOnly(libs.log4jToSlf4j)
     runtimeOnly(libs.jclToSlf4j)
 
-    testImplementation(testFixtures(project(":core")))
+    testImplementation(testFixtures("org.gradle:core"))
 
     integTestImplementation(libs.ansiControlSequenceUtil)
 
-    testFixturesImplementation(project(":base-services"))
-    testFixturesImplementation(testFixtures(project(":core")))
+    testFixturesImplementation("org.gradle:base-services")
+    testFixturesImplementation(testFixtures("org.gradle:core"))
     testFixturesImplementation(libs.slf4jApi)
 
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }
 
 classycle {

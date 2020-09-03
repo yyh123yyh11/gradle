@@ -3,33 +3,33 @@ plugins {
 }
 
 dependencies {
-    coreRuntimeOnly(platform(project(":core-platform")))
+    coreRuntimeOnly(platform("org.gradle:core-platform"))
 
-    pluginsRuntimeOnly(project(":plugin-use")) {
+    pluginsRuntimeOnly("org.gradle:plugin-use") {
         because("This is a core extension module (see DynamicModulesClassPathProvider.GRADLE_EXTENSION_MODULES)")
     }
-    pluginsRuntimeOnly(project(":dependency-management")) {
+    pluginsRuntimeOnly("org.gradle:dependency-management") {
         because("This is a core extension module (see DynamicModulesClassPathProvider.GRADLE_EXTENSION_MODULES)")
     }
-    pluginsRuntimeOnly(project(":workers")) {
+    pluginsRuntimeOnly("org.gradle:workers") {
         because("This is a core extension module (see DynamicModulesClassPathProvider.GRADLE_EXTENSION_MODULES)")
     }
-    pluginsRuntimeOnly(project(":composite-builds")) {
+    pluginsRuntimeOnly("org.gradle:composite-builds") {
         because("We always need a BuildStateRegistry service implementation for certain code in ':core' to work.")
     }
-    pluginsRuntimeOnly(project(":tooling-api-builders")) {
+    pluginsRuntimeOnly("org.gradle:tooling-api-builders") {
         because("We always need a BuildEventListenerFactory service implementation for ':launcher' to create global services.")
     }
-    pluginsRuntimeOnly(project(":version-control")) {
+    pluginsRuntimeOnly("org.gradle:version-control") {
         because("We always need a VcsMappingsStore service implementation to create 'ConfigurationContainer' in ':dependency-management'.")
     }
-    pluginsRuntimeOnly(project(":configuration-cache")) {
+    pluginsRuntimeOnly("org.gradle:configuration-cache") {
         because("We always need a BuildLogicTransformStrategy service implementation.")
     }
-    pluginsRuntimeOnly(project(":testing-junit-platform")) {
+    pluginsRuntimeOnly("org.gradle:testing-junit-platform") {
         because("All test workers have JUnit platform on their classpath (see ForkingTestClassProcessor.getTestWorkerImplementationClasspath).")
     }
-    pluginsRuntimeOnly(project(":kotlin-dsl-provider-plugins")) {
+    pluginsRuntimeOnly("org.gradle:kotlin-dsl-provider-plugins") {
         because("We need a KotlinScriptBasePluginsApplicator service implementation to use Kotlin DSL scripts.")
     }
 }

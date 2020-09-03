@@ -22,18 +22,18 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":logging"))
-    implementation(project(":core-api"))
-    implementation(project(":model-core"))
-    implementation(project(":core"))
-    implementation(project(":base-services-groovy")) // for 'Specs'
-    implementation(project(":file-collections"))
-    implementation(project(":resources"))
-    implementation(project(":publish"))
-    implementation(project(":plugins")) // for base plugin to get archives conf
-    implementation(project(":plugin-use"))
-    implementation(project(":dependency-management"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:core")
+    implementation("org.gradle:base-services-groovy") // for 'Specs'
+    implementation("org.gradle:file-collections")
+    implementation("org.gradle:resources")
+    implementation("org.gradle:publish")
+    implementation("org.gradle:plugins") // for base plugin to get archives conf
+    implementation("org.gradle:plugin-use")
+    implementation("org.gradle:dependency-management")
 
     implementation(libs.groovy) // for 'Closure' and 'Task.property(String propertyName) throws groovy.lang.MissingPropertyException'
     implementation(libs.guava)
@@ -41,42 +41,42 @@ dependencies {
     implementation(libs.inject)
     implementation(libs.ivy)
 
-    testImplementation(project(":native"))
-    testImplementation(project(":process-services"))
-    testImplementation(project(":snapshots"))
+    testImplementation("org.gradle:native")
+    testImplementation("org.gradle:process-services")
+    testImplementation("org.gradle:snapshots")
 
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":model-core")))
-    testImplementation(testFixtures(project(":platform-base")))
-    testImplementation(testFixtures(project(":dependency-management")))
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:model-core"))
+    testImplementation(testFixtures("org.gradle:platform-base"))
+    testImplementation(testFixtures("org.gradle:dependency-management"))
 
-    integTestImplementation(project(":ear"))
+    integTestImplementation("org.gradle:ear")
     integTestImplementation(libs.slf4jApi)
     integTestImplementation(libs.jetty)
 
-    integTestRuntimeOnly(project(":resources-s3"))
-    integTestRuntimeOnly(project(":resources-sftp"))
-    integTestRuntimeOnly(project(":api-metadata"))
+    integTestRuntimeOnly("org.gradle:resources-s3")
+    integTestRuntimeOnly("org.gradle:resources-sftp")
+    integTestRuntimeOnly("org.gradle:api-metadata")
 
-    testFixturesApi(project(":base-services")) {
+    testFixturesApi("org.gradle:base-services") {
         because("Test fixtures export the Action class")
     }
-    testFixturesApi(project(":core-api")) {
+    testFixturesApi("org.gradle:core-api") {
         because("Test fixtures export the RepositoryHandler class")
     }
-    testFixturesImplementation(project(":logging"))
-    testFixturesImplementation(project(":dependency-management"))
-    testFixturesImplementation(project(":internal-integ-testing"))
+    testFixturesImplementation("org.gradle:logging")
+    testFixturesImplementation("org.gradle:dependency-management")
+    testFixturesImplementation("org.gradle:internal-integ-testing")
     testFixturesImplementation(libs.slf4jApi)
     testFixturesImplementation(libs.sshdCore)
     testFixturesImplementation(libs.sshdScp)
     testFixturesImplementation(libs.sshdSftp)
 
-    testRuntimeOnly(project(":distributions-core")) {
+    testRuntimeOnly("org.gradle:distributions-core") {
         because("ProjectBuilder tests load services from a Gradle distribution.")
     }
-    integTestDistributionRuntimeOnly(project(":distributions-jvm"))
-    crossVersionTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-jvm")
+    crossVersionTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }
 
 testFilesCleanup {

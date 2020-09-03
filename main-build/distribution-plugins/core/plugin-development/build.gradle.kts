@@ -22,28 +22,28 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":logging"))
-    implementation(project(":process-services"))
-    implementation(project(":files"))
-    implementation(project(":core-api"))
-    implementation(project(":model-core"))
-    implementation(project(":execution"))
-    implementation(project(":core"))
-    implementation(project(":dependency-management"))
-    implementation(project(":maven"))
-    implementation(project(":ivy"))
-    implementation(project(":platform-jvm"))
-    implementation(project(":reporting"))
-    implementation(project(":testing-base"))
-    implementation(project(":testing-jvm"))
-    implementation(project(":plugins"))
-    implementation(project(":plugin-use"))
-    implementation(project(":publish"))
-    implementation(project(":messaging"))
-    implementation(project(":workers"))
-    implementation(project(":model-groovy"))
-    implementation(project(":resources"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:process-services")
+    implementation("org.gradle:files")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:execution")
+    implementation("org.gradle:core")
+    implementation("org.gradle:dependency-management")
+    implementation("org.gradle:maven")
+    implementation("org.gradle:ivy")
+    implementation("org.gradle:platform-jvm")
+    implementation("org.gradle:reporting")
+    implementation("org.gradle:testing-base")
+    implementation("org.gradle:testing-jvm")
+    implementation("org.gradle:plugins")
+    implementation("org.gradle:plugin-use")
+    implementation("org.gradle:publish")
+    implementation("org.gradle:messaging")
+    implementation("org.gradle:workers")
+    implementation("org.gradle:model-groovy")
+    implementation("org.gradle:resources")
 
     implementation(libs.slf4jApi)
     implementation(libs.groovy)
@@ -52,22 +52,22 @@ dependencies {
     implementation(libs.inject)
     implementation(libs.asm)
 
-    testImplementation(project(":file-collections"))
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":logging")))
+    testImplementation("org.gradle:file-collections")
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:logging"))
 
-    integTestImplementation(project(":base-services-groovy"))
+    integTestImplementation("org.gradle:base-services-groovy")
     integTestImplementation(libs.jetbrainsAnnotations)
 
-    integTestLocalRepository(project(":tooling-api")) {
+    integTestLocalRepository("org.gradle:tooling-api") {
         because("Required by GradleImplDepsCompatibilityIntegrationTest")
     }
 
-    testRuntimeOnly(project(":distributions-basics")) {
+    testRuntimeOnly("org.gradle:distributions-basics") {
         because("ProjectBuilder tests load services from a Gradle distribution.")
     }
-    integTestDistributionRuntimeOnly(project(":distributions-basics"))
-    crossVersionTestDistributionRuntimeOnly(project(":distributions-basics"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-basics")
+    crossVersionTestDistributionRuntimeOnly("org.gradle:distributions-basics")
 }
 
 testFilesCleanup {

@@ -32,51 +32,51 @@ shadedJar {
 dependencies {
     shadedImplementation(libs.slf4jApi)
 
-    implementation(project(":base-services"))
-    implementation(project(":messaging"))
-    implementation(project(":logging"))
-    implementation(project(":core-api"))
-    implementation(project(":core"))
-    implementation(project(":wrapper"))
-    implementation(project(":persistent-cache"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:messaging")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:core")
+    implementation("org.gradle:wrapper")
+    implementation("org.gradle:persistent-cache")
 
     implementation(libs.guava)
 
-    testFixturesImplementation(project(":core-api"))
-    testFixturesImplementation(project(":core"))
-    testFixturesImplementation(project(":model-core"))
-    testFixturesImplementation(project(":base-services"))
-    testFixturesImplementation(project(":base-services-groovy"))
-    testFixturesImplementation(project(":internal-integ-testing"))
+    testFixturesImplementation("org.gradle:core-api")
+    testFixturesImplementation("org.gradle:core")
+    testFixturesImplementation("org.gradle:model-core")
+    testFixturesImplementation("org.gradle:base-services")
+    testFixturesImplementation("org.gradle:base-services-groovy")
+    testFixturesImplementation("org.gradle:internal-integ-testing")
     testFixturesImplementation(libs.commonsIo)
     testFixturesImplementation(libs.slf4jApi)
 
-    integTestImplementation(project(":jvm-services"))
-    integTestImplementation(project(":persistent-cache"))
+    integTestImplementation("org.gradle:jvm-services")
+    integTestImplementation("org.gradle:persistent-cache")
 
-    crossVersionTestImplementation(project(":jvm-services"))
+    crossVersionTestImplementation("org.gradle:jvm-services")
     crossVersionTestImplementation(libs.jetty)
     crossVersionTestImplementation(libs.commonsIo)
     crossVersionTestRuntimeOnly(libs.cglib) {
         because("BuildFinishedCrossVersionSpec classpath inference requires cglib enhancer")
     }
 
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":logging")))
-    testImplementation(testFixtures(project(":dependency-management")))
-    testImplementation(testFixtures(project(":ide")))
-    testImplementation(testFixtures(project(":workers")))
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:logging"))
+    testImplementation(testFixtures("org.gradle:dependency-management"))
+    testImplementation(testFixtures("org.gradle:ide"))
+    testImplementation(testFixtures("org.gradle:workers"))
 
-    integTestNormalizedDistribution(project(":distributions-full")) {
+    integTestNormalizedDistribution("org.gradle:distributions-full") {
         because("Used by ToolingApiRemoteIntegrationTest")
     }
 
-    integTestDistributionRuntimeOnly(project(":distributions-full"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-full")
     integTestLocalRepository(project(path)) {
         because("ToolingApiResolveIntegrationTest and ToolingApiClasspathIntegrationTest use the Tooling API Jar")
     }
 
-    crossVersionTestDistributionRuntimeOnly(project(":distributions-full"))
+    crossVersionTestDistributionRuntimeOnly("org.gradle:distributions-full")
     crossVersionTestLocalRepository(project(path)) {
         because("ToolingApiVersionSpecification uses the Tooling API Jar")
     }

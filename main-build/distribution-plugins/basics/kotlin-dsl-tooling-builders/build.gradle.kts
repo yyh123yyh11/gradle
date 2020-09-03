@@ -24,28 +24,28 @@ plugins {
 description = "Kotlin DSL Tooling Builders for IDEs"
 
 dependencies {
-    implementation(project(":kotlin-dsl"))
+    implementation("org.gradle:kotlin-dsl")
 
-    implementation(project(":base-services"))
-    implementation(project(":core-api"))
-    implementation(project(":model-core"))
-    implementation(project(":core"))
-    implementation(project(":resources"))
-    implementation(project(":platform-base"))
-    implementation(project(":platform-jvm"))
-    implementation(project(":plugins"))
-    implementation(project(":tooling-api"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:core")
+    implementation("org.gradle:resources")
+    implementation("org.gradle:platform-base")
+    implementation("org.gradle:platform-jvm")
+    implementation("org.gradle:plugins")
+    implementation("org.gradle:tooling-api")
 
-    testImplementation(testFixtures(project(":kotlin-dsl")))
-    integTestImplementation(project(":internal-testing"))
+    testImplementation(testFixtures("org.gradle:kotlin-dsl"))
+    integTestImplementation("org.gradle:internal-testing")
 
-    crossVersionTestImplementation(project(":persistent-cache"))
+    crossVersionTestImplementation("org.gradle:persistent-cache")
     crossVersionTestImplementation(libs.slf4jApi)
     crossVersionTestImplementation(libs.guava)
     crossVersionTestImplementation(libs.ant)
 
-    integTestDistributionRuntimeOnly(project(":distributions-basics"))
-    crossVersionTestDistributionRuntimeOnly(project(":distributions-basics"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-basics")
+    crossVersionTestDistributionRuntimeOnly("org.gradle:distributions-basics")
 }
 
 testFilesCleanup {

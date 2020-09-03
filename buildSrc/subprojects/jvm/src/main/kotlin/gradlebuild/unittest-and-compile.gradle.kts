@@ -128,7 +128,7 @@ fun addDependencies() {
         configurations["testRuntimeClasspath"].extendsFrom(platformImplementation)
         platformImplementation.withDependencies {
             // use 'withDependencies' to not attempt to find platform project during script compilation
-            add(project.dependencies.create(platform(project(":distributions-dependencies"))))
+            add(project.dependencies.create(platform("org.gradle:distributions-dependencies")))
         }
     }
 }

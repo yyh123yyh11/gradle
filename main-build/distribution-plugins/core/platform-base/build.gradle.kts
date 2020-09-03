@@ -5,37 +5,37 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":logging"))
-    implementation(project(":core-api"))
-    implementation(project(":files"))
-    implementation(project(":model-core"))
-    implementation(project(":core"))
-    implementation(project(":dependency-management"))
-    implementation(project(":workers"))
-    implementation(project(":execution"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:files")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:core")
+    implementation("org.gradle:dependency-management")
+    implementation("org.gradle:workers")
+    implementation("org.gradle:execution")
 
     implementation(libs.groovy)
     implementation(libs.guava)
     implementation(libs.commonsLang)
 
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":core-api")))
-    testImplementation(project(":native"))
-    testImplementation(project(":snapshots"))
-    testImplementation(project(":process-services"))
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:core-api"))
+    testImplementation("org.gradle:native")
+    testImplementation("org.gradle:snapshots")
+    testImplementation("org.gradle:process-services")
 
-    testFixturesApi(project(":core"))
-    testFixturesApi(project(":file-collections"))
-    testFixturesApi(testFixtures(project(":model-core")))
+    testFixturesApi("org.gradle:core")
+    testFixturesApi("org.gradle:file-collections")
+    testFixturesApi(testFixtures("org.gradle:model-core"))
     testFixturesImplementation(libs.guava)
-    testFixturesApi(testFixtures(project(":model-core")))
-    testFixturesApi(testFixtures(project(":diagnostics")))
+    testFixturesApi(testFixtures("org.gradle:model-core"))
+    testFixturesApi(testFixtures("org.gradle:diagnostics"))
 
-    testRuntimeOnly(project(":distributions-core")) {
+    testRuntimeOnly("org.gradle:distributions-core") {
         because("RuntimeShadedJarCreatorTest requires a distribution to access the ...-relocated.txt metadata")
     }
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }
 
 classycle {

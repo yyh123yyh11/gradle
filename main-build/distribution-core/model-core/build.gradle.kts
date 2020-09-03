@@ -19,14 +19,14 @@ plugins {
 }
 
 dependencies {
-    api(project(":core-api"))
+    api("org.gradle:core-api")
 
-    implementation(project(":base-services"))
-    implementation(project(":logging"))
-    implementation(project(":persistent-cache"))
-    implementation(project(":base-services-groovy"))
-    implementation(project(":messaging"))
-    implementation(project(":snapshots"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:persistent-cache")
+    implementation("org.gradle:base-services-groovy")
+    implementation("org.gradle:messaging")
+    implementation("org.gradle:snapshots")
 
     implementation(libs.futureKotlin("stdlib"))
     implementation(libs.inject)
@@ -36,23 +36,23 @@ dependencies {
     implementation(libs.commonsLang)
     implementation(libs.asm)
 
-    testFixturesApi(testFixtures(project(":diagnostics")))
-    testFixturesApi(testFixtures(project(":core")))
-    testFixturesImplementation(project(":internal-integ-testing"))
+    testFixturesApi(testFixtures("org.gradle:diagnostics"))
+    testFixturesApi(testFixtures("org.gradle:core"))
+    testFixturesImplementation("org.gradle:internal-integ-testing")
     testFixturesImplementation(libs.guava)
 
-    testImplementation(project(":process-services"))
-    testImplementation(project(":file-collections"))
-    testImplementation(project(":native"))
-    testImplementation(project(":resources"))
-    testImplementation(testFixtures(project(":core-api")))
+    testImplementation("org.gradle:process-services")
+    testImplementation("org.gradle:file-collections")
+    testImplementation("org.gradle:native")
+    testImplementation("org.gradle:resources")
+    testImplementation(testFixtures("org.gradle:core-api"))
 
-    integTestImplementation(project(":platform-base"))
+    integTestImplementation("org.gradle:platform-base")
 
-    testRuntimeOnly(project(":distributions-core")) {
+    testRuntimeOnly("org.gradle:distributions-core") {
         because("Tests instantiate DefaultClassLoaderRegistry which requires a 'gradle-plugins.properties' through DefaultPluginModuleRegistry")
     }
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }
 
 strictCompile {

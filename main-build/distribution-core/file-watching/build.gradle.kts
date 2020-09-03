@@ -21,28 +21,28 @@ plugins {
 description = "File system watchers for keeping the VFS up-to-date"
 
 dependencies {
-    api(project(":snapshots"))
+    api("org.gradle:snapshots")
 
-    implementation(project(":base-annotations"))
-    implementation(project(":build-operations"))
+    implementation("org.gradle:base-annotations")
+    implementation("org.gradle:build-operations")
 
     implementation(libs.guava)
     implementation(libs.nativePlatform)
     implementation(libs.nativePlatformFileEvents)
     implementation(libs.slf4jApi)
 
-    testImplementation(project(":process-services"))
-    testImplementation(project(":resources"))
-    testImplementation(project(":persistent-cache"))
-    testImplementation(project(":build-option"))
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":file-collections")))
-    testImplementation(testFixtures(project(":tooling-api")))
-    testImplementation(testFixtures(project(":launcher")))
+    testImplementation("org.gradle:process-services")
+    testImplementation("org.gradle:resources")
+    testImplementation("org.gradle:persistent-cache")
+    testImplementation("org.gradle:build-option")
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:file-collections"))
+    testImplementation(testFixtures("org.gradle:tooling-api"))
+    testImplementation(testFixtures("org.gradle:launcher"))
 
     testImplementation(libs.commonsIo)
 
     integTestImplementation(libs.jetty)
 
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }

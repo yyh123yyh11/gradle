@@ -6,24 +6,24 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":cli"))
-    implementation(project(":messaging"))
-    implementation(project(":build-option"))
-    implementation(project(":native"))
-    implementation(project(":logging"))
-    implementation(project(":process-services"))
-    implementation(project(":files"))
-    implementation(project(":file-collections"))
-    implementation(project(":snapshots"))
-    implementation(project(":persistent-cache"))
-    implementation(project(":core-api"))
-    implementation(project(":core"))
-    implementation(project(":bootstrap"))
-    implementation(project(":jvm-services"))
-    implementation(project(":build-events"))
-    implementation(project(":tooling-api"))
-    implementation(project(":file-watching"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:cli")
+    implementation("org.gradle:messaging")
+    implementation("org.gradle:build-option")
+    implementation("org.gradle:native")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:process-services")
+    implementation("org.gradle:files")
+    implementation("org.gradle:file-collections")
+    implementation("org.gradle:snapshots")
+    implementation("org.gradle:persistent-cache")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:core")
+    implementation("org.gradle:bootstrap")
+    implementation("org.gradle:jvm-services")
+    implementation("org.gradle:build-events")
+    implementation("org.gradle:tooling-api")
+    implementation("org.gradle:file-watching")
 
     implementation(libs.groovy) // for 'ReleaseInfo.getVersion()'
     implementation(libs.slf4jApi)
@@ -38,38 +38,38 @@ dependencies {
     runtimeOnly(libs.commonsLang)
     runtimeOnly(libs.slf4jApi)
 
-    manifestClasspath(project(":bootstrap"))
-    manifestClasspath(project(":base-services"))
-    manifestClasspath(project(":core-api"))
-    manifestClasspath(project(":core"))
-    manifestClasspath(project(":persistent-cache"))
+    manifestClasspath("org.gradle:bootstrap")
+    manifestClasspath("org.gradle:base-services")
+    manifestClasspath("org.gradle:core-api")
+    manifestClasspath("org.gradle:core")
+    manifestClasspath("org.gradle:persistent-cache")
 
-    testImplementation(project(":internal-integ-testing"))
-    testImplementation(project(":native"))
-    testImplementation(project(":cli"))
-    testImplementation(project(":process-services"))
-    testImplementation(project(":core-api"))
-    testImplementation(project(":model-core"))
-    testImplementation(project(":resources"))
-    testImplementation(project(":snapshots"))
-    testImplementation(project(":base-services-groovy")) // for 'Specs'
+    testImplementation("org.gradle:internal-integ-testing")
+    testImplementation("org.gradle:native")
+    testImplementation("org.gradle:cli")
+    testImplementation("org.gradle:process-services")
+    testImplementation("org.gradle:core-api")
+    testImplementation("org.gradle:model-core")
+    testImplementation("org.gradle:resources")
+    testImplementation("org.gradle:snapshots")
+    testImplementation("org.gradle:base-services-groovy") // for 'Specs'
 
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":language-java")))
-    testImplementation(testFixtures(project(":messaging")))
-    testImplementation(testFixtures(project(":logging")))
-    testImplementation(testFixtures(project(":tooling-api")))
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:language-java"))
+    testImplementation(testFixtures("org.gradle:messaging"))
+    testImplementation(testFixtures("org.gradle:logging"))
+    testImplementation(testFixtures("org.gradle:tooling-api"))
 
-    integTestImplementation(project(":persistent-cache"))
+    integTestImplementation("org.gradle:persistent-cache")
     integTestImplementation(libs.slf4jApi)
     integTestImplementation(libs.guava)
     integTestImplementation(libs.commonsLang)
     integTestImplementation(libs.commonsIo)
 
-    testRuntimeOnly(project(":distributions-core")) {
+    testRuntimeOnly("org.gradle:distributions-core") {
         because("Tests instantiate DefaultClassLoaderRegistry which requires a 'gradle-plugins.properties' through DefaultPluginModuleRegistry")
     }
-    integTestDistributionRuntimeOnly(project(":distributions-native")) {
+    integTestDistributionRuntimeOnly("org.gradle:distributions-native") {
         because("'native' distribution requried for 'ProcessCrashHandlingIntegrationTest.session id of daemon is different from daemon client'")
     }
 }

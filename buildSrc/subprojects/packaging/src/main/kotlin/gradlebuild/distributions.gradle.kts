@@ -74,7 +74,7 @@ pluginsRuntimeOnly.description = "To define dependencies to the Gradle modules t
 
 coreRuntimeOnly.withDependencies {
     // use 'withDependencies' to not attempt to find platform project during script compilation
-    add(project.dependencies.create(dependencies.platform(project(":distributions-dependencies"))))
+    add(project.dependencies.create(dependencies.platform("org.gradle:distributions-dependencies")))
 }
 
 // Configurations to resolve dependencies

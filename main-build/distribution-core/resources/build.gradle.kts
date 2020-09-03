@@ -5,21 +5,21 @@ plugins {
 description = "A set of general-purpose resource abstractions"
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":files"))
-    implementation(project(":messaging"))
-    implementation(project(":native"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:files")
+    implementation("org.gradle:messaging")
+    implementation("org.gradle:native")
 
     implementation(libs.slf4jApi)
     implementation(libs.guava)
     implementation(libs.commonsIo)
 
-    testImplementation(project(":process-services"))
-    testImplementation(project(":core-api"))
-    testImplementation(project(":file-collections"))
-    testImplementation(project(":snapshots"))
+    testImplementation("org.gradle:process-services")
+    testImplementation("org.gradle:core-api")
+    testImplementation("org.gradle:file-collections")
+    testImplementation("org.gradle:snapshots")
 
-    testImplementation(testFixtures(project(":core")))
+    testImplementation(testFixtures("org.gradle:core"))
 
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }

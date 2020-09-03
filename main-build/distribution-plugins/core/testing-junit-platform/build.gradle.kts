@@ -18,12 +18,12 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":messaging"))
-    implementation(project(":platform-jvm"))
-    implementation(project(":language-java"))
-    implementation(project(":testing-base"))
-    implementation(project(":testing-jvm"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:messaging")
+    implementation("org.gradle:platform-jvm")
+    implementation("org.gradle:language-java")
+    implementation("org.gradle:testing-base")
+    implementation("org.gradle:testing-jvm")
 
     implementation(libs.junit)
     implementation(libs.junitPlatform)

@@ -22,28 +22,28 @@ plugins {
 gradlebuildJava.usedInWorkers()
 
 dependencies {
-    implementation(project(":cli"))
+    implementation("org.gradle:cli")
 
-    testImplementation(project(":base-services"))
-    testImplementation(project(":native"))
+    testImplementation("org.gradle:base-services")
+    testImplementation("org.gradle:native")
     testImplementation(libs.ant)
-    testImplementation(testFixtures(project(":core")))
+    testImplementation(testFixtures("org.gradle:core"))
 
-    integTestImplementation(project(":logging"))
-    integTestImplementation(project(":core-api"))
+    integTestImplementation("org.gradle:logging")
+    integTestImplementation("org.gradle:core-api")
     integTestImplementation(libs.commonsIo)
     integTestImplementation(libs.littleproxy)
     integTestImplementation(libs.jetty)
 
-    crossVersionTestImplementation(project(":logging"))
-    crossVersionTestImplementation(project(":persistent-cache"))
-    crossVersionTestImplementation(project(":launcher"))
+    crossVersionTestImplementation("org.gradle:logging")
+    crossVersionTestImplementation("org.gradle:persistent-cache")
+    crossVersionTestImplementation("org.gradle:launcher")
 
-    integTestNormalizedDistribution(project(":distributions-full"))
-    crossVersionTestNormalizedDistribution(project(":distributions-full"))
+    integTestNormalizedDistribution("org.gradle:distributions-full")
+    crossVersionTestNormalizedDistribution("org.gradle:distributions-full")
 
-    integTestDistributionRuntimeOnly(project(":distributions-full"))
-    crossVersionTestDistributionRuntimeOnly(project(":distributions-full"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-full")
+    crossVersionTestDistributionRuntimeOnly("org.gradle:distributions-full")
 }
 
 val executableJar by tasks.registering(Jar::class) {

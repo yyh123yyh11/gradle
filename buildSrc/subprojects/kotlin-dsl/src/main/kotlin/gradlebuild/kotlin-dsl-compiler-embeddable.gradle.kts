@@ -45,7 +45,7 @@ tasks {
         ))
         originalFiles.from(kotlinCompilerEmbeddable)
         dependencies.from(configurations.detachedConfiguration(
-            project.dependencies.project(":distributions-dependencies"),
+            project.dependencies.create("org.gradle:distributions-dependencies"),
             project.dependencies.create(libs.jansi)
         ))
         dependenciesIncludes.set(mapOf(

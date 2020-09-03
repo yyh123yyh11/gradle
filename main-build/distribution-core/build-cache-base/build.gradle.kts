@@ -19,7 +19,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-annotations"))
-    implementation(project(":files"))
+    implementation("org.gradle:base-annotations")
+    implementation("org.gradle:files")
     implementation(libs.slf4jApi)
 }

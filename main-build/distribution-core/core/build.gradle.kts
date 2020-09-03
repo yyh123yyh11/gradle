@@ -32,29 +32,29 @@ tasks.classpathManifest {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":base-services-groovy"))
-    implementation(project(":messaging"))
-    implementation(project(":logging"))
-    implementation(project(":resources"))
-    implementation(project(":cli"))
-    implementation(project(":build-option"))
-    implementation(project(":native"))
-    implementation(project(":model-core"))
-    implementation(project(":persistent-cache"))
-    implementation(project(":build-cache"))
-    implementation(project(":build-cache-packaging"))
-    implementation(project(":core-api"))
-    implementation(project(":files"))
-    implementation(project(":file-collections"))
-    implementation(project(":process-services"))
-    implementation(project(":jvm-services"))
-    implementation(project(":model-groovy"))
-    implementation(project(":snapshots"))
-    implementation(project(":file-watching"))
-    implementation(project(":execution"))
-    implementation(project(":worker-processes"))
-    implementation(project(":normalization-java"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:base-services-groovy")
+    implementation("org.gradle:messaging")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:resources")
+    implementation("org.gradle:cli")
+    implementation("org.gradle:build-option")
+    implementation("org.gradle:native")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:persistent-cache")
+    implementation("org.gradle:build-cache")
+    implementation("org.gradle:build-cache-packaging")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:files")
+    implementation("org.gradle:file-collections")
+    implementation("org.gradle:process-services")
+    implementation("org.gradle:jvm-services")
+    implementation("org.gradle:model-groovy")
+    implementation("org.gradle:snapshots")
+    implementation("org.gradle:file-watching")
+    implementation("org.gradle:execution")
+    implementation("org.gradle:worker-processes")
+    implementation("org.gradle:normalization-java")
 
     implementation(libs.groovy)
     implementation(libs.ant)
@@ -70,89 +70,89 @@ dependencies {
     implementation(libs.commonsCompress)
     implementation(libs.xmlApis)
 
-    testImplementation(project(":plugins"))
-    testImplementation(project(":testing-base"))
-    testImplementation(project(":platform-native"))
+    testImplementation("org.gradle:plugins")
+    testImplementation("org.gradle:testing-base")
+    testImplementation("org.gradle:platform-native")
     testImplementation(libs.jsoup)
     testImplementation(libs.log4jToSlf4j)
     testImplementation(libs.jclToSlf4j)
 
-    testFixturesApi(project(":base-services")) {
+    testFixturesApi("org.gradle:base-services") {
         because("test fixtures expose Action")
     }
-    testFixturesApi(project(":base-services-groovy")) {
+    testFixturesApi("org.gradle:base-services-groovy") {
         because("test fixtures expose AndSpec")
     }
-    testFixturesApi(project(":core-api")) {
+    testFixturesApi("org.gradle:core-api") {
         because("test fixtures expose Task")
     }
-    testFixturesApi(project(":logging")) {
+    testFixturesApi("org.gradle:logging") {
         because("test fixtures expose Logger")
     }
-    testFixturesApi(project(":model-core")) {
+    testFixturesApi("org.gradle:model-core") {
         because("test fixtures expose IConventionAware")
     }
-    testFixturesApi(project(":build-cache")) {
+    testFixturesApi("org.gradle:build-cache") {
         because("test fixtures expose BuildCacheController")
     }
-    testFixturesApi(project(":execution")) {
+    testFixturesApi("org.gradle:execution") {
         because("test fixtures expose OutputChangeListener")
     }
-    testFixturesApi(project(":native")) {
+    testFixturesApi("org.gradle:native") {
         because("test fixtures expose FileSystem")
     }
-    testFixturesImplementation(project(":file-collections"))
-    testFixturesImplementation(project(":native"))
-    testFixturesImplementation(project(":resources"))
-    testFixturesImplementation(project(":process-services"))
-    testFixturesImplementation(project(":messaging"))
-    testFixturesImplementation(project(":persistent-cache"))
-    testFixturesImplementation(project(":snapshots"))
-    testFixturesImplementation(project(":normalization-java"))
+    testFixturesImplementation("org.gradle:file-collections")
+    testFixturesImplementation("org.gradle:native")
+    testFixturesImplementation("org.gradle:resources")
+    testFixturesImplementation("org.gradle:process-services")
+    testFixturesImplementation("org.gradle:messaging")
+    testFixturesImplementation("org.gradle:persistent-cache")
+    testFixturesImplementation("org.gradle:snapshots")
+    testFixturesImplementation("org.gradle:normalization-java")
     testFixturesImplementation(libs.ivy)
     testFixturesImplementation(libs.slf4jApi)
     testFixturesImplementation(libs.guava)
     testFixturesImplementation(libs.ant)
 
-    testFixturesRuntimeOnly(project(":plugin-use")) {
+    testFixturesRuntimeOnly("org.gradle:plugin-use") {
         because("This is a core extension module (see DynamicModulesClassPathProvider.GRADLE_EXTENSION_MODULES)")
     }
-    testFixturesRuntimeOnly(project(":dependency-management")) {
+    testFixturesRuntimeOnly("org.gradle:dependency-management") {
         because("This is a core extension module (see DynamicModulesClassPathProvider.GRADLE_EXTENSION_MODULES)")
     }
-    testFixturesRuntimeOnly(project(":workers")) {
+    testFixturesRuntimeOnly("org.gradle:workers") {
         because("This is a core extension module (see DynamicModulesClassPathProvider.GRADLE_EXTENSION_MODULES)")
     }
-    testFixturesRuntimeOnly(project(":composite-builds")) {
+    testFixturesRuntimeOnly("org.gradle:composite-builds") {
         because("We always need a BuildStateRegistry service implementation")
     }
 
-    testImplementation(project(":dependency-management"))
+    testImplementation("org.gradle:dependency-management")
 
-    testImplementation(testFixtures(project(":core-api")))
-    testImplementation(testFixtures(project(":messaging")))
-    testImplementation(testFixtures(project(":model-core")))
-    testImplementation(testFixtures(project(":logging")))
-    testImplementation(testFixtures(project(":base-services")))
-    testImplementation(testFixtures(project(":diagnostics")))
+    testImplementation(testFixtures("org.gradle:core-api"))
+    testImplementation(testFixtures("org.gradle:messaging"))
+    testImplementation(testFixtures("org.gradle:model-core"))
+    testImplementation(testFixtures("org.gradle:logging"))
+    testImplementation(testFixtures("org.gradle:base-services"))
+    testImplementation(testFixtures("org.gradle:diagnostics"))
 
-    integTestImplementation(project(":workers"))
-    integTestImplementation(project(":dependency-management"))
-    integTestImplementation(project(":launcher"))
-    integTestImplementation(project(":plugins"))
+    integTestImplementation("org.gradle:workers")
+    integTestImplementation("org.gradle:dependency-management")
+    integTestImplementation("org.gradle:launcher")
+    integTestImplementation("org.gradle:plugins")
     integTestImplementation(libs.jansi)
     integTestImplementation(libs.jetbrainsAnnotations)
     integTestImplementation(libs.jetty)
     integTestImplementation(libs.littleproxy)
-    integTestImplementation(testFixtures(project(":native")))
+    integTestImplementation(testFixtures("org.gradle:native"))
 
-    testRuntimeOnly(project(":distributions-core")) {
+    testRuntimeOnly("org.gradle:distributions-core") {
         because("ProjectBuilder tests load services from a Gradle distribution.")
     }
-    integTestDistributionRuntimeOnly(project(":distributions-basics")) {
+    integTestDistributionRuntimeOnly("org.gradle:distributions-basics") {
         because("Some tests utilise the 'java-gradle-plugin' and with that TestKit")
     }
-    crossVersionTestDistributionRuntimeOnly(project(":distributions-core"))
+    crossVersionTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }
 
 strictCompile {

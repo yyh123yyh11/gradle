@@ -5,13 +5,13 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":base-services-groovy"))
-    implementation(project(":files"))
-    implementation(project(":logging"))
-    implementation(project(":persistent-cache"))
-    implementation(project(":process-services"))
-    implementation(project(":resources"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:base-services-groovy")
+    implementation("org.gradle:files")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:persistent-cache")
+    implementation("org.gradle:process-services")
+    implementation("org.gradle:resources")
 
     implementation(libs.slf4jApi)
     implementation(libs.groovy)
@@ -23,9 +23,9 @@ dependencies {
 
     testImplementation(libs.asm)
     testImplementation(libs.asmCommons)
-    testImplementation(testFixtures(project(":logging")))
+    testImplementation(testFixtures("org.gradle:logging"))
 
-    testFixturesImplementation(project(":base-services"))
+    testFixturesImplementation("org.gradle:base-services")
 }
 
 classycle {

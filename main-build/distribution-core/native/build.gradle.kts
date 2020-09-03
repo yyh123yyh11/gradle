@@ -8,9 +8,9 @@ description = "This project contains various native operating system integration
 gradlebuildJava.usedInWorkers()
 
 dependencies {
-    api(project(":files"))
+    api("org.gradle:files")
 
-    implementation(project(":base-services"))
+    implementation("org.gradle:base-services")
 
     implementation(libs.nativePlatform)
     implementation(libs.nativePlatformFileEvents)
@@ -19,10 +19,10 @@ dependencies {
     implementation(libs.commonsIo)
     implementation(libs.jansi)
 
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":logging")))
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:logging"))
 
-    jmhImplementation(project(":files"))
+    jmhImplementation("org.gradle:files")
 }
 
 jmh {

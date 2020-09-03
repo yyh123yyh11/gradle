@@ -23,26 +23,26 @@ plugins {
 description = "Kotlin DSL Provider"
 
 dependencies {
-    api(project(":kotlin-dsl-tooling-models"))
-    api(project(":kotlin-compiler-embeddable"))
+    api("org.gradle:kotlin-dsl-tooling-models")
+    api("org.gradle:kotlin-compiler-embeddable")
     api(libs.futureKotlin("stdlib-jdk8"))
 
-    implementation(project(":base-services"))
-    implementation(project(":messaging"))
-    implementation(project(":native"))
-    implementation(project(":logging"))
-    implementation(project(":process-services"))
-    implementation(project(":persistent-cache"))
-    implementation(project(":core-api"))
-    implementation(project(":model-core"))
-    implementation(project(":core"))
-    implementation(project(":base-services-groovy")) // for 'Specs'
-    implementation(project(":file-collections"))
-    implementation(project(":files"))
-    implementation(project(":resources"))
-    implementation(project(":build-cache"))
-    implementation(project(":tooling-api"))
-    implementation(project(":execution"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:messaging")
+    implementation("org.gradle:native")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:process-services")
+    implementation("org.gradle:persistent-cache")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:core")
+    implementation("org.gradle:base-services-groovy") // for 'Specs'
+    implementation("org.gradle:file-collections")
+    implementation("org.gradle:files")
+    implementation("org.gradle:resources")
+    implementation("org.gradle:build-cache")
+    implementation("org.gradle:tooling-api")
+    implementation("org.gradle:execution")
 
     implementation(libs.groovy)
     implementation(libs.slf4jApi)
@@ -71,14 +71,14 @@ dependencies {
         isTransitive = false
     }
 
-    testImplementation(project(":build-cache-http"))
-    testImplementation(project(":build-init"))
-    testImplementation(project(":jacoco"))
-    testImplementation(project(":platform-native")) {
+    testImplementation("org.gradle:build-cache-http")
+    testImplementation("org.gradle:build-init")
+    testImplementation("org.gradle:jacoco")
+    testImplementation("org.gradle:platform-native") {
         because("BuildType from platform-native is used in ProjectAccessorsClassPathTest")
     }
-    testImplementation(project(":plugins"))
-    testImplementation(project(":version-control"))
+    testImplementation("org.gradle:plugins")
+    testImplementation("org.gradle:version-control")
     testImplementation(libs.ant)
     testImplementation(libs.asm)
     testImplementation(libs.mockitoKotlin)
@@ -88,32 +88,32 @@ dependencies {
     testImplementation(libs.kotlinCoroutines)
     testImplementation(libs.awaitility)
 
-    integTestImplementation(project(":language-groovy"))
-    integTestImplementation(project(":language-groovy")) {
+    integTestImplementation("org.gradle:language-groovy")
+    integTestImplementation("org.gradle:language-groovy") {
         because("ClassBytesRepositoryTest makes use of Groovydoc task.")
     }
-    integTestImplementation(project(":internal-testing"))
+    integTestImplementation("org.gradle:internal-testing")
     integTestImplementation(libs.mockitoKotlin)
 
-    testRuntimeOnly(project(":distributions-native")) {
+    testRuntimeOnly("org.gradle:distributions-native") {
         because("SimplifiedKotlinScriptEvaluator reads default imports from the distribution (default-imports.txt) and BuildType from platform-native is used in ProjectAccessorsClassPathTest.")
     }
 
-    testFixturesImplementation(project(":base-services"))
-    testFixturesImplementation(project(":core-api"))
-    testFixturesImplementation(project(":core"))
-    testFixturesImplementation(project(":resources"))
-    testFixturesImplementation(project(":kotlin-dsl-tooling-builders"))
-    testFixturesImplementation(project(":test-kit"))
-    testFixturesImplementation(project(":internal-testing"))
-    testFixturesImplementation(project(":internal-integ-testing"))
+    testFixturesImplementation("org.gradle:base-services")
+    testFixturesImplementation("org.gradle:core-api")
+    testFixturesImplementation("org.gradle:core")
+    testFixturesImplementation("org.gradle:resources")
+    testFixturesImplementation("org.gradle:kotlin-dsl-tooling-builders")
+    testFixturesImplementation("org.gradle:test-kit")
+    testFixturesImplementation("org.gradle:internal-testing")
+    testFixturesImplementation("org.gradle:internal-integ-testing")
 
     testFixturesImplementation(libs.junit)
     testFixturesImplementation(libs.mockitoKotlin)
     testFixturesImplementation(libs.jacksonKotlin)
     testFixturesImplementation(libs.asm)
 
-    integTestDistributionRuntimeOnly(project(":distributions-basics"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-basics")
 }
 
 classycle {

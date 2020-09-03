@@ -35,20 +35,20 @@ dependencies {
         because("Consumers need to instantiate BuildMutators")
     }
 
-    implementation(project(":base-services"))
-    implementation(project(":native"))
-    implementation(project(":cli"))
-    implementation(project(":logging"))
-    implementation(project(":process-services"))
-    implementation(project(":core-api"))
-    implementation(project(":build-option"))
-    implementation(project(":file-collections"))
-    implementation(project(":snapshots"))
-    implementation(project(":resources"))
-    implementation(project(":persistent-cache"))
-    implementation(project(":jvm-services"))
-    implementation(project(":wrapper"))
-    implementation(project(":internal-integ-testing"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:native")
+    implementation("org.gradle:cli")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:process-services")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:build-option")
+    implementation("org.gradle:file-collections")
+    implementation("org.gradle:snapshots")
+    implementation("org.gradle:resources")
+    implementation("org.gradle:persistent-cache")
+    implementation("org.gradle:jvm-services")
+    implementation("org.gradle:wrapper")
+    implementation("org.gradle:internal-integ-testing")
 
     implementation(libs.junit)
     implementation(libs.spock)
@@ -69,12 +69,12 @@ dependencies {
     implementation(libs.flightrecorder)
     implementation(libs.mina)
     implementation(libs.jetty)
-    implementation(testFixtures(project(":core")))
-    implementation(testFixtures(project(":tooling-api")))
+    implementation(testFixtures("org.gradle:core"))
+    implementation(testFixtures("org.gradle:tooling-api"))
 
     runtimeOnly("mysql:mysql-connector-java:8.0.17")
 
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }
 
 val reportResources = tasks.register<Copy>("reportResources") {

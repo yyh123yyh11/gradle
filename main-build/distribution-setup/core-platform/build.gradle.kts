@@ -6,12 +6,12 @@ plugins {
 javaPlatform.allowDependencies()
 
 dependencies {
-    runtime(project(":installation-beacon"))
-    runtime(project(":api-metadata"))
-    runtime(project(":launcher")) {
+    runtime("org.gradle:installation-beacon")
+    runtime("org.gradle:api-metadata")
+    runtime("org.gradle:launcher") {
         because("This is the entry point of Gradle core which transitively depends on all other core projects.")
     }
-    runtime(project(":kotlin-dsl")) {
+    runtime("org.gradle:kotlin-dsl") {
         because("Adds support for Kotlin DSL scripts.")
     }
 }

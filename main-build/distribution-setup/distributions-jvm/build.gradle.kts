@@ -3,13 +3,13 @@ plugins {
 }
 
 dependencies {
-    coreRuntimeOnly(platform(project(":core-platform")))
+    coreRuntimeOnly(platform("org.gradle:core-platform"))
 
-    pluginsRuntimeOnly(platform(project(":distributions-basics")))
+    pluginsRuntimeOnly(platform("org.gradle:distributions-basics"))
 
-    pluginsRuntimeOnly(project(":scala"))
-    pluginsRuntimeOnly(project(":ear"))
-    pluginsRuntimeOnly(project(":code-quality"))
-    pluginsRuntimeOnly(project(":jacoco"))
-    pluginsRuntimeOnly(project(":ide"))
+    pluginsRuntimeOnly("org.gradle:scala")
+    pluginsRuntimeOnly("org.gradle:ear")
+    pluginsRuntimeOnly("org.gradle:code-quality")
+    pluginsRuntimeOnly("org.gradle:jacoco")
+    pluginsRuntimeOnly("org.gradle:ide")
 }

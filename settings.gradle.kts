@@ -31,6 +31,7 @@ plugins {
 apply(from = "gradle/shared-with-buildSrc/mirrors.settings.gradle.kts")
 
 rootProject.name = "gradle"
+
 fixedGroup("org.gradle")
 
 mainBuild("main-build")

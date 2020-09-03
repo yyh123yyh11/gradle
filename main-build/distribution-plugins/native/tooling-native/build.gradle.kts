@@ -18,23 +18,23 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":core-api"))
-    implementation(project(":model-core"))
-    implementation(project(":core"))
-    implementation(project(":file-collections"))
-    implementation(project(":platform-base"))
-    implementation(project(":platform-native"))
-    implementation(project(":language-native"))
-    implementation(project(":testing-native"))
-    implementation(project(":tooling-api"))
-    implementation(project(":ide")) {
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:core")
+    implementation("org.gradle:file-collections")
+    implementation("org.gradle:platform-base")
+    implementation("org.gradle:platform-native")
+    implementation("org.gradle:language-native")
+    implementation("org.gradle:testing-native")
+    implementation("org.gradle:tooling-api")
+    implementation("org.gradle:ide") {
         because("To pick up various builders (which should live somewhere else)")
     }
 
     implementation(libs.guava)
 
-    testImplementation(testFixtures(project(":platform-native")))
+    testImplementation(testFixtures("org.gradle:platform-native"))
 
-    crossVersionTestDistributionRuntimeOnly(project(":distributions-native"))
+    crossVersionTestDistributionRuntimeOnly("org.gradle:distributions-native")
 }

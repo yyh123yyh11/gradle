@@ -18,13 +18,13 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":build-cache"))
-    implementation(project(":core-api"))
-    implementation(project(":core"))
-    implementation(project(":logging"))
-    implementation(project(":resources"))
-    implementation(project(":resources-http"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:build-cache")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:core")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:resources")
+    implementation("org.gradle:resources-http")
 
     implementation(libs.slf4jApi)
     implementation(libs.guava)
@@ -32,9 +32,9 @@ dependencies {
     implementation(libs.commonsLang)
     implementation(libs.inject)
 
-    testImplementation(testFixtures(project(":core")))
+    testImplementation(testFixtures("org.gradle:core"))
 
     integTestImplementation(libs.jetty)
 
-    integTestDistributionRuntimeOnly(project(":distributions-basics"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-basics")
 }

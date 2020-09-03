@@ -18,13 +18,13 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":base-services-groovy"))
-    implementation(project(":core-api"))
-    implementation(project(":files"))
-    implementation(project(":model-core"))
-    implementation(project(":logging"))
-    implementation(project(":native"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:base-services-groovy")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:files")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:native")
 
     implementation(libs.slf4jApi)
     implementation(libs.groovy)
@@ -33,23 +33,23 @@ dependencies {
     implementation(libs.commonsLang)
     implementation(libs.inject)
 
-    testImplementation(project(":process-services"))
-    testImplementation(project(":resources"))
-    testImplementation(project(":snapshots"))
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":core-api")))
-    testImplementation(testFixtures(project(":model-core")))
+    testImplementation("org.gradle:process-services")
+    testImplementation("org.gradle:resources")
+    testImplementation("org.gradle:snapshots")
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:core-api"))
+    testImplementation(testFixtures("org.gradle:model-core"))
 
-    testFixturesImplementation(project(":base-services"))
-    testFixturesImplementation(project(":core-api"))
-    testFixturesImplementation(project(":native"))
+    testFixturesImplementation("org.gradle:base-services")
+    testFixturesImplementation("org.gradle:core-api")
+    testFixturesImplementation("org.gradle:native")
 
     testFixturesImplementation(libs.guava)
 
-    testRuntimeOnly(project(":distributions-core")) {
+    testRuntimeOnly("org.gradle:distributions-core") {
         because("Tests instantiate DefaultClassLoaderRegistry which requires a 'gradle-plugins.properties' through DefaultPluginModuleRegistry")
     }
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }
 
 strictCompile {

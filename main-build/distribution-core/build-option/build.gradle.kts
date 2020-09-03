@@ -5,8 +5,8 @@ plugins {
 gradlebuildJava.usedInWorkers()
 
 dependencies {
-    implementation(project(":cli"))
+    implementation("org.gradle:cli")
 
-    implementation(project(":base-annotations"))
+    implementation("org.gradle:base-annotations")
     implementation(libs.commonsLang)
 }

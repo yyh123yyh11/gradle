@@ -18,12 +18,12 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
+    implementation("org.gradle:base-services")
 
     implementation(libs.groovy)
     implementation(libs.guava)
 
-    testImplementation(testFixtures(project(":core")))
+    testImplementation(testFixtures("org.gradle:core"))
 }
 
 strictCompile {

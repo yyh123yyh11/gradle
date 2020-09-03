@@ -21,18 +21,18 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":base-services"))
-    implementation(project(":logging"))
-    implementation(project(":core-api"))
-    implementation(project(":model-core"))
-    implementation(project(":core"))
-    implementation(project(":file-collections"))
-    implementation(project(":resources"))
-    implementation(project(":base-services-groovy"))
-    implementation(project(":dependency-management"))
-    implementation(project(":plugins"))
-    implementation(project(":plugin-use"))
-    implementation(project(":publish"))
+    implementation("org.gradle:base-services")
+    implementation("org.gradle:logging")
+    implementation("org.gradle:core-api")
+    implementation("org.gradle:model-core")
+    implementation("org.gradle:core")
+    implementation("org.gradle:file-collections")
+    implementation("org.gradle:resources")
+    implementation("org.gradle:base-services-groovy")
+    implementation("org.gradle:dependency-management")
+    implementation("org.gradle:plugins")
+    implementation("org.gradle:plugin-use")
+    implementation("org.gradle:publish")
 
     implementation(libs.slf4jApi)
     implementation(libs.groovy)
@@ -49,30 +49,30 @@ dependencies {
     implementation(libs.plexusContainer)
     implementation(libs.aetherConnector)
 
-    testImplementation(project(":native"))
-    testImplementation(project(":process-services"))
-    testImplementation(project(":snapshots"))
-    testImplementation(project(":resources-http"))
+    testImplementation("org.gradle:native")
+    testImplementation("org.gradle:process-services")
+    testImplementation("org.gradle:snapshots")
+    testImplementation("org.gradle:resources-http")
     testImplementation(libs.xmlunit)
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":model-core")))
-    testImplementation(testFixtures(project(":dependency-management")))
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:model-core"))
+    testImplementation(testFixtures("org.gradle:dependency-management"))
 
-    integTestImplementation(project(":ear"))
+    integTestImplementation("org.gradle:ear")
     integTestImplementation(libs.jetty)
 
-    testFixturesApi(project(":base-services")) {
+    testFixturesApi("org.gradle:base-services") {
         because("Test fixtures export the Action class")
     }
-    testFixturesImplementation(project(":core-api"))
-    testFixturesImplementation(project(":internal-integ-testing"))
-    testFixturesImplementation(project(":dependency-management"))
+    testFixturesImplementation("org.gradle:core-api")
+    testFixturesImplementation("org.gradle:internal-integ-testing")
+    testFixturesImplementation("org.gradle:dependency-management")
 
-    testRuntimeOnly(project(":distributions-core")) {
+    testRuntimeOnly("org.gradle:distributions-core") {
         because("ProjectBuilder tests load services from a Gradle distribution.")
     }
-    integTestDistributionRuntimeOnly(project(":distributions-jvm"))
-    crossVersionTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-jvm")
+    crossVersionTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }
 
 strictCompile {

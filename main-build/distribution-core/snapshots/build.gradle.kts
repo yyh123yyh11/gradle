@@ -22,30 +22,30 @@ plugins {
 description = "Tools to take immutable, comparable snapshots of files and other things"
 
 dependencies {
-    api(project(":files"))
-    api(project(":hashing"))
+    api("org.gradle:files")
+    api("org.gradle:hashing")
 
-    implementation(project(":base-annotations"))
+    implementation("org.gradle:base-annotations")
 
     implementation(libs.guava)
     implementation(libs.slf4jApi)
 
-    testImplementation(project(":process-services"))
-    testImplementation(project(":resources"))
-    testImplementation(project(":native"))
-    testImplementation(project(":persistent-cache"))
+    testImplementation("org.gradle:process-services")
+    testImplementation("org.gradle:resources")
+    testImplementation("org.gradle:native")
+    testImplementation("org.gradle:persistent-cache")
     testImplementation(libs.ant)
-    testImplementation(testFixtures(project(":core")))
-    testImplementation(testFixtures(project(":core-api")))
-    testImplementation(testFixtures(project(":base-services")))
-    testImplementation(testFixtures(project(":file-collections")))
-    testImplementation(testFixtures(project(":messaging")))
+    testImplementation(testFixtures("org.gradle:core"))
+    testImplementation(testFixtures("org.gradle:core-api"))
+    testImplementation(testFixtures("org.gradle:base-services"))
+    testImplementation(testFixtures("org.gradle:file-collections"))
+    testImplementation(testFixtures("org.gradle:messaging"))
 
-    testFixturesImplementation(project(":base-services"))
-    testFixturesImplementation(project(":core-api"))
-    testFixturesImplementation(project(":file-collections"))
+    testFixturesImplementation("org.gradle:base-services")
+    testFixturesImplementation("org.gradle:core-api")
+    testFixturesImplementation("org.gradle:file-collections")
 
-    integTestDistributionRuntimeOnly(project(":distributions-core"))
+    integTestDistributionRuntimeOnly("org.gradle:distributions-core")
 }
 
 afterEvaluate {
