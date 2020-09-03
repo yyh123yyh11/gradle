@@ -17,70 +17,123 @@ package org.gradle.integtests.tooling
 
 import org.gradle.integtests.fixtures.AbstractIntegrationSpec
 import org.gradle.integtests.fixtures.AvailableJavaHomes
-import org.gradle.integtests.tooling.fixture.ToolingApi
 import org.gradle.internal.jvm.Jvm
 import org.gradle.test.fixtures.file.TestFile
-import org.gradle.tooling.ProjectConnection
+import org.gradle.tooling.GradleConnector
 import org.gradle.util.Requires
 import org.gradle.util.TestPrecondition
 
 class ToolingApiJdkCompatibilityTest extends AbstractIntegrationSpec {
 
-    ToolingApi toolingApi
     TestFile projectDir
 
     def setup() {
-        toolingApi = new ToolingApi(distribution, temporaryFolder)
         projectDir = temporaryFolder.testDirectory
-    }
-
-    @Requires(adhoc = { AvailableJavaHomes.getJdk8() && TestPrecondition.JDK11_OR_LATER.fulfilled })
-    def "compiler abd tapi client java11+ target Gradle 2.6 on java 1.8"() {
-        setup:
-        def java8Home = AvailableJavaHomes.getJdk8().getJavaHome()
-        toolingApi.requireIsolatedDaemons()
-        ProjectConnection connection = toolingApi.connector().forProjectDirectory(projectDir).useGradleVersion("2.6").connect()
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream()
-
-        when:
-        connection.newBuild()
-            .forTasks("help")
-            .setStandardOutput(out)
-            .setJavaHome(java8Home)
-            .run()
-
-        then:
-        out.toString().contains("BUILD SUCCESSFUL")
+        temporaryFolder.testDirectory.file("build.gradle") << ""
+        temporaryFolder.testDirectory.file("settings.gradle") << "rootProject.name = 'target-project'"
     }
 
     @Requires(adhoc = { AvailableJavaHomes.getJdk6() && AvailableJavaHomes.getJdk8() && TestPrecondition.JDK11_OR_LATER.fulfilled })
-    def "compiler java 1.6 tapi client on java 11+ target Gradle 2.6 on java 1.6"() {
+    def "compiler java 1.6 tapi client on java 11+ target Gradle on java 1.6"(String gradleVersion) {
         setup:
         def classesDir = new File("build/tmp/tapiCompatClasses")
         classesDir.mkdirs()
 
         // TODO We need to use java 1.8 compiler here with -target 6 argument because GradleConnector is compiled with java 8
-        compileJava6TapiClient(AvailableJavaHomes.getJdk8(), classesDir)
+        "compileJava${6}TapiClient" (classesDir)
         def classLoader = new URLClassLoader([classesDir.toURI().toURL()] as URL[], getClass().classLoader)
         def tapiClient = classLoader.loadClass("org.gradle.integtests.tooling.ToolingApiCompatibilityClient")
 
         when:
-        def output = tapiClient.runHelp("2.6", projectDir, AvailableJavaHomes.getJdk6().getJavaHome())
+        def output = tapiClient.runHelp(gradleVersion, projectDir, AvailableJavaHomes.getJdk6().getJavaHome())
 
         then:
         output.contains("BUILD SUCCESSFUL")
 
         cleanup:
         classesDir.deleteDir()
+
+        where:
+        gradleVersion << ['2.6', '2.14.1'] // 2.6: minimum supported version for Tooling API; 2.14.1: last Gradle version that can run on Java 1.6
     }
 
-    private void compileJava6TapiClient(Jvm jdk8, File targetDir) {
-        def javac = new File(jdk8.getJavaHome(), "/bin/javac").absolutePath
+    @Requires(adhoc = { AvailableJavaHomes.getJdk7() && AvailableJavaHomes.getJdk8() && TestPrecondition.JDK11_OR_LATER.fulfilled })
+    def "compiler java 1.6 tapi client on java 11+ target Gradle on java 1.7"(String gradleVersion) {
+        setup:
+        def classesDir = new File("build/tmp/tapiCompatClasses")
+        classesDir.mkdirs()
+
+        // TODO We need to use java 1.8 compiler here with -target 7 argument because GradleConnector is compiled with java 8
+        compileJava6TapiClient(classesDir)
+        def classLoader = new URLClassLoader([classesDir.toURI().toURL()] as URL[], getClass().classLoader)
+        def tapiClient = classLoader.loadClass("org.gradle.integtests.tooling.ToolingApiCompatibilityClient")
+
+        when:
+        def javaHome = AvailableJavaHomes.getJdk7().getJavaHome()
+        // workaround for local sdkman issue
+        File actualJavaHome = new File(javaHome, 'zulu-7.jdk/Contents/Home')
+        if (actualJavaHome.exists() && actualJavaHome.isDirectory()) {
+            javaHome = actualJavaHome
+        }
+        def output = tapiClient.runHelp(gradleVersion, projectDir, javaHome)
+
+        then:
+        output.contains("BUILD SUCCESSFUL")
+
+        cleanup:
+        classesDir.deleteDir()
+
+        where:
+        gradleVersion << ['2.6', '4.6', '4.10.3'] // 2.6: minimum supported version for Tooling API
+                                                  // 4.6: last version with reported regression
+                                                  // 4.10.3: last Gradle version that can run on Java 1.7
+    }
+
+    @Requires(adhoc = { AvailableJavaHomes.getJdk8() && TestPrecondition.JDK11_OR_LATER.fulfilled })
+    def "compiler java 1.6 tapi client on java 11+ target Gradle on java 1.8"(String gradleVersion) {
+        setup:
+        def classesDir = new File("build/tmp/tapiCompatClasses")
+        classesDir.mkdirs()
+
+        compileJava6TapiClient(classesDir)
+        def classLoader = new URLClassLoader([classesDir.toURI().toURL()] as URL[], getClass().classLoader)
+        def tapiClient = classLoader.loadClass("org.gradle.integtests.tooling.ToolingApiCompatibilityClient")
+
+        when:
+        def javaHome = AvailableJavaHomes.getJdk8().getJavaHome()
+        def output = tapiClient.runHelp(gradleVersion, projectDir, javaHome, distribution.gradleHomeDir.absoluteFile)
+
+        then:
+        GradleConnector.newConnector()
+        output.contains("BUILD SUCCESSFUL")
+
+        cleanup:
+        classesDir.deleteDir()
+
+        where:
+        gradleVersion << ['2.6', '4.6', '4.7', 'current'] // 2.6: minimum supported version for Tooling API
+                                                          // 4.6: last version with reported regression
+                                                          // 4.7: first version that had no reported regression
+    }
+
+    private void compileJava6TapiClient(File targetDir) {
+        compileJavaTapiClient(AvailableJavaHomes.getJdk8(), targetDir, '-source 6 -target 6')
+    }
+
+    private void compileJava7TapiClient(File targetDir) {
+        compileJavaTapiClient(AvailableJavaHomes.getJdk8(), targetDir, '-source 7 -target 7')
+    }
+
+    private void compileJava8TapiClient(File targetDir) {
+        compileJavaTapiClient(AvailableJavaHomes.getJdk8(), targetDir)
+    }
+
+    private void compileJavaTapiClient(Jvm jvm, File targetDir, String compilerArgs = '') {
+        def javac = new File(jvm.getJavaHome(), "/bin/javac").absolutePath
         def classpath = System.getProperty("java.class.path")
 
         def sourcePath = getClass().classLoader.getResource("org/gradle/integtests/tooling/ToolingApiCompatibilityClient.java").file
-        def compilationProcess = "$javac -cp $classpath -d ${targetDir.absolutePath} -source 6 -target 6 $sourcePath".execute()
+        def compilationProcess = "$javac -cp $classpath -d ${targetDir.absolutePath} $compilerArgs $sourcePath".execute()
 
         ByteArrayOutputStream out = new ByteArrayOutputStream()
         ByteArrayOutputStream err = new ByteArrayOutputStream()

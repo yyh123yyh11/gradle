@@ -25,8 +25,17 @@ import java.io.File;
 public class ToolingApiCompatibilityClient {
 
     public static String runHelp(String gradleVersion, File projectLocation, File javaHome) throws Exception {
+        return runHelp(gradleVersion, projectLocation, javaHome, null);
+    }
+
+    public static String runHelp(String gradleVersion, File projectLocation, File javaHome, File gradleHome) throws Exception {
         GradleConnector connector = GradleConnector.newConnector();
-        ProjectConnection connection = connector.forProjectDirectory(projectLocation).useGradleVersion(gradleVersion).connect();
+        if (!"current".equals(gradleVersion)) {
+            connector.useGradleVersion(gradleVersion);
+        } else {
+            connector.useInstallation(gradleHome);
+        }
+        ProjectConnection connection = connector.forProjectDirectory(projectLocation).connect();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
