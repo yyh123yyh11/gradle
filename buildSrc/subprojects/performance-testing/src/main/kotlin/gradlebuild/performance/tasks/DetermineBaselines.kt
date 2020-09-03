@@ -47,7 +47,7 @@ abstract class DetermineBaselines @Inject constructor(@get:Internal val distribu
 
     @TaskAction
     fun determineForkPointCommitBaseline() {
-        if (configuredBaselines.getOrElse("") == forceDefaultBaseline) {
+        if (true) {
             determinedBaselines.set(defaultBaseline)
         } else if (configuredBaselines.getOrElse("") == flakinessDetectionCommitBaseline) {
             determinedBaselines.set(determineFlakinessDetectionBaseline())
