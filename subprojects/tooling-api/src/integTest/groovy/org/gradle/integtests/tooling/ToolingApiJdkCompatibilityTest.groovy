@@ -52,12 +52,6 @@ class ToolingApiJdkCompatibilityTest extends AbstractIntegrationSpec {
         def tapiClient = classLoader.loadClass("org.gradle.integtests.tooling.ToolingApiCompatibilityClient")
 
         when:
-        // workaround for local sdkman issue // TODO delete when opening a PR
-        def gradleDaemonJavaHome = gradleDaemonJdk.getJavaHome()
-        File actualJavaHome = new File(gradleDaemonJavaHome, 'zulu-7.jdk/Contents/Home')
-        if (actualJavaHome.exists() && actualJavaHome.isDirectory()) {
-            gradleDaemonJavaHome = actualJavaHome
-        }
         def output = ("current" == gradleVersion)
             ? tapiClient.runHelp(gradleVersion, projectDir, gradleDaemonJavaHome, distribution.gradleHomeDir.absoluteFile)
             : tapiClient.runHelp(gradleVersion, projectDir, gradleDaemonJavaHome)
