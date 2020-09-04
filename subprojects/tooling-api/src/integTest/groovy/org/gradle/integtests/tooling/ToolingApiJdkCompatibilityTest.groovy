@@ -46,7 +46,7 @@ class ToolingApiJdkCompatibilityTest extends AbstractIntegrationSpec {
 
         def classesDir = new File("build/tmp/tapiCompatClasses")
         classesDir.mkdirs()
-        "compileJava${compilerJdkVersion.majorVersion}TapiClient" (classesDir)
+        "compileJava${compilerJdkVersion.majorVersion}TapiClient"(classesDir)
 
         def classLoader = new URLClassLoader([classesDir.toURI().toURL()] as URL[], getClass().classLoader)
         def tapiClient = classLoader.loadClass("org.gradle.integtests.tooling.ToolingApiCompatibilityClient")
