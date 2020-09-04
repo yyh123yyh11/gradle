@@ -53,8 +53,8 @@ class ToolingApiJdkCompatibilityTest extends AbstractIntegrationSpec {
 
         when:
         def output = ("current" == gradleVersion)
-            ? tapiClient.runHelp(gradleVersion, projectDir, gradleDaemonJavaHome, distribution.gradleHomeDir.absoluteFile)
-            : tapiClient.runHelp(gradleVersion, projectDir, gradleDaemonJavaHome)
+            ? tapiClient.runHelp(gradleVersion, projectDir, gradleDaemonJdk.javaHome, distribution.gradleHomeDir.absoluteFile)
+            : tapiClient.runHelp(gradleVersion, projectDir, gradleDaemonJdk.javaHome)
 
         then:
         output.contains("BUILD SUCCESSFUL")
