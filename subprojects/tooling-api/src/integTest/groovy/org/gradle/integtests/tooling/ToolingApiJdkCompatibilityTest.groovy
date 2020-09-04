@@ -125,7 +125,9 @@ class ToolingApiJdkCompatibilityTest extends AbstractIntegrationSpec {
     private void compileTapiClient(Jvm jvm, File targetDir, String compilerArgs = '') {
         def classpath = System.getProperty("java.class.path")
         def sourcePath = getClass().classLoader.getResource("org/gradle/integtests/tooling/ToolingApiCompatibilityClient.java").file
-        def compilationProcess = "$jvm.javacExecutable.absolutePath -cp $classpath -d $targetDir.absolutePath $compilerArgs $sourcePath".execute()
+        def compilationCommand = "$jvm.javacExecutable.absolutePath -cp $classpath -d $targetDir.absolutePath $compilerArgs $sourcePath"
+        System.err.println(compilationCommand)
+        def compilationProcess = compilationCommand.execute()
         ByteArrayOutputStream out = new ByteArrayOutputStream()
         ByteArrayOutputStream err = new ByteArrayOutputStream()
         compilationProcess.waitForProcessOutput(out, err)
