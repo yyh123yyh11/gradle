@@ -122,7 +122,7 @@ public class GradleBuildExperimentRunner extends AbstractGradleProfilerBuildExpe
         }
     }
 
-    private GradleScenarioInvoker createScenarioInvoker(File gradleUserHome) throws IOException {
+    private GradleScenarioInvoker createScenarioInvoker(File gradleUserHome) {
         DaemonControl daemonControl = new DaemonControl(gradleUserHome);
         return new GradleScenarioInvoker(daemonControl, pidInstrumentation);
     }
@@ -163,7 +163,7 @@ public class GradleBuildExperimentRunner extends AbstractGradleProfilerBuildExpe
             experimentSpec.getDisplayName(),
             (GradleBuildInvoker) invocationSettings.getInvoker(),
             new GradleBuildConfiguration(gradleDistribution.getVersion(), gradleDistribution.getGradleHomeDir(), Jvm.current().getJavaHome(), invocationSpec.getJvmOpts(), false),
-            new RunTasksAction(invocationSettings.getTargets()),
+            experimentSpec.getInvocation().getBuildAction(),
             cleanTasks.isEmpty()
                 ? BuildAction.NO_OP
                 : new RunTasksAction(cleanTasks),

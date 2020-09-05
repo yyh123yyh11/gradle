@@ -27,15 +27,17 @@ class GradleBuildExperimentSpec extends BuildExperimentSpec {
     final GradleInvocationSpec invocation
     final ImmutableList<String> measuredBuildOperations
 
-    GradleBuildExperimentSpec(String displayName,
-                              String projectName,
-                              File workingDirectory,
-                              GradleInvocationSpec invocation,
-                              Integer warmUpCount,
-                              Integer invocationCount,
-                              InvocationCustomizer invocationCustomizer,
-                              ImmutableList<Function<InvocationSettings, BuildMutator>> buildMutators,
-                              ImmutableList<String> measuredBuildOperations) {
+    GradleBuildExperimentSpec(
+        String displayName,
+        String projectName,
+        File workingDirectory,
+        GradleInvocationSpec invocation,
+        Integer warmUpCount,
+        Integer invocationCount,
+        InvocationCustomizer invocationCustomizer,
+        ImmutableList<Function<InvocationSettings, BuildMutator>> buildMutators,
+        ImmutableList<String> measuredBuildOperations
+    ) {
         super(displayName, projectName, workingDirectory, warmUpCount, invocationCount, invocationCustomizer, buildMutators)
         this.measuredBuildOperations = measuredBuildOperations
         this.invocation = invocation

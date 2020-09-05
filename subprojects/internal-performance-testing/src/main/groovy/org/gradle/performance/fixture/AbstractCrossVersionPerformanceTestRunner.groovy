@@ -54,6 +54,7 @@ class AbstractCrossVersionPerformanceTestRunner extends PerformanceTestSpec {
     String testProject
     File workingDir
     boolean useDaemon = true
+    boolean useToolingApi = false
 
     List<String> tasksToRun = []
     List<String> cleanTasks = []
@@ -245,6 +246,7 @@ class AbstractCrossVersionPerformanceTestRunner extends PerformanceTestSpec {
                 args((this.args + ['-I', RepoScriptBlockUtil.createMirrorInitScript().absolutePath, "-D${PLUGIN_PORTAL_OVERRIDE_URL_PROPERTY}=${gradlePluginRepositoryMirrorUrl()}"]) as String[])
                 gradleOpts(gradleOptsInUse as String[])
                 useDaemon(this.useDaemon)
+                useToolingApi(this.useToolingApi)
             }
         builder.workingDirectory = workingDir
         configureGradleBuildExperimentSpec(builder)
