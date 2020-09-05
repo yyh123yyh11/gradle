@@ -16,12 +16,12 @@
 
 package org.gradle.performance.regression.android
 
-import org.gradle.performance.AbstractCrossVersionGradleProfilerPerformanceTest
+import org.gradle.performance.AbstractCrossVersionPerformanceTest
 import org.gradle.performance.android.GetModel
 import org.gradle.performance.android.SyncAction
 import spock.lang.Unroll
 
-class RealLifeAndroidStudioMockupPerformanceTest extends AbstractCrossVersionGradleProfilerPerformanceTest {
+class RealLifeAndroidStudioMockupPerformanceTest extends AbstractCrossVersionPerformanceTest {
 
     @Unroll
     def "get IDE model on #testProject for Android Studio"() {

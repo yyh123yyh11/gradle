@@ -20,7 +20,4 @@ dependencies {
     performanceTestDistributionRuntimeOnly(project(":distributions-full")) {
         because("All Gradle features have to be available.")
     }
-    performanceTestLocalRepository(project(":tooling-api")) {
-        because("IDE tests use the Tooling API.")
-    }
 }
