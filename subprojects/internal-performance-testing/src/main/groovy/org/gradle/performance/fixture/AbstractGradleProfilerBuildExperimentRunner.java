@@ -25,7 +25,7 @@ import org.gradle.profiler.BenchmarkResultCollector;
 import org.gradle.profiler.BuildMutator;
 import org.gradle.profiler.InvocationSettings;
 import org.gradle.profiler.ScenarioDefinition;
-import org.gradle.profiler.jfr.JfrProfilerFactory;
+import org.gradle.profiler.asyncprofiler.AsyncProfilerFactory;
 import org.gradle.profiler.result.BuildInvocationResult;
 
 import java.io.File;
@@ -62,9 +62,8 @@ public abstract class AbstractGradleProfilerBuildExperimentRunner implements Bui
         } else {
             OptionParser optionParser = new OptionParser();
             optionParser.accepts("profiler");
-            JfrProfilerFactory jfrProfilerFactory = new JfrProfilerFactory();
-            jfrProfilerFactory.addOptions(optionParser);
-            return jfrProfilerFactory.createFromOptions(optionParser.parse());
+            AsyncProfilerFactory.INSTANCE.addOptions(optionParser);
+            return AsyncProfilerFactory.INSTANCE.createFromOptions(optionParser.parse());
         }
     }
 
