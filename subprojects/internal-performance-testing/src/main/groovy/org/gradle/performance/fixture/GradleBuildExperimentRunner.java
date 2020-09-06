@@ -37,6 +37,7 @@ import org.gradle.profiler.RunTasksAction;
 import org.gradle.profiler.instrument.PidInstrumentation;
 import org.gradle.profiler.report.CsvGenerator;
 import org.gradle.profiler.result.Sample;
+import org.gradle.tooling.internal.consumer.ConnectorServices;
 
 import java.io.File;
 import java.io.IOException;
@@ -119,6 +120,7 @@ public class GradleBuildExperimentRunner extends AbstractGradleProfilerBuildExpe
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            ConnectorServices.reset();
         }
     }
 
