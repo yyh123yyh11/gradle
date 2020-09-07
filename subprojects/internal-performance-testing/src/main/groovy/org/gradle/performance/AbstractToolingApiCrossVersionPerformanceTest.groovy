@@ -36,7 +36,6 @@ import org.gradle.performance.fixture.BuildExperimentSpec
 import org.gradle.performance.fixture.InvocationSpec
 import org.gradle.performance.fixture.OperationTimer
 import org.gradle.performance.fixture.PerformanceTestDirectoryProvider
-import org.gradle.performance.fixture.PerformanceTestGradleDistribution
 import org.gradle.performance.fixture.PerformanceTestIdProvider
 import org.gradle.performance.fixture.Profiler
 import org.gradle.performance.fixture.TestProjectLocator
@@ -196,7 +195,8 @@ abstract class AbstractToolingApiCrossVersionPerformanceTest extends Specificati
                 def workingDirProvider = copyTemplateTo(projectDir, experimentSpec.workingDirectory, version)
                 GradleDistribution dist = 'current' == version ? CURRENT : buildContext.distribution(version)
                 println "Testing ${dist.version}..."
-                def toolingApi = new ToolingApi(new PerformanceTestGradleDistribution(dist, workingDirProvider.testDirectory), workingDirProvider)
+
+                def toolingApi = new ToolingApi(dist, workingDirProvider)
 //                toolingApi.requireIsolatedDaemons()
                 toolingApi.requireIsolatedUserHome()
                 toolingApi.withConnection { ProjectConnection projectConnection ->
