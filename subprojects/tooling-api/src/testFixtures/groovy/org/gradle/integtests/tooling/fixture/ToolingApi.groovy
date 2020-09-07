@@ -28,7 +28,6 @@ import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.internal.consumer.ConnectorServices
 import org.gradle.tooling.internal.consumer.DefaultGradleConnector
-import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.util.GradleVersion
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -191,19 +190,19 @@ class ToolingApi implements TestRule {
             connector.verboseLogging = verboseLogging
         }
 
-        if (gradleUserHomeDir != context.gradleUserHomeDir) {
-            // When using an isolated user home, first initialise the Gradle instance using the default user home dir
-            // This sets some static state that uses files from the user home dir, such as DLLs
-            connector.useGradleUserHomeDir(new File(context.gradleUserHomeDir.path))
-            def connection = connector.connect()
-            try {
-                connection.getModel(BuildEnvironment.class)
-            } finally {
-                connection.close()
-            }
-        }
-
-        isolateFromGradleOwnBuild(connector)
+//        if (gradleUserHomeDir != context.gradleUserHomeDir) {
+//            // When using an isolated user home, first initialise the Gradle instance using the default user home dir
+//            // This sets some static state that uses files from the user home dir, such as DLLs
+//            connector.useGradleUserHomeDir(new File(context.gradleUserHomeDir.path))
+//            def connection = connector.connect()
+//            try {
+//                connection.getModel(BuildEnvironment.class)
+//            } finally {
+//                connection.close()
+//            }
+//        }
+//
+//        isolateFromGradleOwnBuild(connector)
 
         connector.useGradleUserHomeDir(new File(gradleUserHomeDir.path))
         connectorConfigurers.each {
