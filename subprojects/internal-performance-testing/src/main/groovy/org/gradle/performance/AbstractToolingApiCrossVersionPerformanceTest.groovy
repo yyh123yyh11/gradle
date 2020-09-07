@@ -24,7 +24,6 @@ import org.gradle.integtests.fixtures.executer.UnderDevelopmentGradleDistributio
 import org.gradle.integtests.fixtures.versions.ReleasedVersionDistributions
 import org.gradle.integtests.tooling.fixture.ToolingApi
 import org.gradle.integtests.tooling.fixture.ToolingApiClasspathProvider
-import org.gradle.integtests.tooling.fixture.ToolingApiDistributionResolver
 import org.gradle.internal.concurrent.CompositeStoppable
 import org.gradle.internal.concurrent.Stoppable
 import org.gradle.internal.jvm.Jvm
@@ -189,26 +188,21 @@ abstract class AbstractToolingApiCrossVersionPerformanceTest extends Specificati
                 channel: ResultsStoreHelper.determineChannel(),
                 teamCityBuildId: ResultsStoreHelper.determineTeamCityBuildId()
             )
-            def resolver = new ToolingApiDistributionResolver().withDefaultRepository().withExternalToolingApiDistribution()
-            try {
-                List<String> baselines = AbstractCrossVersionPerformanceTestRunner.toBaselineVersions(RELEASES, experiment.targetVersions, experiment.minimumBaseVersion).toList()
-                [*baselines, 'current'].each { String version ->
-                    def experimentSpec = new ToolingApiBuildExperimentSpec(version, temporaryFolder.testDirectory, experiment)
-                    def workingDirProvider = copyTemplateTo(projectDir, experimentSpec.workingDirectory, version)
-                    GradleDistribution dist = 'current' == version ? CURRENT : buildContext.distribution(version)
-                    println "Testing ${dist.version}..."
-                    def toolingApi = new ToolingApi(new PerformanceTestGradleDistribution(dist, workingDirProvider.testDirectory), workingDirProvider)
-                    toolingApi.requireIsolatedDaemons()
-                    toolingApi.requireIsolatedUserHome()
+            List<String> baselines = AbstractCrossVersionPerformanceTestRunner.toBaselineVersions(RELEASES, experiment.targetVersions, experiment.minimumBaseVersion).toList()
+            [*baselines, 'current'].each { String version ->
+                def experimentSpec = new ToolingApiBuildExperimentSpec(version, temporaryFolder.testDirectory, experiment)
+                def workingDirProvider = copyTemplateTo(projectDir, experimentSpec.workingDirectory, version)
+                GradleDistribution dist = 'current' == version ? CURRENT : buildContext.distribution(version)
+                println "Testing ${dist.version}..."
+                def toolingApi = new ToolingApi(new PerformanceTestGradleDistribution(dist, workingDirProvider.testDirectory), workingDirProvider)
+                toolingApi.requireIsolatedDaemons()
+                toolingApi.requireIsolatedUserHome()
 
-                    warmup(toolingApi, experimentSpec)
-                    profiler.start(experimentSpec)
-                    measure(results, toolingApi, version, experimentSpec)
-                    profiler.stop(experimentSpec)
-                    toolingApi.daemons.killAll()
-                }
-            } finally {
-                resolver.stop()
+                warmup(toolingApi, experimentSpec)
+                profiler.start(experimentSpec)
+                measure(results, toolingApi, version, experimentSpec)
+                profiler.stop(experimentSpec)
+                toolingApi.daemons.killAll()
             }
 
             results.endTime = clock.getCurrentTime()
