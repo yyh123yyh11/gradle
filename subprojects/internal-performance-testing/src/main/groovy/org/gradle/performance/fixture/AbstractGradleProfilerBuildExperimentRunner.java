@@ -63,7 +63,7 @@ public abstract class AbstractGradleProfilerBuildExperimentRunner implements Bui
             OptionParser optionParser = new OptionParser();
             optionParser.accepts("profiler");
             AsyncProfilerFactory.INSTANCE.addOptions(optionParser);
-            return AsyncProfilerFactory.INSTANCE.createFromOptions(optionParser.parse());
+            return AsyncProfilerFactory.INSTANCE.createFromOptions(optionParser.parse("--profile", "--async-profiler-event", "wall"));
         }
     }
 
