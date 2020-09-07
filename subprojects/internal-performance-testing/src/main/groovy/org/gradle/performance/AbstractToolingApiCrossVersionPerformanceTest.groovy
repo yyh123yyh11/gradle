@@ -51,6 +51,7 @@ import org.gradle.test.fixtures.file.CleanupTestDirectory
 import org.gradle.test.fixtures.file.TestDirectoryProvider
 import org.gradle.test.fixtures.file.TestFile
 import org.gradle.test.fixtures.file.TestNameTestDirectoryProvider
+import org.gradle.tooling.LongRunningOperation
 import org.gradle.tooling.ProjectConnection
 import org.gradle.util.GFileUtils
 import org.gradle.util.GradleVersion
@@ -62,7 +63,8 @@ import org.slf4j.LoggerFactory
 import spock.lang.Shared
 import spock.lang.Specification
 
-import java.lang.reflect.Proxy
+import java.util.function.Consumer
+import java.util.function.Function
 
 import static org.gradle.performance.results.ResultsStoreHelper.createResultsStoreWhenDatabaseAvailable
 
@@ -121,7 +123,7 @@ abstract class AbstractToolingApiCrossVersionPerformanceTest extends Specificati
         String testClassName
         List<String> targetVersions = []
         String minimumBaseVersion
-        Closure<?> action
+        ToolingApiInvocation<? extends LongRunningOperation> toolingApiInvocation
         Integer invocationCount
         Integer warmUpCount
 
@@ -129,8 +131,8 @@ abstract class AbstractToolingApiCrossVersionPerformanceTest extends Specificati
             this.projectName = projectName
         }
 
-        void action(@DelegatesTo(ProjectConnection) Closure<?> action) {
-            this.action = action
+        def <T extends LongRunningOperation> ToolingApiInvocation<T> action(Function<ProjectConnection, T> action) {
+            this.toolingApiInvocation = new ToolingApiInvocation<T>(action)
         }
     }
 
@@ -247,18 +249,18 @@ abstract class AbstractToolingApiCrossVersionPerformanceTest extends Specificati
                 count.times { n ->
                     println "Run #${n + 1}"
                     versionResults.add(timer.measure {
-                        toolingApi.withConnection(wrapAction(action, experimentSpec))
+                        toolingApi.withConnection { ProjectConnection projectConnection -> toolingApiInvocation.execute(experimentSpec, projectConnection) }
                     })
                 }
             }
         }
 
-        private void warmup(toolingApi, ToolingApiBuildExperimentSpec experimentSpec) {
+        private void warmup(ToolingApi toolingApi, ToolingApiBuildExperimentSpec experimentSpec) {
             experiment.with {
                 def count = iterationCount("warmups", warmUpCount)
                 count.times { n ->
                     println "Warm-up #${n + 1}"
-                    toolingApi.withConnection(wrapAction(action, experimentSpec))
+                    toolingApi.withConnection { ProjectConnection projectConnection -> toolingApiInvocation.execute(experimentSpec, projectConnection) }
                 }
             }
         }
@@ -270,52 +272,39 @@ abstract class AbstractToolingApiCrossVersionPerformanceTest extends Specificati
             }
             return defaultValue
         }
+    }
 
-        public Closure wrapAction(Closure action, ToolingApiBuildExperimentSpec spec) {
-            { connection -> asPerformanceTestConnection(connection, spec).with(action) }
+    class ToolingApiInvocation<T extends LongRunningOperation> {
+        private final Function<ProjectConnection, T> initial
+        private Consumer<T> action
+
+        ToolingApiInvocation(Function<ProjectConnection, T> initial) {
+            this.initial = initial
         }
 
-        public asPerformanceTestConnection(Object connection, ToolingApiBuildExperimentSpec spec) {
-            Proxy.newProxyInstance(getClass().getClassLoader(), [ProjectConnection] as Class[]) { proxy, method, args ->
-                switch (method.name) {
-                    case "model": return withAdditionalArgs(connection.model(args[0]), spec)
-                    case "getModel":
-                        if (args.length == 1) {
-                            return withAdditionalArgs(connection.model(args[0]), spec).get()
-                        } else {
-                            return withAdditionalArgs(connection.model(args[0]), spec).get(args[2])
-                        }
-                    case "newBuild": return withAdditionalArgs(connection.newBuild, spec)
-                    case "newTestLauncher": return withAdditionalArgs(connection.newBuild, spec)
-                    case "action": return withAdditionalArgs(connection.action(args[0]), spec)
-                    default: method.invoke(connection, args)
-                }
-            }
+        void run(Consumer<T> action) {
+            this.action = action
         }
 
-        public withAdditionalArgs(operation, ToolingApiBuildExperimentSpec spec) {
-            Proxy.newProxyInstance(operation.getClass().classLoader, operation.getClass().interfaces) { proxy, method, args ->
-                Stoppable stoppable = new CompositeStoppable()
-                if (method.name in ["run", "get"]) {
-                    def params = operation.operationParamsBuilder
-                    def log = new File(spec.workingDirectory, "log.txt")
-                    def out = new FileOutputStream(log, true)
-                    stoppable.add(out)
-                    params.stdout = out
-                    params.stderr = out
-                    params.arguments = params.arguments = params.arguments ?: []
-                    params.arguments += ["--init-script", repositoryMirrorScript.absolutePath]
-                    params.arguments += profiler.getAdditionalGradleArgs(spec)
+        void execute(ToolingApiBuildExperimentSpec spec, ProjectConnection projectConnection) {
+            T operation = initial.apply(projectConnection)
+            Stoppable stoppable = new CompositeStoppable()
+            def params = operation.operationParamsBuilder
+            def log = new File(spec.workingDirectory, "log.txt")
+            def out = new FileOutputStream(log, true)
+            stoppable.add(out)
+            params.stdout = out
+            params.stderr = out
+            params.arguments = params.arguments ?: []
+            params.arguments += ["--init-script", repositoryMirrorScript.absolutePath]
+            params.arguments += profiler.getAdditionalGradleArgs(spec)
 
-                    params.jvmArguments = params.jvmArguments = params.jvmArguments ?: []
-                    params.jvmArguments += profiler.getAdditionalJvmOpts(spec)
-                }
-                try {
-                    def returnValue = method.invoke(operation, args)
-                    return returnValue == operation ? proxy : returnValue
-                } finally {
-                    stoppable.stop()
-                }
+            params.jvmArguments = params.jvmArguments ?: []
+            params.jvmArguments += profiler.getAdditionalJvmOpts(spec)
+            try {
+                action.accept(operation)
+            } finally {
+                stoppable.stop()
             }
         }
     }

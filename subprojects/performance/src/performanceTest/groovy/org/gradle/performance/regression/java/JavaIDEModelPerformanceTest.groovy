@@ -38,7 +38,9 @@ class JavaIDEModelPerformanceTest extends AbstractToolingApiCrossVersionPerforma
             invocationCount = iterations
             warmUpCount = iterations
             action {
-                def model = model(EclipseProject).setJvmArguments("-Xms${testProject.daemonMemory}", "-Xmx${testProject.daemonMemory}").get()
+                it.model(EclipseProject)
+            }.run {
+                def model = it.setJvmArguments("-Xms${testProject.daemonMemory}", "-Xmx${testProject.daemonMemory}").get()
                 // we must actually do something to highlight some performance issues
                 forEachEclipseProject(model) {
                     buildCommands.each {
@@ -98,7 +100,9 @@ class JavaIDEModelPerformanceTest extends AbstractToolingApiCrossVersionPerforma
             invocationCount = iterations
             warmUpCount = iterations
             action {
-                def model = model(IdeaProject).setJvmArguments("-Xms${testProject.daemonMemory}", "-Xmx${testProject.daemonMemory}").get()
+                it.model(IdeaProject)
+            }.run {
+                def model = it.addJvmArguments("-Xms${testProject.daemonMemory}", "-Xmx${testProject.daemonMemory}").get()
                 // we must actually do something to highlight some performance issues
                 model.with {
                     name

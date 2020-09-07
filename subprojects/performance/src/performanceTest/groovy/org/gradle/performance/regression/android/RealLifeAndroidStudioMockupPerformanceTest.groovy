@@ -16,44 +16,41 @@
 
 package org.gradle.performance.regression.android
 
-import org.gradle.integtests.fixtures.android.AndroidHome
 import org.gradle.performance.AbstractToolingApiCrossVersionPerformanceTest
-import org.gradle.performance.android.SyncAction
-import spock.lang.Unroll
 
 class RealLifeAndroidStudioMockupPerformanceTest extends AbstractToolingApiCrossVersionPerformanceTest {
 
-    def setup() {
-        AndroidHome.assertIsSet()
-    }
-
-    @Unroll
-    def "get IDE model on #testProject for Android Studio"() {
-        given:
-
-        experiment(testProject) {
-            // AGP 3.5 requires 5.4.1+
-            minimumBaseVersion = "5.4.1"
-            targetVersions = ["6.7-20200824220048+0000"]
-            action {
-                SyncAction.withProjectConnection(delegate) {
-                    it.jvmArguments = ["-Xms5g", "-Xmx5g"]
-                }
-            }
-            invocationCount = iterations
-            warmUpCount = iterations
-        }
-
-        when:
-        def results = performMeasurements()
-
-        then:
-        results.assertCurrentVersionHasNotRegressed()
-
-        where:
-        testProject         | iterations
-        "k9AndroidBuild"    | 200
-        "largeAndroidBuild" | 40
-    }
+//    def setup() {
+//        AndroidHome.assertIsSet()
+//    }
+//
+//    @Unroll
+//    def "get IDE model on #testProject for Android Studio"() {
+//        given:
+//
+//        experiment(testProject) {
+//            // AGP 3.5 requires 5.4.1+
+//            minimumBaseVersion = "5.4.1"
+//            targetVersions = ["6.7-20200824220048+0000"]
+//            action {
+//                SyncAction.withProjectConnection(delegate) {
+//                    it.jvmArguments = ["-Xms5g", "-Xmx5g"]
+//                }
+//            }
+//            invocationCount = iterations
+//            warmUpCount = iterations
+//        }
+//
+//        when:
+//        def results = performMeasurements()
+//
+//        then:
+//        results.assertCurrentVersionHasNotRegressed()
+//
+//        where:
+//        testProject         | iterations
+//        "k9AndroidBuild"    | 200
+//        "largeAndroidBuild" | 40
+//    }
 
 }
