@@ -20,7 +20,6 @@ import org.gradle.integtests.fixtures.AbstractContinuousIntegrationTest
 import org.gradle.integtests.fixtures.archives.TestReproducibleArchives
 import org.gradle.testfixtures.SafeUnroll
 import spock.lang.Ignore
-import spock.lang.Unroll
 
 @TestReproducibleArchives
 class ArchivesContinuousIntegrationTest extends AbstractContinuousIntegrationTest {
@@ -70,7 +69,7 @@ class ArchivesContinuousIntegrationTest extends AbstractContinuousIntegrationTes
         executedAndNotSkipped(":zip")
     }
 
-    @Unroll
+    @SafeUnroll
     def "using compressed files as inputs - #type #packType #source - readonly #readonly"() {
         given:
         def packDir = file("pack").createDir()

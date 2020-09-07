@@ -29,7 +29,7 @@ class BuildSessionServiceReuseContinuousIntegrationTest extends AbstractContinuo
     }
 
     @SafeUnroll
-    @ToBeFixedForInstantExecution
+    @ToBeFixedForConfigurationCache
     def "reuses #service across continuous builds" () {
         def triggerFileName = "trigger"
         def triggerFile = file(triggerFileName).createFile()
