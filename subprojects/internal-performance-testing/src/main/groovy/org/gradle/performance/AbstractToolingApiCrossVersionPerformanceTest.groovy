@@ -195,7 +195,7 @@ abstract class AbstractToolingApiCrossVersionPerformanceTest extends Specificati
                 GradleDistribution dist = 'current' == version ? CURRENT : buildContext.distribution(version)
                 println "Testing ${dist.version}..."
                 def toolingApi = new ToolingApi(new PerformanceTestGradleDistribution(dist, workingDirProvider.testDirectory), workingDirProvider)
-                toolingApi.requireIsolatedDaemons()
+//                toolingApi.requireIsolatedDaemons()
                 toolingApi.requireIsolatedUserHome()
 
                 warmup(toolingApi, experimentSpec)
