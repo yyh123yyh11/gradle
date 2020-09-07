@@ -199,11 +199,12 @@ abstract class AbstractToolingApiCrossVersionPerformanceTest extends Specificati
                 def toolingApi = new ToolingApi(new PerformanceTestGradleDistribution(dist, workingDirProvider.testDirectory), workingDirProvider)
 //                toolingApi.requireIsolatedDaemons()
                 toolingApi.requireIsolatedUserHome()
-
-                warmup(toolingApi, experimentSpec)
-                profiler.start(experimentSpec)
-                measure(results, toolingApi, version, experimentSpec)
-                profiler.stop(experimentSpec)
+                toolingApi.withConnection { ProjectConnection projectConnection ->
+                    warmup(projectConnection, experimentSpec)
+                    profiler.start(experimentSpec)
+                    measure(results, projectConnection, version, experimentSpec)
+                    profiler.stop(experimentSpec)
+                }
                 toolingApi.daemons.killAll()
             }
 
@@ -241,26 +242,24 @@ abstract class AbstractToolingApiCrossVersionPerformanceTest extends Specificati
             }
         }
 
-        private void measure(CrossVersionPerformanceResults results, toolingApi, String version, ToolingApiBuildExperimentSpec experimentSpec) {
+        private void measure(CrossVersionPerformanceResults results, ProjectConnection projectConnection, String version, ToolingApiBuildExperimentSpec experimentSpec) {
             OperationTimer timer = new OperationTimer()
             MeasuredOperationList versionResults = 'current' == version ? results.current : results.version(version).results
             experiment.with {
                 def count = iterationCount("runs", invocationCount)
                 count.times { n ->
                     println "Run #${n + 1}"
-                    versionResults.add(timer.measure {
-                        toolingApi.withConnection { ProjectConnection projectConnection -> toolingApiInvocation.execute(experimentSpec, projectConnection) }
-                    })
+                    versionResults.add(timer.measure {toolingApiInvocation.execute(experimentSpec, projectConnection) })
                 }
             }
         }
 
-        private void warmup(ToolingApi toolingApi, ToolingApiBuildExperimentSpec experimentSpec) {
+        private void warmup(ProjectConnection projectConnection, ToolingApiBuildExperimentSpec experimentSpec) {
             experiment.with {
                 def count = iterationCount("warmups", warmUpCount)
                 count.times { n ->
                     println "Warm-up #${n + 1}"
-                    toolingApi.withConnection { ProjectConnection projectConnection -> toolingApiInvocation.execute(experimentSpec, projectConnection) }
+                    toolingApiInvocation.execute(experimentSpec, projectConnection)
                 }
             }
         }
