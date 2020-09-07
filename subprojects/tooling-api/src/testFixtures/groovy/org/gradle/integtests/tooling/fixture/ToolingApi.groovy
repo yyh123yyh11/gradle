@@ -168,27 +168,27 @@ class ToolingApi implements TestRule {
 
     GradleConnector connector() {
         DefaultGradleConnector connector
-        if (isolatedToolingClient != null) {
-            connector = isolatedToolingClient.getFactory(DefaultGradleConnector).create()
-        } else {
+//        if (isolatedToolingClient != null) {
+//            connector = isolatedToolingClient.getFactory(DefaultGradleConnector).create()
+//        } else {
             connector = GradleConnector.newConnector() as DefaultGradleConnector
-        }
+//        }
 
         connector.forProjectDirectory(testWorkDirProvider.testDirectory)
-        if (embedded) {
-            connector.useClasspathDistribution()
-        } else {
+//        if (embedded) {
+//            connector.useClasspathDistribution()
+//        } else {
             connector.useInstallation(dist.gradleHomeDir.absoluteFile)
-        }
-        connector.embedded(embedded)
-        connector.searchUpwards(false)
-        if (useSeparateDaemonBaseDir) {
-            connector.daemonBaseDir(new File(daemonBaseDir.path))
-        }
+//        }
+//        connector.embedded(embedded)
+//        connector.searchUpwards(false)
+//        if (useSeparateDaemonBaseDir) {
+//            connector.daemonBaseDir(new File(daemonBaseDir.path))
+//        }
         connector.daemonMaxIdleTime(120, TimeUnit.SECONDS)
-        if (connector.metaClass.hasProperty(connector, 'verboseLogging')) {
-            connector.verboseLogging = verboseLogging
-        }
+//        if (connector.metaClass.hasProperty(connector, 'verboseLogging')) {
+//            connector.verboseLogging = verboseLogging
+//        }
 
 //        if (gradleUserHomeDir != context.gradleUserHomeDir) {
 //            // When using an isolated user home, first initialise the Gradle instance using the default user home dir
@@ -205,9 +205,9 @@ class ToolingApi implements TestRule {
 //        isolateFromGradleOwnBuild(connector)
 
         connector.useGradleUserHomeDir(new File(gradleUserHomeDir.path))
-        connectorConfigurers.each {
-            connector.with(it)
-        }
+//        connectorConfigurers.each {
+//            connector.with(it)
+//        }
         return connector
     }
 
