@@ -257,7 +257,6 @@ public class DeprecationLogger {
     }
 
     private static String xHasBeenDeprecated(String x) {
-        return String.format("%s has been deprecated.", x);
+        return x + " has been deprecated.";
     }
-
 }

@@ -19,28 +19,26 @@ package org.gradle.internal.deprecation;
 import org.gradle.util.GradleVersion;
 
 class DeprecationTimeline {
-    private final String messagePattern;
-    private final GradleVersion targetVersion;
+    private final String message;
 
-    private DeprecationTimeline(String messagePattern, GradleVersion targetVersion) {
-        this.messagePattern = messagePattern;
-        this.targetVersion = targetVersion;
+    private DeprecationTimeline(String message) {
+        this.message = message;
     }
 
     static DeprecationTimeline willBeRemovedInVersion(GradleVersion version) {
-        return new DeprecationTimeline("This is scheduled to be removed in %s.", version);
+        return new DeprecationTimeline("This is scheduled to be removed in " + version + ".");
     }
 
     static DeprecationTimeline willBecomeAnErrorInVersion(GradleVersion version) {
-        return new DeprecationTimeline("This will fail with an error in %s.", version);
+        return new DeprecationTimeline("This will fail with an error in " + version + ".");
     }
 
     static DeprecationTimeline behaviourWillBeRemovedInVersion(GradleVersion version) {
-        return new DeprecationTimeline("This behaviour has been deprecated and is scheduled to be removed in %s.", version);
+        return new DeprecationTimeline("This behaviour has been deprecated and is scheduled to be removed in " + version + ".");
     }
 
     @Override
     public String toString() {
-        return String.format(messagePattern, targetVersion);
+        return message;
     }
 }
