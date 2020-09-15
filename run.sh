@@ -46,17 +46,11 @@ org.gradle.launcher.cli.CommandLineIntegrationLoggingSpec=integTest
 org.gradle.launcher.continuous.ContinuousBuildChangeReportingIntegrationTest=integTest
 EOL
 
-#while true; do
+while true; do
 
-./gradlew clean launcher:quickTest -PexcludeTestClasses=true
-
-retcode=$?
-
-echo "Exit: $retcode"
-
-if [ retcode -ne 0 ]; then
-    echo "Error"
-    exit $retcode
+if ! ./gradlew clean launcher:quickTest -PexcludeTestClasses=true; then
+    echo error
+    exit 1
 fi
 
-#done
+done
