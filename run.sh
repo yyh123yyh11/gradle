@@ -43,6 +43,7 @@ org.gradle.launcher.daemon.server.health.gc.GarbageCollectionMonitoringIntegrati
 org.gradle.launcher.daemon.server.scaninfo.DaemonScanInfoIntegrationSpec=integTest
 org.gradle.launcher.continuous.MultiProjectContinuousIntegrationTest=integTest
 org.gradle.launcher.cli.CommandLineIntegrationLoggingSpec=integTest
+org.gradle.launcher.continuous.ContinuousBuildChangeReportingIntegrationTest=integTest
 EOL
 
 while true; do
