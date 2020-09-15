@@ -47,5 +47,14 @@ org.gradle.launcher.continuous.ContinuousBuildChangeReportingIntegrationTest=int
 EOL
 
 while true; do
+
 ./gradlew clean launcher:quickTest -PexcludeTestClasses=true
+
+retcode=$?
+
+if [ retcode -ne 0 ]; then
+    echo "Error"
+    exit $retcode
+fi
+
 done
