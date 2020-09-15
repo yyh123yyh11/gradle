@@ -1,10 +1,10 @@
 export JAVA_HOME=/opt/jdk/open-jdk-11
 
-rm -rf build/*-test-classes.properties
+rm -rf test-splits/*-test-classes.properties
 
 mkdir -p build
 
-cat > build/exclude-test-classes.properties << EOL
+cat > test-splits/exclude-test-classes.properties << EOL
 org.gradle.launcher.daemon.DaemonLifecycleSpec=integTest
 org.gradle.launcher.SystemClassLoaderTest=integTest
 org.gradle.launcher.continuous.RetryOnBuildFailureContinuousIntegrationTest=integTest
@@ -46,15 +46,17 @@ org.gradle.launcher.cli.CommandLineIntegrationLoggingSpec=integTest
 org.gradle.launcher.continuous.ContinuousBuildChangeReportingIntegrationTest=integTest
 EOL
 
-while true; do
+#while true; do
 
 ./gradlew clean launcher:quickTest -PexcludeTestClasses=true
 
 retcode=$?
+
+echo "Exit: $retcode"
 
 if [ retcode -ne 0 ]; then
     echo "Error"
     exit $retcode
 fi
 
-done
+#done
