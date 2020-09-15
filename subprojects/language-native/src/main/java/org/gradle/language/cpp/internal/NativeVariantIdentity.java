@@ -17,8 +17,10 @@
 package org.gradle.language.cpp.internal;
 
 import com.google.common.collect.Sets;
+import org.gradle.api.Action;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.component.ComponentWithCoordinates;
+import org.gradle.api.component.SoftwareComponentVariantSpec;
 import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier;
 import org.gradle.api.internal.component.SoftwareComponentInternal;
 import org.gradle.api.internal.component.UsageContext;
@@ -103,5 +105,9 @@ public class NativeVariantIdentity implements SoftwareComponentInternal, Compone
 
     public UsageContext getLinkUsageContext() {
         return linkUsage;
+    }
+
+    @Override
+    public void variant(String name, Action<? super SoftwareComponentVariantSpec> action) {
     }
 }

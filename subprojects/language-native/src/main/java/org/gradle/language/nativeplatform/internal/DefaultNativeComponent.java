@@ -17,10 +17,12 @@
 package org.gradle.language.nativeplatform.internal;
 
 import org.gradle.api.Action;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.internal.component.ExtensibleSoftwareComponent;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.util.PatternSet;
 import org.gradle.internal.DisplayName;
@@ -29,10 +31,11 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public abstract class DefaultNativeComponent {
+public abstract class DefaultNativeComponent extends ExtensibleSoftwareComponent {
     private final ConfigurableFileCollection source;
 
-    public DefaultNativeComponent(ObjectFactory objectFactory) {
+    public DefaultNativeComponent(ConfigurationContainer configurations, ObjectFactory objectFactory) {
+        super(configurations, objectFactory);
         // TODO - introduce a new 'var' data structure that allows these conventions to be configured explicitly
         source = objectFactory.fileCollection();
     }

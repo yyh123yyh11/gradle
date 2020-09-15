@@ -17,6 +17,7 @@
 package org.gradle.internal.service.scopes;
 
 import org.gradle.api.AntBuilder;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.component.SoftwareComponentContainer;
 import org.gradle.api.internal.CollectionCallbackActionDecorator;
 import org.gradle.api.internal.DomainObjectContext;
@@ -204,11 +205,6 @@ public class ProjectScopeServices extends DefaultServiceRegistry {
             crossProjectConfigurator,
             decorator
         ).create();
-    }
-
-    protected SoftwareComponentContainer createSoftwareComponentContainer(CollectionCallbackActionDecorator decorator) {
-        Instantiator instantiator = get(Instantiator.class);
-        return instantiator.newInstance(DefaultSoftwareComponentContainer.class, instantiator, decorator);
     }
 
     protected ProjectFinder createProjectFinder(final BuildStateRegistry buildStateRegistry) {

@@ -16,6 +16,7 @@
 
 package org.gradle.api.component;
 
+import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.internal.HasInternalProtocol;
 
@@ -32,4 +33,5 @@ import org.gradle.internal.HasInternalProtocol;
  */
 @HasInternalProtocol
 public interface SoftwareComponent extends Named {
+    void variant(String name, Action<? super SoftwareComponentVariantSpec> action);
 }

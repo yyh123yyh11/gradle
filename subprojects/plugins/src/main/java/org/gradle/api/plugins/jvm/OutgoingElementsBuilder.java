@@ -75,7 +75,7 @@ public interface OutgoingElementsBuilder {
     /**
      * If this method is called, the outgoing elements configuration will be automatically
      * configured to export the output of the source set.
-     * @param sourceSet the source set which consistutes an output to share with this configuration
+     * @param sourceSet the source set which constitutes an output to share with this configuration
      */
     OutgoingElementsBuilder fromSourceSet(SourceSet sourceSet);
 

@@ -16,14 +16,35 @@
 
 package org.gradle.api.internal.component;
 
+import org.gradle.api.Action;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.component.SoftwareComponent;
 import org.gradle.api.component.SoftwareComponentContainer;
 import org.gradle.api.internal.DefaultNamedDomainObjectSet;
 import org.gradle.api.internal.CollectionCallbackActionDecorator;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.internal.reflect.Instantiator;
 
 public class DefaultSoftwareComponentContainer extends DefaultNamedDomainObjectSet<SoftwareComponent> implements SoftwareComponentContainer {
-    public DefaultSoftwareComponentContainer(Instantiator instantiator, CollectionCallbackActionDecorator decorator) {
+    private ConfigurationContainer configurations;
+    private final ObjectFactory objects;
+
+    public DefaultSoftwareComponentContainer(Instantiator instantiator, CollectionCallbackActionDecorator decorator, ObjectFactory objects) {
         super(SoftwareComponentInternal.class, instantiator, decorator);
+        this.objects = objects;
+    }
+
+    public void setConfigurations(ConfigurationContainer configurations) {
+        this.configurations = configurations;
+    }
+
+    @Override
+    public void register(String name, Action<? super SoftwareComponent> action) {
+        SoftwareComponent component = findByName(name);
+        if (component == null) {
+            component = new DefaultSoftwareComponent(name, configurations, objects);
+            add(component);
+        }
+        action.execute(component);
     }
 }

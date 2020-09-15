@@ -58,7 +58,7 @@ public class DefaultCppLibrary extends DefaultCppComponent implements CppLibrary
 
     @Inject
     public DefaultCppLibrary(String name, ObjectFactory objectFactory, ConfigurationContainer configurations, ImmutableAttributesFactory immutableAttributesFactory) {
-        super(name, objectFactory);
+        super(name, configurations, objectFactory);
         this.objectFactory = objectFactory;
         this.developmentBinary = objectFactory.property(CppBinary.class);
         publicHeaders = objectFactory.fileCollection();
@@ -80,7 +80,7 @@ public class DefaultCppLibrary extends DefaultCppComponent implements CppLibrary
         AttributeContainer publicationAttributes = immutableAttributesFactory.mutable();
         publicationAttributes.attribute(Usage.USAGE_ATTRIBUTE, apiUsage);
         publicationAttributes.attribute(ArtifactAttributes.ARTIFACT_FORMAT, ArtifactTypeDefinition.ZIP_TYPE);
-        mainVariant = new MainLibraryVariant("api", apiUsage, apiElements, publicationAttributes, objectFactory);
+        mainVariant = new MainLibraryVariant("api", apiUsage, apiElements, publicationAttributes, configurations, objectFactory);
     }
 
     public DefaultCppSharedLibrary addSharedLibrary(NativeVariantIdentity identity, CppPlatform targetPlatform, NativeToolChainInternal toolChain, PlatformToolProvider platformToolProvider) {

@@ -34,22 +34,14 @@ import org.gradle.internal.service.scopes.AbstractPluginServiceRegistry;
  */
 public class PluginAuthorServices extends AbstractPluginServiceRegistry {
     @Override
-    public void registerGlobalServices(ServiceRegistration registration) {
-        registration.addProvider(new GlobalScopeServices());
-    }
-
-    @Override
     public void registerProjectServices(ServiceRegistration registration) {
         registration.addProvider(new ProjectScopeServices());
     }
 
-    private static class GlobalScopeServices {
-        SoftwareComponentFactory createSoftwareComponentFactory(Instantiator instantiator) {
-            return new DefaultSoftwareComponentFactory(instantiator);
-        }
-    }
-
     private static class ProjectScopeServices {
+        SoftwareComponentFactory createSoftwareComponentFactory(Instantiator instantiator, ConfigurationContainer configurations, ObjectFactory objectFactory) {
+            return new DefaultSoftwareComponentFactory(instantiator, configurations, objectFactory);
+        }
         JvmPluginServices createJvmPluginServices(ConfigurationContainer configurations,
                                                   ObjectFactory objectFactory,
                                                   TaskContainer tasks,

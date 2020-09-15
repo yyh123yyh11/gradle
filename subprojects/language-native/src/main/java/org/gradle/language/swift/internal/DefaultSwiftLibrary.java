@@ -48,7 +48,7 @@ public class DefaultSwiftLibrary extends DefaultSwiftComponent<SwiftBinary> impl
 
     @Inject
     public DefaultSwiftLibrary(String name, ObjectFactory objectFactory, ConfigurationContainer configurations) {
-        super(name, objectFactory);
+        super(name, configurations, objectFactory);
         this.objectFactory = objectFactory;
         this.configurations = configurations;
         this.developmentBinary = objectFactory.property(SwiftBinary.class);

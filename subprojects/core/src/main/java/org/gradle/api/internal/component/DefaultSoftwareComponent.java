@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.api.internal.artifacts.configurations;
+
+package org.gradle.api.internal.component;
 
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.UnknownConfigurationException;
+import org.gradle.api.model.ObjectFactory;
 
-import java.util.Set;
 
-public interface ConfigurationContainerInternal extends ConfigurationContainer {
+public class DefaultSoftwareComponent extends ExtensibleSoftwareComponent {
+
+    private final String name;
+
+    public DefaultSoftwareComponent(String name, ConfigurationContainer configurations, ObjectFactory objects) {
+        super(configurations, objects);
+        this.name = name;
+    }
+
     @Override
-    ConfigurationInternal getByName(String name) throws UnknownConfigurationException;
-    @Override
-    ConfigurationInternal detachedConfiguration(Dependency... dependencies);
+    public String getName() {
+        return name;
+    }
 
-    Set<? extends ConfigurationInternal> realizeAllConfigurations();
 }

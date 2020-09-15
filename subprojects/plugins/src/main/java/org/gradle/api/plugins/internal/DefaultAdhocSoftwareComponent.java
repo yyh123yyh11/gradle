@@ -20,23 +20,27 @@ import com.google.common.collect.Maps;
 import org.gradle.api.Action;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.component.AdhocComponentWithVariants;
 import org.gradle.api.component.ConfigurationVariantDetails;
 import org.gradle.api.internal.artifacts.configurations.ConfigurationInternal;
+import org.gradle.api.internal.component.ExtensibleSoftwareComponent;
 import org.gradle.api.internal.component.SoftwareComponentInternal;
 import org.gradle.api.internal.component.UsageContext;
 import org.gradle.api.internal.java.usagecontext.ConfigurationVariantMapping;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.internal.reflect.Instantiator;
 
 import java.util.Map;
 import java.util.Set;
 
-public class DefaultAdhocSoftwareComponent implements AdhocComponentWithVariants, SoftwareComponentInternal {
+public class DefaultAdhocSoftwareComponent extends ExtensibleSoftwareComponent implements AdhocComponentWithVariants, SoftwareComponentInternal {
     private final String componentName;
     private final Map<Configuration, ConfigurationVariantMapping> variants = Maps.newLinkedHashMapWithExpectedSize(4);
     private final Instantiator instantiator;
 
-    public DefaultAdhocSoftwareComponent(String componentName, Instantiator instantiator) {
+    public DefaultAdhocSoftwareComponent(String componentName, Instantiator instantiator, ConfigurationContainer configurations, ObjectFactory objects) {
+        super(configurations, objects);
         this.componentName = componentName;
         this.instantiator = instantiator;
     }
@@ -62,6 +66,7 @@ public class DefaultAdhocSoftwareComponent implements AdhocComponentWithVariants
     @Override
     public Set<? extends UsageContext> getUsages() {
         ImmutableSet.Builder<UsageContext> builder = new ImmutableSet.Builder<>();
+        builder.addAll(super.getUsages());
         for (ConfigurationVariantMapping variant : variants.values()) {
             variant.collectUsageContexts(builder);
         }

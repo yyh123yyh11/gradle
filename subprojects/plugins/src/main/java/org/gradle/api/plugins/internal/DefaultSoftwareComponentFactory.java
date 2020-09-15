@@ -15,20 +15,26 @@
  */
 package org.gradle.api.plugins.internal;
 
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.component.AdhocComponentWithVariants;
 import org.gradle.api.component.SoftwareComponentFactory;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.internal.reflect.Instantiator;
 
 public class DefaultSoftwareComponentFactory implements SoftwareComponentFactory {
 
     private final Instantiator instantiator;
+    private final ConfigurationContainer configurations;
+    private final ObjectFactory objects;
 
-    public DefaultSoftwareComponentFactory(Instantiator instantiator) {
+    public DefaultSoftwareComponentFactory(Instantiator instantiator, ConfigurationContainer configurations, ObjectFactory objects) {
         this.instantiator = instantiator;
+        this.configurations = configurations;
+        this.objects = objects;
     }
 
     @Override
     public AdhocComponentWithVariants adhoc(String name) {
-        return instantiator.newInstance(DefaultAdhocSoftwareComponent.class, name, instantiator);
+        return instantiator.newInstance(DefaultAdhocSoftwareComponent.class, name, instantiator, configurations, objects);
     }
 }

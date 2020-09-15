@@ -16,6 +16,7 @@
 package org.gradle.api.internal.artifacts.configurations;
 
 import org.gradle.api.DomainObjectSet;
+import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
@@ -23,6 +24,8 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.UnknownConfigurationException;
 import org.gradle.api.artifacts.component.ComponentSelector;
 import org.gradle.api.capabilities.Capability;
+import org.gradle.api.component.SoftwareComponent;
+import org.gradle.api.component.SoftwareComponentContainer;
 import org.gradle.api.internal.AbstractValidatingNamedDomainObjectContainer;
 import org.gradle.api.internal.CollectionCallbackActionDecorator;
 import org.gradle.api.internal.DocumentationRegistry;
@@ -42,6 +45,8 @@ import org.gradle.api.internal.artifacts.ivyservice.resolutionstrategy.DefaultCa
 import org.gradle.api.internal.artifacts.ivyservice.resolutionstrategy.DefaultResolutionStrategy;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.internal.collections.DomainObjectCollectionFactory;
+import org.gradle.api.internal.component.DefaultSoftwareComponentContainer;
+import org.gradle.api.internal.component.SoftwareComponentInternal;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.notations.ComponentIdentifierParserFactory;
 import org.gradle.api.internal.project.ProjectStateRegistry;
@@ -83,6 +88,7 @@ public class DefaultConfigurationContainer extends AbstractValidatingNamedDomain
     private final Factory<ResolutionStrategyInternal> resolutionStrategyFactory;
     private final DefaultRootComponentMetadataBuilder rootComponentMetadataBuilder;
     private final DomainObjectCollectionFactory domainObjectCollectionFactory;
+    private final SoftwareComponentContainer components;
 
     public DefaultConfigurationContainer(ConfigurationResolver resolver,
                                          Instantiator instantiator,
@@ -107,7 +113,8 @@ public class DefaultConfigurationContainer extends AbstractValidatingNamedDomain
                                          UserCodeApplicationContext userCodeApplicationContext,
                                          DomainObjectCollectionFactory domainObjectCollectionFactory,
                                          NotationParser<Object, ComponentSelector> moduleSelectorNotationParser,
-                                         ObjectFactory objectFactory) {
+                                         ObjectFactory objectFactory,
+                                         SoftwareComponentContainer components) {
         super(Configuration.class, instantiator, new Configuration.Namer(), callbackDecorator);
         this.resolver = resolver;
         this.instantiator = instantiator;
@@ -130,6 +137,8 @@ public class DefaultConfigurationContainer extends AbstractValidatingNamedDomain
             return instantiator.newInstance(DefaultResolutionStrategy.class, globalDependencySubstitutionRules, vcsMappingsStore, componentIdentifierFactory, moduleIdentifierFactory, componentSelectorConverter, dependencyLockingProvider, capabilitiesResolutionInternal, instantiator, objectFactory, attributesFactory, moduleSelectorNotationParser, dependencyCapabilityNotationParser);
         };
         this.rootComponentMetadataBuilder = new DefaultRootComponentMetadataBuilder(dependencyMetaDataProvider, componentIdentifierFactory, moduleIdentifierFactory, localComponentMetadataBuilder, this, projectStateRegistry, dependencyLockingProvider);
+        this.components = components;
+        ((DefaultSoftwareComponentContainer) components).setConfigurations(this);
     }
 
     @Override
@@ -143,6 +152,14 @@ public class DefaultConfigurationContainer extends AbstractValidatingNamedDomain
 
     @Override
     public Set<? extends ConfigurationInternal> getAll() {
+        return withType(ConfigurationInternal.class);
+    }
+
+    @Override
+    public Set<? extends ConfigurationInternal> realizeAllConfigurations() {
+        for (SoftwareComponent component : components) {
+            ((SoftwareComponentInternal) component).getUsages(); // realizes all configurations
+        }
         return withType(ConfigurationInternal.class);
     }
 

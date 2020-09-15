@@ -16,6 +16,7 @@
 
 package org.gradle.language.swift.internal;
 
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
@@ -41,12 +42,12 @@ public abstract class DefaultSwiftComponent<T extends SwiftBinary> extends Defau
     private final Property<SwiftVersion> sourceCompatibility;
     private final SetProperty<TargetMachine> targetMachines;
 
-    public DefaultSwiftComponent(String name, ObjectFactory objectFactory) {
-        this(name, SwiftBinary.class, objectFactory);
+    public DefaultSwiftComponent(String name, ConfigurationContainer configurations, ObjectFactory objectFactory) {
+        this(name, SwiftBinary.class, configurations, objectFactory);
     }
 
-    public DefaultSwiftComponent(String name, Class<? extends SwiftBinary> binaryType, ObjectFactory objectFactory) {
-        super(objectFactory);
+    public DefaultSwiftComponent(String name, Class<? extends SwiftBinary> binaryType, ConfigurationContainer configurations, ObjectFactory objectFactory) {
+        super(configurations, objectFactory);
         this.name = name;
         this.swiftSource = createSourceView("src/"+ name + "/swift", Collections.singletonList("swift"));
         this.module = objectFactory.property(String.class);

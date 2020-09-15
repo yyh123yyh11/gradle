@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,5 @@
  * limitations under the License.
  */
 
-package org.gradle.api.component;
-
-import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectSet;
-
-/**
- * A Container that contains all of the Software Components produced by a Project.
- */
-public interface SoftwareComponentContainer extends NamedDomainObjectSet<SoftwareComponent> {
-    void register(String name, Action<? super SoftwareComponent> action);
-}
+@org.gradle.api.NonNullApi
+package org.gradle.api.internal.component;

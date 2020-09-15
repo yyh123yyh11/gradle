@@ -30,6 +30,7 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.dsl.DependencyLockingHandler;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.attributes.AttributesSchema;
+import org.gradle.api.component.SoftwareComponentContainer;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.internal.CollectionCallbackActionDecorator;
 import org.gradle.api.internal.DocumentationRegistry;
@@ -104,6 +105,7 @@ import org.gradle.api.internal.attributes.DefaultAttributesSchema;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.internal.collections.DomainObjectCollectionFactory;
 import org.gradle.api.internal.component.ComponentTypeRegistry;
+import org.gradle.api.internal.component.DefaultSoftwareComponentContainer;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.file.FileLookup;
 import org.gradle.api.internal.file.FilePropertyFactory;
@@ -495,6 +497,10 @@ public class DefaultDependencyManagementServices implements DependencyManagement
             return instantiator.newInstance(DefaultRepositoryHandler.class, baseRepositoryFactory, instantiator, callbackDecorator);
         }
 
+        SoftwareComponentContainer createSoftwareComponentContainer(Instantiator instantiator, CollectionCallbackActionDecorator decorator, ObjectFactory objects) {
+            return instantiator.newInstance(DefaultSoftwareComponentContainer.class, instantiator, decorator, objects);
+        }
+
         ConfigurationContainerInternal createConfigurationContainer(Instantiator instantiator,
                                                                     ConfigurationResolver configurationResolver, DomainObjectContext domainObjectContext,
                                                                     ListenerManager listenerManager, DependencyMetaDataProvider metaDataProvider,
@@ -510,7 +516,8 @@ public class DefaultDependencyManagementServices implements DependencyManagement
                                                                     UserCodeApplicationContext userCodeApplicationContext,
                                                                     DomainObjectCollectionFactory domainObjectCollectionFactory,
                                                                     NotationParser<Object, ComponentSelector> moduleSelectorNotationParser,
-                                                                    ObjectFactory objectFactory) {
+                                                                    ObjectFactory objectFactory,
+                                                                    SoftwareComponentContainer components) {
             return instantiator.newInstance(DefaultConfigurationContainer.class,
                     configurationResolver,
                     instantiator,
@@ -535,7 +542,8 @@ public class DefaultDependencyManagementServices implements DependencyManagement
                     userCodeApplicationContext,
                     domainObjectCollectionFactory,
                     moduleSelectorNotationParser,
-                    objectFactory
+                    objectFactory,
+                    components
             );
         }
 

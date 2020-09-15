@@ -16,6 +16,7 @@
 
 package org.gradle.api.internal.java;
 
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.DependencyConstraint;
 import org.gradle.api.artifacts.ExcludeRule;
 import org.gradle.api.artifacts.ModuleDependency;
@@ -23,21 +24,24 @@ import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.capabilities.Capability;
 import org.gradle.api.internal.attributes.AttributeContainerInternal;
+import org.gradle.api.internal.component.ExtensibleSoftwareComponent;
 import org.gradle.api.internal.component.SoftwareComponentInternal;
 import org.gradle.api.internal.component.UsageContext;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.internal.AbstractUsageContext;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Set;
 
-public class WebApplication implements SoftwareComponentInternal {
+public class WebApplication extends ExtensibleSoftwareComponent implements SoftwareComponentInternal {
     private final UsageContext webArchiveUsage;
     private final PublishArtifact warArtifact;
     private final String variantName;
 
     @Inject
-    public WebApplication(PublishArtifact warArtifact, String variantName, AttributeContainer attributes) {
+    public WebApplication(PublishArtifact warArtifact, String variantName, AttributeContainer attributes, ConfigurationContainer configurations, ObjectFactory objectFactory) {
+        super(configurations, objectFactory);
         this.warArtifact = warArtifact;
         this.variantName = variantName;
         this.webArchiveUsage = new WebArchiveUsageContext(attributes);

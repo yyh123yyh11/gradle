@@ -56,7 +56,7 @@ public class DefaultCppBinary extends DefaultNativeBinary implements CppBinary {
     private final NativeVariantIdentity identity;
 
     public DefaultCppBinary(Names names, ObjectFactory objects, Provider<String> baseName, FileCollection sourceFiles, FileCollection componentHeaderDirs, ConfigurationContainer configurations, Configuration componentImplementation, CppPlatform targetPlatform, NativeToolChainInternal toolChain, PlatformToolProvider platformToolProvider, NativeVariantIdentity identity) {
-        super(names, objects, componentImplementation);
+        super(names, configurations, objects, componentImplementation);
         this.baseName = baseName;
         this.sourceFiles = sourceFiles;
         this.targetPlatform = targetPlatform;

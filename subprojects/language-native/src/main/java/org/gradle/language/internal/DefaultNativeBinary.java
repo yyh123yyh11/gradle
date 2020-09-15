@@ -18,8 +18,10 @@ package org.gradle.language.internal;
 
 import org.gradle.api.Action;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.internal.component.ExtensibleSoftwareComponent;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.util.PatternSet;
 import org.gradle.language.ComponentDependencies;
@@ -28,12 +30,14 @@ import org.gradle.language.nativeplatform.ComponentWithObjectFiles;
 import org.gradle.language.nativeplatform.internal.ComponentWithNames;
 import org.gradle.language.nativeplatform.internal.Names;
 
-public abstract class DefaultNativeBinary implements ComponentWithNames, ComponentWithObjectFiles, ComponentWithDependencies {
+public abstract class DefaultNativeBinary extends ExtensibleSoftwareComponent implements ComponentWithNames, ComponentWithObjectFiles, ComponentWithDependencies {
     private final Names names;
     private final DirectoryProperty objectsDir;
     private final DefaultComponentDependencies dependencies;
 
-    public DefaultNativeBinary(Names names, ObjectFactory objectFactory, Configuration componentImplementation) {
+    public DefaultNativeBinary(Names names, ConfigurationContainer configurations, ObjectFactory objectFactory, Configuration componentImplementation) {
+        super(configurations, objectFactory);
+
         this.names = names;
 
         this.objectsDir = objectFactory.directoryProperty();
