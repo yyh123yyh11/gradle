@@ -45,6 +45,50 @@ class ContinuousBuildChangeReportingIntegrationTest extends AbstractContinuousIn
         executer.withBuildJvmOpts("-D${QUIET_PERIOD_SYSPROP}=${quietPeriod}")
     }
 
+    @TupleConstructor
+    static class ChangeEntry {
+        String type
+        File file
+    }
+
+    void assertReportsChanges(List<ChangeEntry> entries) {
+        assertReportsChanges(entries, false)
+    }
+
+    void assertReportsChanges(List<ChangeEntry> entries, boolean expectMoreChanges) {
+        String changeReportOutput
+        result.output.with {
+            int pos = it.indexOf('Change detected, executing build...')
+            if (pos > -1) {
+                changeReportOutput = it.substring(0, pos)
+            }
+        }
+        assert changeReportOutput != null: 'No change report output.'
+
+        List<String> actualLines = changeReportOutput.readLines()
+        boolean actualMoreChanges = false
+        if (actualLines.last() == 'and some more changes') {
+            actualLines.remove(actualLines.size() - 1)
+            actualMoreChanges = true
+        }
+
+        if (entries != null) {
+            Set<String> expectedLines = entries.collect { "${it.type}: ${it.file.absolutePath}".toString() }
+            actualLines.each {
+                assert expectedLines.contains(it): "Expected lines didn't contain '$it'"
+            }
+            int expectedLinesCount = Math.min(expectedLines.size(), changesLimit)
+            assert actualLines.size() == expectedLinesCount
+        }
+
+        if (actualMoreChanges || expectMoreChanges) {
+            assert actualMoreChanges: "Expecting 'more changes' line, but it wasn't found"
+            assert expectMoreChanges: "Not expecting a 'more changes' line"
+        }
+    }
+}
+
+class ContinuousBuildChangeReportingIntegrationTest1 extends ContinuousBuildChangeReportingIntegrationTest {
     def "should report the absolute file path of the created file when a single file is created in the input directory"() {
         given:
         def inputFile = inputDir.file("input.txt")
@@ -145,47 +189,6 @@ class ContinuousBuildChangeReportingIntegrationTest extends AbstractContinuousIn
         assertReportsChanges([new ChangeEntry('new file', inputFile)])
     }
 
-    @TupleConstructor
-    static class ChangeEntry {
-        String type
-        File file
-    }
-
-    void assertReportsChanges(List<ChangeEntry> entries) {
-        assertReportsChanges(entries, false)
-    }
-
-    void assertReportsChanges(List<ChangeEntry> entries, boolean expectMoreChanges) {
-        String changeReportOutput
-        result.output.with {
-            int pos = it.indexOf('Change detected, executing build...')
-            if (pos > -1) {
-                changeReportOutput = it.substring(0, pos)
-            }
-        }
-        assert changeReportOutput != null: 'No change report output.'
-
-        List<String> actualLines = changeReportOutput.readLines()
-        boolean actualMoreChanges = false
-        if (actualLines.last() == 'and some more changes') {
-            actualLines.remove(actualLines.size() - 1)
-            actualMoreChanges = true
-        }
-
-        if (entries != null) {
-            Set<String> expectedLines = entries.collect { "${it.type}: ${it.file.absolutePath}".toString() }
-            actualLines.each {
-                assert expectedLines.contains(it): "Expected lines didn't contain '$it'"
-            }
-            int expectedLinesCount = Math.min(expectedLines.size(), changesLimit)
-            assert actualLines.size() == expectedLinesCount
-        }
-
-        if (actualMoreChanges || expectMoreChanges) {
-            assert actualMoreChanges: "Expecting 'more changes' line, but it wasn't found"
-            assert expectMoreChanges: "Not expecting a 'more changes' line"
-        }
-    }
 }
 
 class ContinuousBuildChangeReportingIntegrationTest2 extends ContinuousBuildChangeReportingIntegrationTest {
