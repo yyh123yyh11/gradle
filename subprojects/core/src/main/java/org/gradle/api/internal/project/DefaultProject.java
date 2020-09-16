@@ -37,6 +37,7 @@ import org.gradle.api.artifacts.dsl.ArtifactHandler;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.dsl.DependencyLockingHandler;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
+import org.gradle.api.component.DependencyResolverContainer;
 import org.gradle.api.component.SoftwareComponentContainer;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ConfigurableFileTree;
@@ -1064,6 +1065,14 @@ public class DefaultProject extends AbstractPluginAware implements ProjectIntern
     @Inject
     @Override
     public SoftwareComponentContainer getComponents() {
+        // Decoration takes care of the implementation
+        throw new UnsupportedOperationException();
+    }
+
+
+    @Inject
+    @Override
+    public DependencyResolverContainer getResolvers() {
         // Decoration takes care of the implementation
         throw new UnsupportedOperationException();
     }

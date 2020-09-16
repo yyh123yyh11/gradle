@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import org.gradle.StartParameter;
 import org.gradle.api.Describable;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
+import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.component.ComponentArtifactIdentifier;
 import org.gradle.api.artifacts.component.ComponentSelector;
 import org.gradle.api.artifacts.dsl.ArtifactHandler;
@@ -30,6 +31,7 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.dsl.DependencyLockingHandler;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.attributes.AttributesSchema;
+import org.gradle.api.component.DependencyResolverContainer;
 import org.gradle.api.component.SoftwareComponentContainer;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.internal.CollectionCallbackActionDecorator;
@@ -105,6 +107,7 @@ import org.gradle.api.internal.attributes.DefaultAttributesSchema;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.internal.collections.DomainObjectCollectionFactory;
 import org.gradle.api.internal.component.ComponentTypeRegistry;
+import org.gradle.api.internal.component.DefaultDependencyResolverContainer;
 import org.gradle.api.internal.component.DefaultSoftwareComponentContainer;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.file.FileLookup;
@@ -499,6 +502,10 @@ public class DefaultDependencyManagementServices implements DependencyManagement
 
         SoftwareComponentContainer createSoftwareComponentContainer(Instantiator instantiator, CollectionCallbackActionDecorator decorator, ObjectFactory objects) {
             return instantiator.newInstance(DefaultSoftwareComponentContainer.class, instantiator, decorator, objects);
+        }
+
+        DependencyResolverContainer createDependencyResolverContainer(Instantiator instantiator, ConfigurationContainer configurations, ObjectFactory objects) {
+            return instantiator.newInstance(DefaultDependencyResolverContainer.class, configurations, objects);
         }
 
         ConfigurationContainerInternal createConfigurationContainer(Instantiator instantiator,

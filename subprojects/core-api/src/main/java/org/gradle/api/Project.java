@@ -23,6 +23,7 @@ import org.gradle.api.artifacts.dsl.ArtifactHandler;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.dsl.DependencyLockingHandler;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
+import org.gradle.api.component.DependencyResolverContainer;
 import org.gradle.api.component.SoftwareComponentContainer;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ConfigurableFileTree;
@@ -1730,6 +1731,8 @@ public interface Project extends Comparable<Project>, ExtensionAware, PluginAwar
      * @return The components for this project.
      */
     SoftwareComponentContainer getComponents();
+
+    DependencyResolverContainer getResolvers();
 
     /**
      * Provides access to configuring input normalization.
