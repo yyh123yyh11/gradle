@@ -107,7 +107,14 @@ public abstract class DefaultDependencyHandler implements DependencyHandler, Met
     @Override
     @SuppressWarnings("rawtypes")
     public Dependency add(String configurationName, Object dependencyNotation, @Nullable Closure configureClosure) {
-        return doAdd(configurationContainer.getByName(configurationName), dependencyNotation, configureClosure);
+        Configuration bucketConfiguration = configurationContainer.findByName(configurationName);
+        if (bucketConfiguration == null) {
+            bucketConfiguration = configurationContainer.create(configurationName);
+            bucketConfiguration.setVisible(false);
+            bucketConfiguration.setCanBeConsumed(false);
+            bucketConfiguration.setCanBeResolved(false);
+        }
+        return doAdd(bucketConfiguration, dependencyNotation, configureClosure);
     }
 
     @Override
