@@ -20,6 +20,7 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
+        maven { url = uri("https://repo.gradle.org/gradle/enterprise-libs-release-candidates-local") }
     }
 }
 
@@ -32,7 +33,7 @@ apply(from = "gradle/shared-with-buildSrc/mirrors.settings.gradle.kts")
 
 rootProject.name = "gradle"
 
-fixedGroup("org.gradle")
+includeBuild("build-src")
 
 mainBuild("main-build")
 

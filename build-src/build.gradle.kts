@@ -107,15 +107,6 @@ allprojects {
     }
 }
 
-dependencies {
-    subprojects.forEach {
-        if (it.name != "build-platform") {
-            runtimeOnly(project(it.path))
-        }
-    }
-}
-
-
 // TODO Avoid duplication of what defines a CI Server with BuildEnvironment
 val isCiServer: Boolean by extra { "CI" in System.getenv() }
 
