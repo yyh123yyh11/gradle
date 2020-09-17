@@ -37,19 +37,18 @@ includeBuild("build-src")
 
 mainBuild("main-build")
 
-
-
 fun mainBuild(folder : String) {
     val mainFolder = file(folder)
-    includeAll(mainFolder, mainFolder)
+    includeAllBuilds(mainFolder)
 }
 
-fun includeAll(mainFolder : File, subFolder: File) {
-    subFolder.listFiles()!!.filter { it.isDirectory }.forEach { dir ->
-        if (File(dir, "build.gradle").exists() || File(dir, "build.gradle.kts").exists()) {
-            subproject(dir, ":" + dir.relativeTo(mainFolder).toString().replace(File.separator, ":"))
-        } else {
-            includeAll(mainFolder, dir)
+fun includeAllBuilds(mainFolder: File) {
+    //if (mainFolder.listFiles()!!.any { it.name == "build.gradle" || it.name == "build.gradle.kts" }) {
+    if (File(mainFolder, "settings.gradle").exists() || File(mainFolder, "settings.gradle.kts").exists()) {
+        includeBuild(mainFolder)
+    } else {
+        mainFolder.listFiles()!!.filter { it.isDirectory && !it.name.startsWith(".") }.forEach { rootDir ->
+            includeAllBuilds(rootDir)
         }
     }
 }
@@ -57,8 +56,6 @@ fun includeAll(mainFolder : File, subFolder: File) {
 fun subproject(folder: File, projectPath: String) {
     include(projectPath)
     project(projectPath).projectDir = folder
-
-    // TODO deactivate intermediate parent projects (which is not supported currently)
 }
 
 FeaturePreviews.Feature.values().forEach { feature ->
