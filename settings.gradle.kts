@@ -35,28 +35,13 @@ rootProject.name = "gradle"
 
 includeBuild("build-src")
 
-mainBuild("main-build")
+includeBuild("distribution/plugins/full")
+includeBuild("portal-plugins")
 
-fun mainBuild(folder : String) {
-    val mainFolder = file(folder)
-    includeAllBuilds(mainFolder)
-}
+includeBuild("code-quality")
+includeBuild("documentation")
+includeBuild("end-2-end-tests")
 
-fun includeAllBuilds(mainFolder: File) {
-    //if (mainFolder.listFiles()!!.any { it.name == "build.gradle" || it.name == "build.gradle.kts" }) {
-    if (File(mainFolder, "settings.gradle").exists() || File(mainFolder, "settings.gradle.kts").exists()) {
-        includeBuild(mainFolder)
-    } else {
-        mainFolder.listFiles()!!.filter { it.isDirectory && !it.name.startsWith(".") }.forEach { rootDir ->
-            includeAllBuilds(rootDir)
-        }
-    }
-}
-
-fun subproject(folder: File, projectPath: String) {
-    include(projectPath)
-    project(projectPath).projectDir = folder
-}
 
 FeaturePreviews.Feature.values().forEach { feature ->
     if (feature.isActive) {

@@ -81,19 +81,14 @@ fun applyAutomaticUpgradeOfCapabilities() {
 }
 
 fun readCapabilitiesFromJson() {
-    val extra = gradle.rootProject.extra
-    val capabilities: List<CapabilitySpec>
-    if (extra.has("capabilities")) {
-        @Suppress("unchecked_cast")
-        capabilities = extra["capabilities"] as List<CapabilitySpec>
+    var mainRootDir = rootDir
+    while(mainRootDir.name != "gradle") { mainRootDir = mainRootDir.parentFile }
+    val capabilitiesFile = File(mainRootDir, "gradle/dependency-management/capabilities.json")
+    val capabilities: List<CapabilitySpec> = if (capabilitiesFile.exists()) {
+        readCapabilities(capabilitiesFile)
     } else {
-        val capabilitiesFile = gradle.rootProject.layout.projectDirectory.file("gradle/dependency-management/capabilities.json").asFile
-        capabilities = if (capabilitiesFile.exists()) {
-            readCapabilities(capabilitiesFile)
-        } else {
-            emptyList()
-        }
-        extra["capabilities"] = capabilities
+        println("Not found: $capabilitiesFile")
+        emptyList()
     }
     capabilities.forEach {
         it.configure(dependencies.components, configurations)

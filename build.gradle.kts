@@ -38,3 +38,7 @@ buildscript {
         }
     }
 }
+
+tasks.register("fullDist") {
+    dependsOn(gradle.includedBuild("full").task(":distributions-full:binDistributionZip"))
+}

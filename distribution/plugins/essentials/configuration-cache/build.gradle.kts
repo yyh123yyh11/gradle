@@ -15,9 +15,9 @@ tasks {
     }
 
     processResources {
-        from({ project(":code-quality:configuration-cache-report").tasks.named("assembleReport") }) {
-            into("org/gradle/configurationcache")
-        }
+        //from({ project(":code-quality:configuration-cache-report").tasks.named("assembleReport") }) {
+        //    into("org/gradle/configurationcache")
+        //}
     }
 
     configCacheIntegTest {

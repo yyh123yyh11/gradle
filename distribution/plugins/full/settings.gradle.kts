@@ -9,3 +9,9 @@ pluginManagement {
 file(".").listFiles()!!.filter { it.isDirectory && !it.name.startsWith(".") }.forEach { subproject ->
     include(subproject.name)
 }
+
+includeBuild("../../../build-src")
+
+includeBuild("../publishing")
+includeBuild("../jvm")
+includeBuild("../native")

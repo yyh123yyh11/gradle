@@ -35,14 +35,14 @@ dependencies {
     implementation(libs.xerces)
     implementation(libs.nekohtml)
 
-    testImplementation("org.gradle:internal-integ-testing")
+    // testImplementation("org.gradle:internal-integ-testing")
     testImplementation(libs.jetty)
     testImplementation(testFixtures("org.gradle:core"))
     testImplementation(testFixtures("org.gradle:logging"))
 
     testFixturesImplementation("org.gradle:base-services")
     testFixturesImplementation("org.gradle:logging")
-    testFixturesImplementation("org.gradle:internal-integ-testing")
+    // testFixturesImplementation("org.gradle:internal-integ-testing")
     testFixturesImplementation(libs.slf4jApi)
 
     integTestDistributionRuntimeOnly("org.gradle:distributions-core")

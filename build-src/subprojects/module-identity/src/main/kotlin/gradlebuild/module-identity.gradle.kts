@@ -35,6 +35,7 @@ plugins {
 
 val moduleIdentity = extensions.create<ModuleIdentityExtension>("moduleIdentity")
 
+group = "org.gradle"
 version = collectVersionDetails(moduleIdentity)
 
 fun Project.collectVersionDetails(moduleIdentity: ModuleIdentityExtension): String {
@@ -90,7 +91,9 @@ fun Project.collectVersionDetails(moduleIdentity: ModuleIdentityExtension): Stri
     )
 
     moduleIdentity.releasedVersions.set(provider {
-        ReleasedVersionsDetails(moduleIdentity.version.forUseAtConfigurationTime().get().baseVersion, rootProject.layout.projectDirectory.file("released-versions.json"))
+        var mainRootDir = rootDir
+        while(mainRootDir.name != "gradle") { mainRootDir = mainRootDir.parentFile }
+        ReleasedVersionsDetails(moduleIdentity.version.forUseAtConfigurationTime().get().baseVersion, rootProject.layout.projectDirectory.dir(mainRootDir.absolutePath).file("released-versions.json"))
     })
 
     return versionNumber
@@ -105,8 +108,11 @@ fun isPromotionBuild(): Boolean = gradle.startParameter.taskNames.contains("prom
  * Returns the trimmed contents of the file at the given [path] after
  * marking the file as a build logic input.
  */
-fun Project.trimmedContentsOfFile(path: String): String? =
-    providers.fileContents(rootProject.layout.projectDirectory.file(path)).asText.forUseAtConfigurationTime().orNull?.trim()
+fun Project.trimmedContentsOfFile(path: String): String? {
+    var mainRootDir = rootDir
+    while(mainRootDir.name != "gradle") { mainRootDir = mainRootDir.parentFile }
+    return File(mainRootDir, path).readText().trim()
+}
 
 fun Project.environmentVariable(variableName: String): Provider<String> =
     providers.environmentVariable(variableName).forUseAtConfigurationTime()

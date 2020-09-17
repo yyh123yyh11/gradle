@@ -17,6 +17,7 @@
 package gradlebuild.docs;
 
 import gradlebuild.basics.PublicApi;
+import org.asciidoctor.gradle.AsciidoctorPlugin;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -51,6 +52,7 @@ public class GradleBuildDocumentationPlugin implements Plugin<Project> {
 
         extension.getQuickFeedback().convention(providers.provider(() -> project.hasProperty("quickDocs")));
 
+        project.apply(target -> target.plugin(AsciidoctorPlugin.class));
         project.apply(target -> target.plugin(GradleReleaseNotesPlugin.class));
         project.apply(target -> target.plugin(GradleJavadocsPlugin.class));
         project.apply(target -> target.plugin(GradleDslReferencePlugin.class));

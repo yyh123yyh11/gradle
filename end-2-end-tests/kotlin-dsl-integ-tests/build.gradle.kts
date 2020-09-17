@@ -39,10 +39,6 @@ dependencies {
 val pluginBundles = listOf(
     ":portal-plugins:kotlin-dsl-plugins")
 
-pluginBundles.forEach {
-    evaluationDependsOn(it)
-}
-
 tasks {
     val writeFuturePluginVersions by registering {
 
@@ -51,11 +47,11 @@ tasks {
 
         val futurePluginVersionsTasks =
             pluginBundles.map {
-                project(it).tasks["writeFuturePluginVersions"] as WriteProperties
+                // project(it).tasks["writeFuturePluginVersions"] as WriteProperties
             }
 
         dependsOn(futurePluginVersionsTasks)
-        inputs.files(futurePluginVersionsTasks.map { it.outputFile })
+        inputs.files(files())
         outputs.file(layout.buildDirectory.file("generated-resources/future-plugin-versions/future-plugin-versions.properties"))
 
         doLast {

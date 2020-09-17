@@ -19,6 +19,7 @@ import gradlebuild.basics.accessors.groovy
 import gradlebuild.basics.BuildEnvironment
 import gradlebuild.basics.tasks.ClasspathManifest
 import gradlebuild.basics.extension.vendorAndMajorVersion
+import gradlebuild.cleanup.extension.TestFileCleanUpExtension
 import gradlebuild.jvm.argumentproviders.CiEnvironmentProvider
 import gradlebuild.jvm.extension.UnitTestAndCompileExtension
 import org.gradle.internal.os.OperatingSystem
@@ -35,6 +36,7 @@ plugins {
 }
 
 extensions.create<UnitTestAndCompileExtension>("gradlebuildJava", java)
+extensions.create<TestFileCleanUpExtension>("testFilesCleanup")
 
 removeTeamcityTempProperty()
 addDependencies()

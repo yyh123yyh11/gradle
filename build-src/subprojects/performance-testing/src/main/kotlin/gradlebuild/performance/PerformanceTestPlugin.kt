@@ -190,7 +190,7 @@ class PerformanceTestPlugin : Plugin<Project> {
         }
 
         tasks.withType<TemplateProjectGeneratorTask>().configureEach {
-            sharedTemplateDirectory = project(":fixtures:internal-performance-testing").file("src/templates")
+            sharedTemplateDirectory = File("src/templates")
         }
     }
 

@@ -54,6 +54,8 @@ plugins {
     id("gradlebuild.module-identity")
 }
 
+group = "org.gradle"
+
 // Name of the Jar a Gradle distributions project produces as part of the distribution.
 // This Jar contains metadata required by Gradle at runtime. The data may vary
 // based on which Gradle module Jars are part of the distribution.
@@ -82,11 +84,11 @@ val runtimeClasspath by libraryResolver(listOf(coreRuntimeOnly, pluginsRuntimeOn
 runtimeClasspath.description = "Resolves to all Jars that need to be in the distribution including all transitive dependencies"
 val coreRuntimeClasspath by libraryResolver(listOf(coreRuntimeOnly))
 coreRuntimeClasspath.description = "Resolves to all Jars, including transitives, that make up the core of the distribution (needed to decide if a Jar goes into 'plugins' or not)"
-val gradleScriptPath by startScriptResolver(":launcher")
+val gradleScriptPath by startScriptResolver("org.gradle:launcher")
 gradleScriptPath.description = "Resolves to the Gradle start scripts (bin/*) - automatically adds dependency to the :launcher project"
 val sourcesPath by sourcesResolver(listOf(coreRuntimeOnly, pluginsRuntimeOnly))
 sourcesPath.description = "Resolves the source code of all Gradle modules Jars (required for the All distribution)"
-val docsPath by docsResolver(":docs")
+val docsPath by docsResolver("org.gradle:docs")
 docsPath.description = "Resolves to the complete Gradle documentation - automatically adds dependency to the :docs project"
 
 // Tasks to generate metadata about the distribution that is required at runtime
@@ -247,7 +249,7 @@ fun startScriptResolver(defaultDependency: String) =
         isCanBeConsumed = false
         isVisible = false
         withDependencies {
-            add(project.dependencies.create(project(defaultDependency)))
+            add(project.dependencies.create(defaultDependency))
         }
     }
 
@@ -275,7 +277,7 @@ fun docsResolver(defaultDependency: String) =
         isCanBeConsumed = false
         isVisible = false
         withDependencies {
-            add(project.dependencies.create(project(defaultDependency)))
+            add(project.dependencies.create(defaultDependency))
         }
     }
 

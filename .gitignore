@@ -7,17 +7,23 @@
 /buildSrc/build
 /buildSrc/subprojects/*/build
 /subprojects/*/build
-/main-build/code-quality/*/build
-/main-build/distribution-core/*/build
-/main-build/distribution-plugins/*/*/build
-/main-build/distribution-setup/*/build
-/main-build/documentation/*/build
-/main-build/end-2-end-tests/*/build
-/main-build/fixtures/*/build
-/main-build/portal-plugins/*/build
-/main-build/documentation/docs/src/samples/**/build
-/main-build/documentation/docs/src/snippets/**/build
-/main-build/fixtures/internal-android-performance-testing/build-android-libs
+/code-quality/build
+/code-quality/*/build
+/distribution/core/build
+/distribution/core/*/build
+/distribution/plugins/*/build
+/distribution/plugins/*/*/build
+/documentation/build
+/documentation/*/build
+/end-2-end-tests/build
+/end-2-end-tests/*/build
+/distribution/fixtures/build
+/distribution/fixtures/*/build
+/distribution/fixtures/internal-android-performance-testing/build-android-libs
+/portal-plugins/build
+/portal-plugins/*/build
+/documentation/docs/src/samples/**/build
+/documentation/docs/src/snippets/**/build
 
 # IDEA
 # ----
@@ -94,7 +100,7 @@ atlassian-ide-plugin.xml
 # Work dirs
 # ---------
 /incoming-distributions
-/intTestHomeDir
+intTestHomeDir
 
 # Logs
 # ----
