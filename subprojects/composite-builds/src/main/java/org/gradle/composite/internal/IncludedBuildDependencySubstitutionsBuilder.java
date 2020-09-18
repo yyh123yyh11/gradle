@@ -16,18 +16,29 @@
 
 package org.gradle.composite.internal;
 
+import org.gradle.api.Project;
+import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.component.ComponentSelector;
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
 import org.gradle.api.capabilities.Capability;
+import org.gradle.api.internal.GradleInternal;
+import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier;
 import org.gradle.api.internal.artifacts.ivyservice.dependencysubstitution.DefaultDependencySubstitutions;
 import org.gradle.api.internal.artifacts.ivyservice.dependencysubstitution.DependencySubstitutionsInternal;
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory;
 import org.gradle.api.internal.composite.CompositeBuildContext;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.internal.Pair;
+import org.gradle.internal.build.BuildState;
 import org.gradle.internal.build.IncludedBuildState;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.typeconversion.NotationParser;
+import org.gradle.util.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class IncludedBuildDependencySubstitutionsBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(IncludedBuildDependencySubstitutionsBuilder.class);
@@ -63,6 +74,16 @@ public class IncludedBuildDependencySubstitutionsBuilder {
             // Register the defined substitutions for included build
             context.registerSubstitution(substitutions.getRuleAction());
         }
+    }
+
+    public void build(BuildState rootBuildState, GradleInternal configuredRootBuild) {
+        Set<Pair<ModuleVersionIdentifier, ProjectComponentIdentifier>> availableModules = new HashSet<>();
+        for (Project p : configuredRootBuild.getRootProject().getSubprojects()) {
+            availableModules.add(Pair.of(
+                DefaultModuleVersionIdentifier.newId(p.getGroup().toString(), p.getName(), ""),
+                rootBuildState.getIdentifierForProject(Path.path(p.getPath()))));
+        }
+        context.addAvailableModules(availableModules);
     }
 
     private DependencySubstitutionsInternal resolveDependencySubstitutions(IncludedBuildState build) {

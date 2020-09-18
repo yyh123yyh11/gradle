@@ -21,6 +21,7 @@ import com.google.common.collect.Maps;
 import org.gradle.api.GradleException;
 import org.gradle.api.artifacts.component.BuildIdentifier;
 import org.gradle.api.internal.BuildDefinition;
+import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.SettingsInternal;
 import org.gradle.api.internal.artifacts.DefaultBuildIdentifier;
 import org.gradle.initialization.GradleLauncherFactory;
@@ -140,6 +141,11 @@ public class DefaultIncludedBuildRegistry implements BuildStateRegistry, Stoppab
     @Override
     public void beforeConfigureRootBuild() {
         registerSubstitutions(includedBuildsByRootDir.values());
+    }
+
+    @Override
+    public void afterConfigureRootBuild(GradleInternal gradle) {
+        dependencySubstitutionsBuilder.build(rootBuild, gradle);
     }
 
     @Override

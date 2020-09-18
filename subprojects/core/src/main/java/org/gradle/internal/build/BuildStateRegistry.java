@@ -18,6 +18,7 @@ package org.gradle.internal.build;
 
 import org.gradle.api.artifacts.component.BuildIdentifier;
 import org.gradle.api.internal.BuildDefinition;
+import org.gradle.api.internal.GradleInternal;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -71,6 +72,8 @@ public interface BuildStateRegistry {
      * This shouldn't be on this interface, as this is state for the root build that should be managed internally by the {@link RootBuildState} instance instead. This method is here to allow transition towards that structure.
      */
     void beforeConfigureRootBuild();
+
+    void afterConfigureRootBuild(GradleInternal gradle);
 
     /**
      * Creates an included build. An included build is-a nested build whose projects and outputs are treated as part of the composite build.
