@@ -19,10 +19,13 @@ package org.gradle.composite.internal;
 import org.gradle.StartParameter;
 import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.component.BuildIdentifier;
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
 import org.gradle.api.internal.BuildDefinition;
 import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.SettingsInternal;
 import org.gradle.api.internal.artifacts.DefaultBuildIdentifier;
+import org.gradle.api.internal.artifacts.DefaultProjectComponentIdentifier;
+import org.gradle.api.internal.artifacts.ForeignBuildIdentifier;
 import org.gradle.initialization.GradleLauncher;
 import org.gradle.initialization.GradleLauncherFactory;
 import org.gradle.initialization.IncludedBuildSpec;
@@ -46,6 +49,16 @@ class DefaultRootBuildState extends AbstractBuildState implements RootBuildState
     DefaultRootBuildState(BuildDefinition buildDefinition, GradleLauncherFactory gradleLauncherFactory, ListenerManager listenerManager, BuildTreeState owner) {
         this.listenerManager = listenerManager;
         this.gradleLauncher = gradleLauncherFactory.newInstance(buildDefinition, this, owner);
+    }
+
+    public ProjectComponentIdentifier idToReferenceProjectFromAnotherBuild(ProjectComponentIdentifier identifier) {
+        DefaultProjectComponentIdentifier original = (DefaultProjectComponentIdentifier) identifier;
+        String rootName = DefaultBuildIdentifier.ROOT.getName();
+        return new DefaultProjectComponentIdentifier(new ForeignBuildIdentifier(rootName, rootName), original.getIdentityPath(), original.projectPath(), original.getProjectName());
+    }
+
+    public GradleInternal getConfiguredBuild() {
+        return gradleLauncher.getConfiguredBuild();
     }
 
     @Override

@@ -25,7 +25,7 @@ import org.gradle.api.internal.artifacts.ivyservice.projectmodule.LocalComponent
 import org.gradle.api.internal.project.ProjectState;
 import org.gradle.api.internal.project.ProjectStateRegistry;
 import org.gradle.internal.UncheckedException;
-import org.gradle.internal.build.IncludedBuildState;
+import org.gradle.internal.build.BuildState;
 import org.gradle.internal.component.local.model.LocalComponentMetadata;
 
 import java.util.concurrent.ExecutionException;
@@ -62,9 +62,8 @@ public class LocalComponentInAnotherBuildProvider implements LocalComponentProvi
     private LocalComponentMetadata getRegisteredProject(final ProjectComponentIdentifier projectId) {
         ProjectState projectState = projectRegistry.stateFor(projectId);
         // TODO - this should work for any build, rather than just an included build
-        IncludedBuildState includedBuild = (IncludedBuildState) projectState.getOwner();
-        includedBuild.getConfiguredBuild();
+        BuildState build = projectState.getOwner();
         // Metadata builder uses mutable project state, so synchronize access to the project state
-        return projectState.fromMutableState(p -> dependencyMetadataBuilder.build(includedBuild, projectId));
+        return projectState.fromMutableState(p -> dependencyMetadataBuilder.build(build, projectId));
     }
 }

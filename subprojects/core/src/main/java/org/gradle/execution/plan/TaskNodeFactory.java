@@ -23,6 +23,7 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.component.BuildIdentifier;
 import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.TaskInternal;
+import org.gradle.api.internal.artifacts.DefaultBuildIdentifier;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.composite.internal.IncludedBuildTaskGraph;
 import org.gradle.composite.internal.IncludedBuildTaskResource.State;
@@ -137,8 +138,10 @@ public class TaskNodeFactory {
 
         @Override
         public void prepareForExecution() {
-            // Should get back some kind of reference that can be queried below instead of looking the task up every time
-            taskGraph.addTask(thisBuild, targetBuild, task.getPath());
+            if (!targetBuild.equals(DefaultBuildIdentifier.ROOT)) {
+                // Should get back some kind of reference that can be queried below instead of looking the task up every time
+                taskGraph.addTask(thisBuild, targetBuild, task.getPath());
+            }
         }
 
         @Override
@@ -167,11 +170,12 @@ public class TaskNodeFactory {
 
         @Override
         public boolean isComplete() {
+            if (targetBuild.equals(DefaultBuildIdentifier.ROOT)) {
+                return super.isComplete();
+            }
             if (state != State.WAITING) {
                 return true;
             }
-
-            state = taskGraph.getTaskState(targetBuild, task.getPath());
             return state != State.WAITING;
         }
 

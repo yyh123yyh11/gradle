@@ -20,6 +20,7 @@ import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
 import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.artifacts.ivyservice.projectmodule.LocalComponentRegistry;
+import org.gradle.internal.build.BuildState;
 import org.gradle.internal.build.IncludedBuildState;
 import org.gradle.internal.component.local.model.DefaultLocalComponentMetadata;
 import org.gradle.internal.component.local.model.LocalComponentArtifactMetadata;
@@ -28,12 +29,19 @@ import org.gradle.internal.component.local.model.LocalComponentMetadata;
 import java.io.File;
 
 public class IncludedBuildDependencyMetadataBuilder {
-    public LocalComponentMetadata build(IncludedBuildState build, ProjectComponentIdentifier projectIdentifier) {
-        GradleInternal gradle = build.getConfiguredBuild();
+    public LocalComponentMetadata build(BuildState build, ProjectComponentIdentifier projectIdentifier) {
+        GradleInternal gradle;
+        ProjectComponentIdentifier foreignIdentifier;
+        if (build instanceof IncludedBuildState) {
+            gradle = ((IncludedBuildState) build).getConfiguredBuild();
+            foreignIdentifier = ((IncludedBuildState) build).idToReferenceProjectFromAnotherBuild(projectIdentifier);
+        } else {
+            gradle = ((DefaultRootBuildState) build).getConfiguredBuild();
+            foreignIdentifier = ((DefaultRootBuildState) build).idToReferenceProjectFromAnotherBuild(projectIdentifier);
+        }
         LocalComponentRegistry localComponentRegistry = gradle.getServices().get(LocalComponentRegistry.class);
         DefaultLocalComponentMetadata originalComponent = (DefaultLocalComponentMetadata) localComponentRegistry.getComponent(projectIdentifier);
 
-        ProjectComponentIdentifier foreignIdentifier = build.idToReferenceProjectFromAnotherBuild(projectIdentifier);
         return createCompositeCopy(foreignIdentifier, originalComponent);
     }
 
