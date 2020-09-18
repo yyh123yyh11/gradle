@@ -152,6 +152,7 @@ public class DefaultIncludedBuildRegistry implements BuildStateRegistry, Stoppab
             if (rootSettings.getRootProject().getName().equals(includedBuildRootProjectName)) {
                 throw new GradleException("Included build in " + build.getRootDirectory() + " has the same root project name '" + includedBuildRootProjectName + "' as the main build.");
             }
+            build.getConfiguredBuild();
         }
     }
 
