@@ -28,6 +28,8 @@ apply(from = "../gradle/shared-with-buildSrc/mirrors.settings.gradle.kts")
 
 rootProject.name = "buildSrc"
 
+include("settings-plugin")
+
 // Platform: defines shared dependency versions
 include("build-platform")
 
