@@ -42,7 +42,7 @@ public class DefaultIncludedBuildTaskGraph implements IncludedBuildTaskGraph {
         boolean newBuildDependency = buildDependencies.put(requestingBuild, targetBuild);
         if (newBuildDependency) {
             List<BuildIdentifier> candidateCycle = Lists.newArrayList();
-            checkNoCycles(requestingBuild, targetBuild, candidateCycle);
+            // checkNoCycles(requestingBuild, targetBuild, candidateCycle);
         }
 
         getBuildController(targetBuild).queueForExecution(taskPath);
