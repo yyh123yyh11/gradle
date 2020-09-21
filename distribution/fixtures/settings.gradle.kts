@@ -1,3 +1,3 @@
 plugins {
-    id("gradlebuild.Settings")
+    id("gradlebuild.settings")
 }

@@ -1,5 +1,5 @@
 plugins {
-    id("gradlebuild.Settings")
+    id("gradlebuild.settings")
 }
 
 includeBuild("../../build-src")
