@@ -164,7 +164,9 @@ public class HttpClientHelper implements Closeable {
     private HttpClientResponse performHttpRequest(HttpRequestBase request, HttpContext httpContext) throws IOException {
         // Without this, HTTP Client prohibits multiple redirects to the same location within the same context
         httpContext.removeAttribute(REDIRECT_LOCATIONS);
-        LOGGER.debug("Performing HTTP {}: {}", request.getMethod(), stripUserCredentials(request.getURI()));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Performing HTTP {}: {}", request.getMethod(), stripUserCredentials(request.getURI()));
+        }
 
         try {
             CloseableHttpResponse response = getClient().execute(request, httpContext);

@@ -103,7 +103,9 @@ public class DefaultScriptCompilationHandler implements ScriptCompilationHandler
             throw e;
         }
 
-        logger.debug("Timing: Writing script to cache at {} took: {}", classesDir.getAbsolutePath(), clock.getElapsed());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Timing: Writing script to cache at {} took: {}", classesDir.getAbsolutePath(), clock.getElapsed());
+        }
     }
 
     private void compileScript(ScriptSource source, ClassLoader classLoader, CompilerConfiguration configuration, File metadataDir,

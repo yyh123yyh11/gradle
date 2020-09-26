@@ -295,7 +295,7 @@ public class DefaultFileLockManager implements FileLockManager {
         }
 
         private LockState lock(LockMode lockMode) throws Throwable {
-            LOGGER.debug("Waiting to acquire {} lock on {}.", lockMode.toString().toLowerCase(), displayName);
+            LOGGER.debug("Waiting to acquire {} lock on {}.", lockMode, displayName);
 
             // Lock the state region, with the requested mode
             java.nio.channels.FileLock stateRegionLock = lockStateRegion(lockMode);
