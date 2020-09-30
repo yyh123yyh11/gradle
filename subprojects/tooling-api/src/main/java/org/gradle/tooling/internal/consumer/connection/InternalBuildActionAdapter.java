@@ -23,11 +23,15 @@ import org.gradle.tooling.internal.consumer.converters.ConsumerTargetTypeProvide
 import org.gradle.tooling.internal.consumer.versioning.ModelMapping;
 import org.gradle.tooling.internal.consumer.versioning.VersionDetails;
 import org.gradle.tooling.internal.protocol.BuildResult;
+import org.gradle.tooling.internal.protocol.InternalActionAwareBuildController;
 import org.gradle.tooling.internal.protocol.InternalBuildActionVersion2;
 import org.gradle.tooling.internal.protocol.InternalBuildControllerVersion2;
 import org.gradle.tooling.internal.protocol.ModelIdentifier;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Adapter to create {@link org.gradle.tooling.internal.protocol.InternalBuildAction}
@@ -36,11 +40,11 @@ import java.io.File;
  */
 @SuppressWarnings("deprecation")
 public class InternalBuildActionAdapter<T> implements org.gradle.tooling.internal.protocol.InternalBuildAction<T>, InternalBuildActionVersion2<T> {
-    private final BuildAction<T> action;
+    private final BuildAction<? extends T> action;
     private final File rootDir;
     private final VersionDetails versionDetails;
 
-    public InternalBuildActionAdapter(BuildAction<T> action, File rootDir, VersionDetails versionDetails) {
+    public InternalBuildActionAdapter(BuildAction<? extends T> action, File rootDir, VersionDetails versionDetails) {
         this.action = action;
         this.rootDir = rootDir;
         this.versionDetails = versionDetails;
@@ -54,11 +58,20 @@ public class InternalBuildActionAdapter<T> implements org.gradle.tooling.interna
         ProtocolToModelAdapter protocolToModelAdapter = new ProtocolToModelAdapter(new ConsumerTargetTypeProvider());
         BuildController buildControllerAdapter = new BuildControllerAdapter(protocolToModelAdapter, new InternalBuildControllerAdapter() {
             @Override
+            public <T> List<T> run(List<Supplier<T>> actions) {
+                List<T> results = new ArrayList<T>(actions.size());
+                for (Supplier<T> action : actions) {
+                    results.add(action.get());
+                }
+                return results;
+            }
+
+            @Override
             public BuildResult<?> getModel(Object target, ModelIdentifier modelIdentifier, Object parameter) {
                 return buildController.getModel(target, modelIdentifier);
             }
         }, new ModelMapping(), rootDir);
-        buildControllerAdapter  = new BuildControllerWithoutParameterSupport(versionDetails, buildControllerAdapter);
+        buildControllerAdapter = new BuildControllerWithoutParameterSupport(versionDetails, buildControllerAdapter);
         return action.execute(buildControllerAdapter);
     }
 
@@ -69,6 +82,18 @@ public class InternalBuildActionAdapter<T> implements org.gradle.tooling.interna
     public T execute(final InternalBuildControllerVersion2 buildController) {
         ProtocolToModelAdapter protocolToModelAdapter = new ProtocolToModelAdapter(new ConsumerTargetTypeProvider());
         BuildController buildControllerAdapter = new BuildControllerAdapter(protocolToModelAdapter, new InternalBuildControllerAdapter() {
+            @Override
+            public <T> List<T> run(List<Supplier<T>> actions) {
+                if (buildController instanceof InternalActionAwareBuildController) {
+                    return ((InternalActionAwareBuildController) buildController).run(actions);
+                }
+                List<T> results = new ArrayList<T>(actions.size());
+                for (Supplier<T> action : actions) {
+                    results.add(action.get());
+                }
+                return results;
+            }
+
             @Override
             public BuildResult<?> getModel(Object target, ModelIdentifier modelIdentifier, Object parameter) {
                 return buildController.getModel(target, modelIdentifier, parameter);

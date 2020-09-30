@@ -17,10 +17,14 @@
 package org.gradle.tooling.internal.consumer.connection;
 
 import org.gradle.api.Action;
+import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildController;
 import org.gradle.tooling.UnsupportedVersionException;
 import org.gradle.tooling.internal.consumer.versioning.VersionDetails;
 import org.gradle.tooling.model.Model;
+
+import java.util.Collection;
+import java.util.List;
 
 public class BuildControllerWithoutParameterSupport extends AbstractBuildController {
 
@@ -30,6 +34,11 @@ public class BuildControllerWithoutParameterSupport extends AbstractBuildControl
     public BuildControllerWithoutParameterSupport(VersionDetails gradleVersion, BuildController delegate) {
         this.gradleVersion = gradleVersion;
         this.delegate = delegate;
+    }
+
+    @Override
+    public <T> List<T> run(Collection<? extends BuildAction<? extends T>> buildActions) {
+        return delegate.run(buildActions);
     }
 
     @Override

@@ -17,11 +17,16 @@
 package org.gradle.tooling.internal.consumer.connection;
 
 import org.gradle.api.Action;
+import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildController;
 import org.gradle.tooling.UnknownModelException;
 import org.gradle.tooling.UnsupportedVersionException;
 import org.gradle.tooling.model.Model;
 import org.gradle.tooling.model.gradle.GradleBuild;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 abstract class AbstractBuildController extends HasCompatibilityMapping implements BuildController {
     @Override

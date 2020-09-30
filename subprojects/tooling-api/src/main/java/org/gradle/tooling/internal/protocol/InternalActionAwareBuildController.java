@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package org.gradle.tooling.internal.consumer.connection;
-
-import org.gradle.tooling.internal.protocol.BuildResult;
-import org.gradle.tooling.internal.protocol.ModelIdentifier;
+package org.gradle.tooling.internal.protocol;
 
 import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Interface representing either an {@link org.gradle.tooling.internal.protocol.InternalBuildController}
- * or an {@link org.gradle.tooling.internal.protocol.InternalBuildControllerVersion2}.
+ * <p>DO NOT CHANGE THIS INTERFACE - it is part of the cross-version protocol.
+ *
+ * <p>Consumer compatibility: This interface is used by all consumer versions from 6.8.</p>
+ * <p>Provider compatibility: This interface is implemented by all provider versions from 6.8.</p>
+ *
+ * @since 6.8
  */
-public interface InternalBuildControllerAdapter {
-    BuildResult<?> getModel(Object target, ModelIdentifier modelIdentifier, Object parameter);
-
+public interface InternalActionAwareBuildController {
+    /**
+     * Runs the given actions in parallel and returns the results.
+     */
     <T> List<T> run(List<Supplier<T>> actions);
 }

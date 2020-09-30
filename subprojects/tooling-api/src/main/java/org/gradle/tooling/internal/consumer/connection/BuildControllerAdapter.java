@@ -17,7 +17,7 @@
 package org.gradle.tooling.internal.consumer.connection;
 
 import org.gradle.api.Action;
-import org.gradle.tooling.BuildController;
+import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.UnsupportedVersionException;
 import org.gradle.tooling.internal.adapter.ObjectGraphAdapter;
 import org.gradle.tooling.internal.adapter.ProtocolToModelAdapter;
@@ -33,8 +33,12 @@ import org.gradle.tooling.model.internal.Exceptions;
 
 import java.io.File;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Supplier;
 
-class BuildControllerAdapter extends AbstractBuildController implements BuildController {
+class BuildControllerAdapter extends AbstractBuildController {
     private final InternalBuildControllerAdapter buildController;
     private final ProtocolToModelAdapter adapter;
     private final ObjectGraphAdapter resultAdapter;
@@ -48,6 +52,20 @@ class BuildControllerAdapter extends AbstractBuildController implements BuildCon
         this.rootDir = rootDir;
         // Treat all models returned to the action as part of the same object graph
         resultAdapter = adapter.newGraph();
+    }
+
+    @Override
+    public <T> List<T> run(Collection<? extends BuildAction<? extends T>> buildActions) {
+        List<Supplier<T>> wrappers = new ArrayList<Supplier<T>>(buildActions.size());
+        for (final BuildAction<? extends T> action : buildActions) {
+            wrappers.add(new Supplier<T>() {
+                @Override
+                public T get() {
+                    return action.execute(BuildControllerAdapter.this);
+                }
+            });
+        }
+        return buildController.run(wrappers);
     }
 
     @Override
