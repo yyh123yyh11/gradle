@@ -71,3 +71,5 @@ FeaturePreviews.Feature.values().forEach { feature ->
         enableFeaturePreview(feature.name)
     }
 }
+
+includeBuild("config")
