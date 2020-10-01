@@ -18,7 +18,6 @@ package org.gradle.integtests.tooling.r68;
 
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildController;
-import org.gradle.tooling.model.ProjectModel;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
 
@@ -35,32 +34,32 @@ public class ActionRunsNestedActions implements BuildAction<ActionRunsNestedActi
         for (BasicGradleProject project : buildModel.getProjects()) {
             projectActions.add(new GetProjectModel(project));
         }
-        List<String> results = controller.run(projectActions);
+        List<CustomModel> results = controller.run(projectActions);
         return new Models(results);
     }
 
-    private static class GetProjectModel implements BuildAction<String> {
-        private final ProjectModel project;
+    private static class GetProjectModel implements BuildAction<CustomModel> {
+        private final BasicGradleProject project;
 
-        public GetProjectModel(ProjectModel project) {
+        public GetProjectModel(BasicGradleProject project) {
             this.project = project;
         }
 
         @Override
-        public String execute(BuildController controller) {
-            return project.getProjectIdentifier().getProjectPath();
+        public CustomModel execute(BuildController controller) {
+            return controller.getModel(project, CustomModel.class);
         }
     }
 
     public static class Models implements Serializable {
-        private final List<String> projectPaths;
+        private final List<CustomModel> projects;
 
-        public Models(Collection<String> projectPaths) {
-            this.projectPaths = new ArrayList<String>(projectPaths);
+        public Models(Collection<CustomModel> projects) {
+            this.projects = new ArrayList<CustomModel>(projects);
         }
 
-        public List<String> getProjectPaths() {
-            return projectPaths;
+        public List<CustomModel> getProjects() {
+            return projects;
         }
     }
 }

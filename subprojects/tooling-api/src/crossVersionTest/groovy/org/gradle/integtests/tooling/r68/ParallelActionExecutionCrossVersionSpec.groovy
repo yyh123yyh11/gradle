@@ -19,32 +19,81 @@ package org.gradle.integtests.tooling.r68
 import org.gradle.integtests.tooling.fixture.TargetGradleVersion
 import org.gradle.integtests.tooling.fixture.ToolingApiSpecification
 import org.gradle.integtests.tooling.fixture.ToolingApiVersion
+import org.gradle.tooling.BuildActionFailureException
+import spock.lang.Ignore
 
 @ToolingApiVersion(">=6.8")
 class ParallelActionExecutionCrossVersionSpec extends ToolingApiSpecification {
-    def "action can run nested actions"() {
+    def setup() {
+        buildFile << """
+            import javax.inject.Inject
+            import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry
+            import org.gradle.tooling.provider.model.ToolingModelBuilder
+
+            abstract class CustomPlugin implements Plugin<Project> {
+                @Inject
+                abstract ToolingModelBuilderRegistry getRegistry();
+
+                void apply(Project project) {
+                    registry.register(new CustomBuilder())
+                }
+            }
+
+            class CustomModel implements Serializable {
+                String path
+            }
+
+            class CustomBuilder implements ToolingModelBuilder {
+                boolean canBuild(String modelName) {
+                    return modelName == "org.gradle.integtests.tooling.r68.CustomModel"
+                }
+
+                Object buildAll(String modelName, Project project) {
+                    // Do some dependency resolution
+                    project.configurations.runtimeClasspath.files.each { }
+                    return new CustomModel(path: project.path);
+                }
+            }
+        """
+    }
+
+    def "build action can run nested actions that request models that require dependency resolution"() {
         given:
         settingsFile << """
             include 'a', 'b'
+        """
+        buildFile << """
+            allprojects {
+                apply plugin: CustomPlugin
+                apply plugin: 'java-library'
+            }
+            dependencies {
+                implementation project('a')
+                implementation project('b')
+            }
         """
         expect:
         def models = withConnection {
             action(new ActionRunsNestedActions()).run()
         }
-        models.projectPaths == [':', ':a', ':b']
+        models.projects.path == [':', ':a', ':b']
     }
 
+    @Ignore
     @TargetGradleVersion(">=6.8")
     def "nested actions run in parallel when target Gradle version supports it"() {
         expect: false
     }
 
     def "propagates nested action failures"() {
-        expect: false
-    }
+        when:
+        withConnection {
+            action(new ActionRunsBrokenNestedActions()).run()
+        }
 
-    def "nested actions can request models that perform dependency resolution"() {
-        expect: false
+        then:
+        def e = thrown(BuildActionFailureException)
+        e.cause instanceof RuntimeException
+        e.cause.message == "broken: one"
     }
-
 }
