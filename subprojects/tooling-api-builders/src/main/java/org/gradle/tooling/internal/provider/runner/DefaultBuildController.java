@@ -20,8 +20,13 @@ import org.gradle.api.BuildCancelledException;
 import org.gradle.api.initialization.IncludedBuild;
 import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.project.ProjectInternal;
+import org.gradle.api.internal.project.ProjectStateRegistry;
 import org.gradle.initialization.BuildCancellationToken;
 import org.gradle.internal.build.IncludedBuildState;
+import org.gradle.internal.operations.BuildOperationContext;
+import org.gradle.internal.operations.BuildOperationDescriptor;
+import org.gradle.internal.operations.BuildOperationExecutor;
+import org.gradle.internal.operations.RunnableBuildOperation;
 import org.gradle.tooling.internal.adapter.ProtocolToModelAdapter;
 import org.gradle.tooling.internal.adapter.ViewBuilder;
 import org.gradle.tooling.internal.gradle.GradleBuildIdentity;
@@ -45,9 +50,15 @@ import java.util.function.Supplier;
 @SuppressWarnings("deprecation")
 class DefaultBuildController implements org.gradle.tooling.internal.protocol.InternalBuildController, InternalBuildControllerVersion2, InternalActionAwareBuildController {
     private final GradleInternal gradle;
+    private final BuildCancellationToken cancellationToken;
+    private final BuildOperationExecutor buildOperationExecutor;
+    private final ProjectStateRegistry projectStateRegistry;
 
-    public DefaultBuildController(GradleInternal gradle) {
+    public DefaultBuildController(GradleInternal gradle, BuildCancellationToken cancellationToken, BuildOperationExecutor buildOperationExecutor, ProjectStateRegistry projectStateRegistry) {
         this.gradle = gradle;
+        this.cancellationToken = cancellationToken;
+        this.buildOperationExecutor = buildOperationExecutor;
+        this.projectStateRegistry = projectStateRegistry;
     }
 
     /**
@@ -74,7 +85,6 @@ class DefaultBuildController implements org.gradle.tooling.internal.protocol.Int
     @Override
     public BuildResult<?> getModel(Object target, ModelIdentifier modelIdentifier, Object parameter)
         throws BuildExceptionVersion1, InternalUnsupportedModelException {
-        BuildCancellationToken cancellationToken = gradle.getServices().get(BuildCancellationToken.class);
         if (cancellationToken.isCancellationRequested()) {
             throw new BuildCancelledException(String.format("Could not build '%s' model. Build cancelled.", modelIdentifier.getName()));
         }
@@ -97,9 +107,19 @@ class DefaultBuildController implements org.gradle.tooling.internal.protocol.Int
 
     @Override
     public <T> List<T> run(List<Supplier<T>> actions) {
-        List<T> results = new ArrayList<T>(actions.size());
+        List<NestedAction<T>> wrappers = new ArrayList<>(actions.size());
         for (Supplier<T> action : actions) {
-            results.add(action.get());
+            wrappers.add(new NestedAction<>(action, projectStateRegistry));
+        }
+        buildOperationExecutor.runAll(buildOperationQueue -> {
+            for (NestedAction<T> wrapper : wrappers) {
+                buildOperationQueue.add(wrapper);
+            }
+        });
+
+        List<T> results = new ArrayList<T>(actions.size());
+        for (NestedAction<T> wrapper : wrappers) {
+            results.add(wrapper.value());
         }
         return results;
     }
@@ -169,5 +189,31 @@ class DefaultBuildController implements org.gradle.tooling.internal.protocol.Int
             throw (InternalUnsupportedModelException) (new InternalUnsupportedModelException()).initCause(e);
         }
         return builder;
+    }
+
+    private static class NestedAction<T> implements RunnableBuildOperation {
+        private final Supplier<T> action;
+        private final ProjectStateRegistry projectStateRegistry;
+        private T value;
+
+        public NestedAction(Supplier<T> action, ProjectStateRegistry projectStateRegistry) {
+            this.action = action;
+            this.projectStateRegistry = projectStateRegistry;
+        }
+
+        @Override
+        public void run(BuildOperationContext context) throws Exception {
+            // TODO - do not grant uncontrolled access
+            value = projectStateRegistry.allowUncontrolledAccessToAnyProject(action::get);
+        }
+
+        @Override
+        public BuildOperationDescriptor.Builder description() {
+            return BuildOperationDescriptor.displayName("run tooling API client action");
+        }
+
+        public T value() {
+            return value;
+        }
     }
 }

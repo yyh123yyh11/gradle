@@ -17,6 +17,7 @@
 package org.gradle.tooling.internal.consumer.connection;
 
 import org.gradle.api.Action;
+import org.gradle.internal.operations.MultipleBuildOperationFailures;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildController;
 import org.gradle.tooling.UnknownModelException;
@@ -154,8 +155,17 @@ abstract class AbstractBuildController extends HasCompatibilityMapping implement
     @Override
     public <T> List<T> run(Collection<? extends BuildAction<? extends T>> actions) {
         List<T> results = new ArrayList<T>(actions.size());
+        List<Throwable> failures = new ArrayList<Throwable>();
         for (BuildAction<? extends T> action : actions) {
-            results.add(action.execute(this));
+            try {
+                T result = action.execute(this);
+                results.add(result);
+            } catch (Throwable t) {
+                failures.add(t);
+            }
+        }
+        if (!failures.isEmpty()) {
+            throw new MultipleBuildOperationFailures(failures, null);
         }
         return results;
     }
