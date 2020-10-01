@@ -22,16 +22,11 @@ import org.gradle.tooling.internal.adapter.ProtocolToModelAdapter;
 import org.gradle.tooling.internal.consumer.converters.ConsumerTargetTypeProvider;
 import org.gradle.tooling.internal.consumer.versioning.ModelMapping;
 import org.gradle.tooling.internal.consumer.versioning.VersionDetails;
-import org.gradle.tooling.internal.protocol.BuildResult;
 import org.gradle.tooling.internal.protocol.InternalActionAwareBuildController;
 import org.gradle.tooling.internal.protocol.InternalBuildActionVersion2;
 import org.gradle.tooling.internal.protocol.InternalBuildControllerVersion2;
-import org.gradle.tooling.internal.protocol.ModelIdentifier;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * Adapter to create {@link org.gradle.tooling.internal.protocol.InternalBuildAction}
@@ -56,22 +51,7 @@ public class InternalBuildActionAdapter<T> implements org.gradle.tooling.interna
     @Override
     public T execute(final org.gradle.tooling.internal.protocol.InternalBuildController buildController) {
         ProtocolToModelAdapter protocolToModelAdapter = new ProtocolToModelAdapter(new ConsumerTargetTypeProvider());
-        BuildController buildControllerAdapter = new BuildControllerAdapter(protocolToModelAdapter, new InternalBuildControllerAdapter() {
-            @Override
-            public <T> List<T> run(List<Supplier<T>> actions) {
-                List<T> results = new ArrayList<T>(actions.size());
-                for (Supplier<T> action : actions) {
-                    results.add(action.get());
-                }
-                return results;
-            }
-
-            @Override
-            public BuildResult<?> getModel(Object target, ModelIdentifier modelIdentifier, Object parameter) {
-                return buildController.getModel(target, modelIdentifier);
-            }
-        }, new ModelMapping(), rootDir);
-        buildControllerAdapter = new BuildControllerWithoutParameterSupport(versionDetails, buildControllerAdapter);
+        BuildController buildControllerAdapter = new BuildControllerWithoutParameterSupport(buildController, protocolToModelAdapter, new ModelMapping(), rootDir, versionDetails);
         return action.execute(buildControllerAdapter);
     }
 
@@ -80,25 +60,16 @@ public class InternalBuildActionAdapter<T> implements org.gradle.tooling.interna
      */
     @Override
     public T execute(final InternalBuildControllerVersion2 buildController) {
-        ProtocolToModelAdapter protocolToModelAdapter = new ProtocolToModelAdapter(new ConsumerTargetTypeProvider());
-        BuildController buildControllerAdapter = new BuildControllerAdapter(protocolToModelAdapter, new InternalBuildControllerAdapter() {
-            @Override
-            public <T> List<T> run(List<Supplier<T>> actions) {
-                if (buildController instanceof InternalActionAwareBuildController) {
-                    return ((InternalActionAwareBuildController) buildController).run(actions);
-                }
-                List<T> results = new ArrayList<T>(actions.size());
-                for (Supplier<T> action : actions) {
-                    results.add(action.get());
-                }
-                return results;
-            }
-
-            @Override
-            public BuildResult<?> getModel(Object target, ModelIdentifier modelIdentifier, Object parameter) {
-                return buildController.getModel(target, modelIdentifier, parameter);
-            }
-        }, new ModelMapping(), rootDir);
+        BuildController buildControllerAdapter = wrapBuildController(buildController);
         return action.execute(buildControllerAdapter);
+    }
+
+    private BuildController wrapBuildController(final InternalBuildControllerVersion2 buildController) {
+        ProtocolToModelAdapter protocolToModelAdapter = new ProtocolToModelAdapter(new ConsumerTargetTypeProvider());
+        if (buildController instanceof InternalActionAwareBuildController) {
+            return new NestedActionAwareBuildControllerAdapter(buildController, protocolToModelAdapter, new ModelMapping(), rootDir);
+        } else {
+            return new ParameterAwareBuildControllerAdapter(buildController, protocolToModelAdapter, new ModelMapping(), rootDir);
+        }
     }
 }

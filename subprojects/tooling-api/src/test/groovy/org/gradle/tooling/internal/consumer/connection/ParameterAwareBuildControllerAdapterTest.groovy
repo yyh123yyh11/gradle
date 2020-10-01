@@ -30,8 +30,8 @@ import org.gradle.tooling.model.Element
 import org.gradle.tooling.model.gradle.GradleBuild
 import spock.lang.Specification
 
-class BuildControllerAdapterTest extends Specification {
-    def internalController = Mock(InternalBuildControllerAdapter)
+class ParameterAwareBuildControllerAdapterTest extends Specification {
+//    def internalController = Mock(InternalBuildControllerAdapter)
     def graphAdapter = Mock(ObjectGraphAdapter)
     def adapter = Mock(ProtocolToModelAdapter) {
         newGraph() >> graphAdapter
@@ -43,7 +43,7 @@ class BuildControllerAdapterTest extends Specification {
             }
         }
     }
-    def controller = new BuildControllerAdapter(adapter, internalController, mapping, new File("root"))
+    def controller = new ParameterAwareBuildControllerAdapter(adapter, internalController, mapping, new File("root"))
 
     def "unpacks unsupported model exception"() {
         def failure = new RuntimeException()

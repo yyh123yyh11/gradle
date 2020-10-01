@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,27 @@
 
 package org.gradle.tooling.internal.consumer.connection;
 
-import org.gradle.tooling.UnsupportedVersionException;
+import org.gradle.tooling.internal.adapter.ObjectGraphAdapter;
 import org.gradle.tooling.internal.adapter.ProtocolToModelAdapter;
 import org.gradle.tooling.internal.consumer.versioning.ModelMapping;
-import org.gradle.tooling.internal.consumer.versioning.VersionDetails;
 import org.gradle.tooling.internal.protocol.BuildResult;
+import org.gradle.tooling.internal.protocol.InternalBuildControllerVersion2;
 import org.gradle.tooling.internal.protocol.InternalUnsupportedModelException;
 import org.gradle.tooling.internal.protocol.ModelIdentifier;
 
 import javax.annotation.Nullable;
 import java.io.File;
 
-@SuppressWarnings("deprecation")
-public class BuildControllerWithoutParameterSupport extends AbstractBuildController {
-    private final org.gradle.tooling.internal.protocol.InternalBuildController buildController;
-    private final VersionDetails gradleVersion;
+class ParameterAwareBuildControllerAdapter extends AbstractBuildController {
+    private final InternalBuildControllerVersion2 buildController;
 
-    public BuildControllerWithoutParameterSupport(org.gradle.tooling.internal.protocol.InternalBuildController buildController, ProtocolToModelAdapter adapter, ModelMapping modelMapping, File rootDir, VersionDetails gradleVersion) {
+    public ParameterAwareBuildControllerAdapter(InternalBuildControllerVersion2 buildController, ProtocolToModelAdapter adapter, ModelMapping modelMapping, File rootDir) {
         super(adapter, modelMapping, rootDir);
         this.buildController = buildController;
-        this.gradleVersion = gradleVersion;
     }
 
     @Override
     protected BuildResult<?> getModel(@Nullable Object target, ModelIdentifier modelIdentifier, @Nullable Object parameter) throws InternalUnsupportedModelException {
-        if (parameter != null) {
-            throw new UnsupportedVersionException(String.format("Gradle version %s does not support parameterized tooling models.", gradleVersion.getVersion()));
-        }
-        return buildController.getModel(target, modelIdentifier);
+        return buildController.getModel(target, modelIdentifier, parameter);
     }
 }
