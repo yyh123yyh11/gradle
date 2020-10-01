@@ -42,13 +42,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-abstract class AbstractBuildController extends HasCompatibilityMapping implements BuildController {
+abstract class UnparameterizedBuildController extends HasCompatibilityMapping implements BuildController {
     private final ProtocolToModelAdapter adapter;
     private final ObjectGraphAdapter resultAdapter;
     private final ModelMapping modelMapping;
     private final File rootDir;
 
-    public AbstractBuildController(ProtocolToModelAdapter adapter, ModelMapping modelMapping, File rootDir) {
+    public UnparameterizedBuildController(ProtocolToModelAdapter adapter, ModelMapping modelMapping, File rootDir) {
         this.adapter = adapter;
         // Treat all models returned to the action as part of the same object graph
         this.resultAdapter = adapter.newGraph();
