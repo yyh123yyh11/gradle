@@ -495,6 +495,10 @@ tasks.register("springBootBuild", RemoteProject) {
     remoteUri = 'https://github.com/jjohannes/spring-boot'
     ref = "master"
 }
+tasks.register("gradleBuild", RemoteProject) {
+    remoteUri = 'https://github.com/gradle/gradle'
+    ref = "master"
+}
 
 tasks.withType(JvmProjectGeneratorTask).configureEach {
     if (project.hasProperty("springDmPluginVersion")) {
