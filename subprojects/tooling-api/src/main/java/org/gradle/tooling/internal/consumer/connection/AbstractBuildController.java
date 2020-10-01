@@ -94,14 +94,14 @@ abstract class AbstractBuildController extends HasCompatibilityMapping implement
     public <T, P> T findModel(Model target, Class<T> modelType, Class<P> parameterType, Action<? super P> parameterInitializer) {
         try {
             return getModel(target, modelType, parameterType, parameterInitializer);
-        } catch (UnsupportedVersionException e) {
+        } catch (UnknownModelException e) {
             // Ignore
             return null;
         }
     }
 
     @Override
-    public <T, P> T getModel(Model target, Class<T> modelType, Class<P> parameterType, Action<? super P> parameterInitializer) throws UnsupportedVersionException {
+    public <T, P> T getModel(Model target, Class<T> modelType, Class<P> parameterType, Action<? super P> parameterInitializer) throws UnsupportedVersionException, UnknownModelException {
         ModelIdentifier modelIdentifier = modelMapping.getModelIdentifierFromModelType(modelType);
         Object originalTarget = target == null ? null : adapter.unpack(target);
 
