@@ -490,6 +490,12 @@ performanceTest.registerTestProject("workerApiProject", Copy) {
     from "src/templates/$name"
 }
 
+// === Build Hierarchies Performance
+tasks.register("springBootBuild", RemoteProject) {
+    remoteUri = 'https://github.com/jjohannes/spring-boot'
+    ref = "master"
+}
+
 tasks.withType(JvmProjectGeneratorTask).configureEach {
     if (project.hasProperty("springDmPluginVersion")) {
         templateArgs['springDmPluginVersion'] = springDmPluginVersion
