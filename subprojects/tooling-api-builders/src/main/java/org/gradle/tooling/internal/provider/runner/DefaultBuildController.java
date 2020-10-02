@@ -22,10 +22,12 @@ import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.internal.project.ProjectStateRegistry;
 import org.gradle.initialization.BuildCancellationToken;
+import org.gradle.internal.Try;
 import org.gradle.internal.build.IncludedBuildState;
 import org.gradle.internal.operations.BuildOperationContext;
 import org.gradle.internal.operations.BuildOperationDescriptor;
 import org.gradle.internal.operations.BuildOperationExecutor;
+import org.gradle.internal.operations.MultipleBuildOperationFailures;
 import org.gradle.internal.operations.RunnableBuildOperation;
 import org.gradle.tooling.internal.adapter.ProtocolToModelAdapter;
 import org.gradle.tooling.internal.adapter.ViewBuilder;
@@ -118,8 +120,17 @@ class DefaultBuildController implements org.gradle.tooling.internal.protocol.Int
         });
 
         List<T> results = new ArrayList<T>(actions.size());
+        List<Throwable> failures = new ArrayList<>();
         for (NestedAction<T> wrapper : wrappers) {
-            results.add(wrapper.value());
+            Try<T> value = wrapper.value();
+            if (value.isSuccessful()) {
+                results.add(value.get());
+            } else {
+                failures.add(value.getFailure().get());
+            }
+        }
+        if (!failures.isEmpty()) {
+            throw new MultipleBuildOperationFailures(failures, null);
         }
         return results;
     }
@@ -194,7 +205,7 @@ class DefaultBuildController implements org.gradle.tooling.internal.protocol.Int
     private static class NestedAction<T> implements RunnableBuildOperation {
         private final Supplier<T> action;
         private final ProjectStateRegistry projectStateRegistry;
-        private T value;
+        private Try<T> result;
 
         public NestedAction(Supplier<T> action, ProjectStateRegistry projectStateRegistry) {
             this.action = action;
@@ -202,18 +213,23 @@ class DefaultBuildController implements org.gradle.tooling.internal.protocol.Int
         }
 
         @Override
-        public void run(BuildOperationContext context) throws Exception {
+        public void run(BuildOperationContext context) {
             // TODO - do not grant uncontrolled access
-            value = projectStateRegistry.allowUncontrolledAccessToAnyProject(action::get);
+            try {
+                T value = projectStateRegistry.allowUncontrolledAccessToAnyProject(action::get);
+                result = Try.successful(value);
+            } catch (Throwable t) {
+                result = Try.failure(t);
+            }
+        }
+
+        public Try<T> value() {
+            return result;
         }
 
         @Override
         public BuildOperationDescriptor.Builder description() {
             return BuildOperationDescriptor.displayName("run tooling API client action");
-        }
-
-        public T value() {
-            return value;
         }
     }
 }

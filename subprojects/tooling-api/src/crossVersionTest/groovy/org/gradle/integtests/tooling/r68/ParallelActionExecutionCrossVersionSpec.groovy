@@ -17,6 +17,7 @@
 package org.gradle.integtests.tooling.r68
 
 import org.gradle.integtests.tooling.fixture.TargetGradleVersion
+import org.gradle.integtests.tooling.fixture.TextUtil
 import org.gradle.integtests.tooling.fixture.ToolingApiSpecification
 import org.gradle.integtests.tooling.fixture.ToolingApiVersion
 import org.gradle.test.fixtures.server.http.BlockingHttpServer
@@ -123,7 +124,7 @@ class ParallelActionExecutionCrossVersionSpec extends ToolingApiSpecification {
         then:
         def e = thrown(BuildActionFailureException)
         e.cause instanceof RuntimeException
-        e.cause.message == """Multiple build operations failed.
+        TextUtil.normaliseLineSeparators(e.cause.message) == """Multiple build operations failed.
     broken: one
     broken: two"""
     }
