@@ -491,11 +491,11 @@ performanceTest.registerTestProject("workerApiProject", Copy) {
 }
 
 // === Build Hierarchies Performance
-tasks.register("springBootBuild", RemoteProject) {
+performanceTest.registerTestProject("springBootBuild", RemoteProject) {
     remoteUri = 'https://github.com/jjohannes/spring-boot'
     ref = "master"
 }
-tasks.register("gradleBuild", RemoteProject) {
+performanceTest.registerTestProject("gradleBuild", RemoteProject) {
     remoteUri = 'https://github.com/gradle/gradle'
     ref = "master"
 }
