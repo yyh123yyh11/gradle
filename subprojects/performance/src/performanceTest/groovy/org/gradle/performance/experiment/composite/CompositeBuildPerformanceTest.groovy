@@ -22,28 +22,34 @@ import org.gradle.performance.fixture.GradleBuildExperimentSpec
 import org.gradle.profiler.BuildMutator
 import org.gradle.profiler.ScenarioContext
 import org.junit.experimental.categories.Category
+import spock.lang.Unroll
 
 @Category(PerformanceExperiment)
 class CompositeBuildPerformanceTest extends AbstractCrossBuildPerformanceTest {
 
-    def "configuration time"() {
+    @Unroll
+    def "#what"() {
         given:
         runner.testGroup = "Composite Builds"
         runner.buildSpec {
             displayName("Baseline")
             addBuildMutator { new GitCheckout(it.projectDir, "performance/baseline") }
+            invocation.tasksToRun(task)
         }
         runner.buildSpec {
             displayName("CompositeSimple")
             addBuildMutator { new GitCheckout(it.projectDir, "performance/compositeSimple") }
+            invocation.tasksToRun(task)
         }
         runner.buildSpec {
             displayName("CompositeBuildSrc")
             addBuildMutator { new GitCheckout(it.projectDir, "performance/compositeBuildSrc") }
+            invocation.tasksToRun(task)
         }
         runner.buildSpec {
             displayName("CompositeHierarchy")
             addBuildMutator { new GitCheckout(it.projectDir, "performance/compositeHierarchy") }
+            invocation.tasksToRun(task)
         }
 
         when:
@@ -51,6 +57,11 @@ class CompositeBuildPerformanceTest extends AbstractCrossBuildPerformanceTest {
 
         then:
         results
+
+        where:
+        what                 | task
+        "configuration time" | "help"
+        "compile up-to-date" | "compileJava"
     }
 
     @Override
@@ -58,9 +69,6 @@ class CompositeBuildPerformanceTest extends AbstractCrossBuildPerformanceTest {
         super.defaultSpec(builder)
         builder.warmUpCount = 3
         builder.invocationCount = 8
-        builder.invocation {
-            tasksToRun("help")
-        }
     }
 
     class GitCheckout implements BuildMutator {
