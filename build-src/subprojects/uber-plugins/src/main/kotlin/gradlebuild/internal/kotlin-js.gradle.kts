@@ -27,9 +27,8 @@ plugins {
     id("org.gradle.kotlin-dsl.ktlint-convention")
 }
 
-var mainRootDir = rootDir
-while(mainRootDir.name != "gradle") { mainRootDir = mainRootDir.parentFile }
-apply(from = "$mainRootDir/gradle/shared-with-buildSrc/code-quality-configuration.gradle.kts")
+fun Gradle.rootBuild(): Gradle = parent.let { it?.rootBuild() ?: this }
+apply(from = "${gradle.rootBuild().rootProject.rootDir}/gradle/shared-with-buildSrc/code-quality-configuration.gradle.kts")
 
 tasks {
     withType<Kotlin2JsCompile>().configureEach {

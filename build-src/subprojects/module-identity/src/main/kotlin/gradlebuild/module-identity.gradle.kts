@@ -41,7 +41,7 @@ version = collectVersionDetails(moduleIdentity)
 fun Project.collectVersionDetails(moduleIdentity: ModuleIdentityExtension): String {
     moduleIdentity.baseName.convention("gradle-$name")
 
-    val baseVersion = rootProject.trimmedContentsOfFile("version.txt")
+    val baseVersion = trimmedContentsOfFile("version.txt")
         ?: return "" // Need to handle the case where the file does not exist and wheere 'gradleProperty' is not yet accesible for script compilation
 
     val finalRelease = gradleProperty("finalRelease")
@@ -91,9 +91,7 @@ fun Project.collectVersionDetails(moduleIdentity: ModuleIdentityExtension): Stri
     )
 
     moduleIdentity.releasedVersions.set(provider {
-        var mainRootDir = rootDir
-        while(mainRootDir.name != "gradle") { mainRootDir = mainRootDir.parentFile }
-        ReleasedVersionsDetails(moduleIdentity.version.forUseAtConfigurationTime().get().baseVersion, rootProject.layout.projectDirectory.dir(mainRootDir.absolutePath).file("released-versions.json"))
+        ReleasedVersionsDetails(moduleIdentity.version.forUseAtConfigurationTime().get().baseVersion, rootProject.layout.projectDirectory.dir(gradle.rootBuild().rootProject.rootDir.absolutePath).file("released-versions.json"))
     })
 
     return versionNumber
@@ -108,11 +106,10 @@ fun isPromotionBuild(): Boolean = gradle.startParameter.taskNames.contains("prom
  * Returns the trimmed contents of the file at the given [path] after
  * marking the file as a build logic input.
  */
-fun Project.trimmedContentsOfFile(path: String): String? {
-    var mainRootDir = rootDir
-    while(mainRootDir.name != "gradle") { mainRootDir = mainRootDir.parentFile }
-    return File(mainRootDir, path).readText().trim()
-}
+fun Project.trimmedContentsOfFile(path: String): String? =
+    providers.fileContents(gradle.rootBuild().rootProject.layout.projectDirectory.file(path)).asText.forUseAtConfigurationTime().orNull?.trim()
+
+fun Gradle.rootBuild(): Gradle = parent.let { it?.rootBuild() ?: this }
 
 fun Project.environmentVariable(variableName: String): Provider<String> =
     providers.environmentVariable(variableName).forUseAtConfigurationTime()

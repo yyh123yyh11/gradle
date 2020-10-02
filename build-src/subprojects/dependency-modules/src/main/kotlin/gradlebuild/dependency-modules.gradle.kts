@@ -80,10 +80,10 @@ fun applyAutomaticUpgradeOfCapabilities() {
     }
 }
 
+fun Gradle.rootBuild(): Gradle = parent.let { it?.rootBuild() ?: this }
+
 fun readCapabilitiesFromJson() {
-    var mainRootDir = rootDir
-    while(mainRootDir.name != "gradle") { mainRootDir = mainRootDir.parentFile }
-    val capabilitiesFile = File(mainRootDir, "gradle/dependency-management/capabilities.json")
+    val capabilitiesFile = File(gradle.rootBuild().rootProject.rootDir, "gradle/dependency-management/capabilities.json")
     val capabilities: List<CapabilitySpec> = if (capabilitiesFile.exists()) {
         readCapabilities(capabilitiesFile)
     } else {

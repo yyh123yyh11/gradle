@@ -15,7 +15,9 @@
  */
 package gradlebuild
 
+import com.gradle.publish.PluginBundleExtension
 import gradlebuild.pluginpublish.extension.PluginPublishExtension
+import org.gradle.plugin.devel.GradlePluginDevelopmentExtension
 import java.time.Year
 
 plugins {
@@ -25,7 +27,7 @@ plugins {
     id("com.gradle.plugin-publish")
 }
 
-extensions.create<PluginPublishExtension>("pluginPublish", gradlePlugin, pluginBundle)
+extensions.create<PluginPublishExtension>("pluginPublish", the<GradlePluginDevelopmentExtension>(), the<PluginBundleExtension>())
 
 tasks.validatePlugins.configure {
     enableStricterValidation.set(true)
