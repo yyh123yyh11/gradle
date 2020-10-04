@@ -913,7 +913,7 @@ class ConfigurationCacheDependencyResolutionIntegrationTest extends AbstractConf
 
                 void transform(TransformOutputs outputs) {
                     def input = inputArtifact.get().asFile
-                    println "making red \${input.name}"
+                    println "converting \${input.name} to red"
                     assert input.file
                     def output = outputs.file(input.name + ".red")
                     output.text = input.text + ".red"
@@ -948,11 +948,8 @@ class ConfigurationCacheDependencyResolutionIntegrationTest extends AbstractConf
                 attributes.attribute(color, 'red')
             }.files
 
-            task resolveTransformed {
-                inputs.files transformedFiles
-                doLast {
-                    transformedFiles.files.forEach { }
-                }
+            task resolveTransformed(type: ShowFileCollection) {
+                files.from(transformedFiles)
             }
         """
         def fixture = newConfigurationCacheFixture()
@@ -962,12 +959,20 @@ class ConfigurationCacheDependencyResolutionIntegrationTest extends AbstractConf
 
         then:
         fixture.assertStateStored()
+        outputContains("processing a.jar")
+        outputContains("processing b.jar")
+        outputContains("converting a.jar.green to red")
+        outputContains("converting b.jar.green to red")
+        outputContains("result = [a.jar.green.red, b.jar.green.red]")
 
         when:
         configurationCacheRun("resolveTransformed")
 
         then:
         fixture.assertStateLoaded()
+        outputDoesNotContain("processing")
+        outputDoesNotContain("converting")
+        outputContains("result = [a.jar.green.red, b.jar.green.red]")
     }
 
     def "buildSrc output may require transform output"() {
