@@ -324,6 +324,7 @@ class DefaultConfigurationCache internal constructor(
         Codecs(
             directoryFileTreeFactory = service(),
             fileCollectionFactory = service(),
+            artifactSetConverter = service(),
             fileLookup = service(),
             propertyFactory = service(),
             filePropertyFactory = service(),
