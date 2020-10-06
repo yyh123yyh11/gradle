@@ -61,10 +61,12 @@ import org.gradle.internal.component.model.VariantResolveMetadata
 import org.gradle.internal.reflect.Instantiator
 import java.io.File
 
+
 class LocalFileDependencyBackedArtifactSetCodec(
     private val instantiator: Instantiator,
     private val attributesFactory: ImmutableAttributesFactory,
-    private val fileCollectionFactory: FileCollectionFactory
+    private val fileCollectionFactory: FileCollectionFactory,
+    private val transformedVariantFactory: TransformedVariantFactory
 ) : Codec<LocalFileDependencyBackedArtifactSet> {
     override suspend fun WriteContext.encode(value: LocalFileDependencyBackedArtifactSet) {
         // TODO - When the set of files is fixed (eg is `gradleApi()` or some hard-coded list of files):
@@ -127,7 +129,7 @@ class LocalFileDependencyBackedArtifactSetCodec(
             transforms.put(sourceAttributes, TransformSpec(targetAttributes, transformation))
         }
 
-        val selector = FixedVariantSelector(transforms, fileCollectionFactory)
+        val selector = FixedVariantSelector(transforms, fileCollectionFactory, transformedVariantFactory)
         return LocalFileDependencyBackedArtifactSet(FixedFileMetadata(componentId, files), Specs.satisfyAll(), selector, artifactTypeRegistry)
     }
 }
@@ -184,7 +186,8 @@ class TransformSpec(val targetAttributes: ImmutableAttributes, val transformatio
 private
 class FixedVariantSelector(
     private val transforms: Map<ImmutableAttributes, TransformSpec>,
-    private val fileCollectionFactory: FileCollectionFactory
+    private val fileCollectionFactory: FileCollectionFactory,
+    private val transformedVariantFactory: TransformedVariantFactory
 ) : VariantSelector {
     override fun select(candidates: ResolvedVariantSet, factory: VariantSelector.Factory): ResolvedArtifactSet {
         require(candidates.variants.size == 1)
@@ -193,31 +196,7 @@ class FixedVariantSelector(
         if (transform == null) {
             return variant.artifacts
         }
-        return factory.asTransformed(variant, transform.targetAttributes, transform.transformation, object : ExtraExecutionGraphDependenciesResolverFactory {
-            override fun create(componentIdentifier: ComponentIdentifier): ExecutionGraphDependenciesResolver {
-                return object : ExecutionGraphDependenciesResolver {
-                    override fun computeDependencyNodes(transformationStep: TransformationStep): TaskDependencyContainer {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun selectedArtifacts(transformer: Transformer): FileCollection {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun computeArtifacts(transformer: Transformer): Try<ArtifactTransformDependencies> {
-                        return Try.successful(DefaultArtifactTransformDependencies(fileCollectionFactory.empty()))
-                    }
-                }
-            }
-        }, object : TransformedVariantFactory {
-            override fun transformedExternalArtifacts(componentIdentifier: ComponentIdentifier, sourceVariant: ResolvedVariant, target: ImmutableAttributes, transformation: Transformation, dependenciesResolverFactory: ExtraExecutionGraphDependenciesResolverFactory): ResolvedArtifactSet {
-                TODO("Not yet implemented")
-            }
-
-            override fun transformedProjectArtifacts(componentIdentifier: ComponentIdentifier, sourceVariant: ResolvedVariant, target: ImmutableAttributes, transformation: Transformation, dependenciesResolverFactory: ExtraExecutionGraphDependenciesResolverFactory): ResolvedArtifactSet {
-                TODO("Not yet implemented")
-            }
-        })
+        return factory.asTransformed(variant, transform.targetAttributes, transform.transformation, EmptyDependenciesResolverFactory(fileCollectionFactory), transformedVariantFactory)
     }
 }
 
@@ -237,5 +216,25 @@ class FixedFileMetadata(
 
     override fun getSource(): FileCollectionDependency {
         throw UnsupportedOperationException("Should not be called")
+    }
+}
+
+
+private
+class EmptyDependenciesResolverFactory(private val fileCollectionFactory: FileCollectionFactory) : ExtraExecutionGraphDependenciesResolverFactory {
+    override fun create(componentIdentifier: ComponentIdentifier): ExecutionGraphDependenciesResolver {
+        return object : ExecutionGraphDependenciesResolver {
+            override fun computeDependencyNodes(transformationStep: TransformationStep): TaskDependencyContainer {
+                TODO("Not yet implemented")
+            }
+
+            override fun selectedArtifacts(transformer: Transformer): FileCollection {
+                TODO("Not yet implemented")
+            }
+
+            override fun computeArtifacts(transformer: Transformer): Try<ArtifactTransformDependencies> {
+                return Try.successful(DefaultArtifactTransformDependencies(fileCollectionFactory.empty()))
+            }
+        }
     }
 }
