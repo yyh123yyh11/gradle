@@ -345,6 +345,7 @@ class DefaultConfigurationCache internal constructor(
             transformListener = service(),
             transformationNodeRegistry = service(),
             valueSourceProviderFactory = service(),
+            transformedVariantFactory = service(),
             patternSetFactory = factory(),
             fileOperations = service(),
             fileFactory = service()
