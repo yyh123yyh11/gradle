@@ -73,6 +73,10 @@ public class LocalFileDependencyBackedArtifactSet implements ResolvedArtifactSet
         return artifactTypeRegistry;
     }
 
+    public VariantSelector getSelector() {
+        return selector;
+    }
+
     @Override
     public Completion startVisit(BuildOperationQueue<RunnableBuildOperation> actions, AsyncArtifactListener listener) {
         FileCollectionStructureVisitor.VisitType visitType = listener.prepareForVisit(this);

@@ -20,14 +20,30 @@ import org.gradle.api.artifacts.FileCollectionDependency
 import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.attributes.AttributeContainer
+import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.LocalFileDependencyBackedArtifactSet
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ResolvedArtifactSet
+import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ResolvedVariant
 import org.gradle.api.internal.artifacts.ivyservice.resolveengine.artifact.ResolvedVariantSet
+import org.gradle.api.internal.artifacts.transform.ArtifactTransformDependencies
+import org.gradle.api.internal.artifacts.transform.DefaultArtifactTransformDependencies
+import org.gradle.api.internal.artifacts.transform.ExecutionGraphDependenciesResolver
+import org.gradle.api.internal.artifacts.transform.ExtraExecutionGraphDependenciesResolverFactory
+import org.gradle.api.internal.artifacts.transform.Transformation
+import org.gradle.api.internal.artifacts.transform.TransformationStep
+import org.gradle.api.internal.artifacts.transform.TransformedVariantFactory
+import org.gradle.api.internal.artifacts.transform.Transformer
 import org.gradle.api.internal.artifacts.transform.VariantSelector
 import org.gradle.api.internal.artifacts.type.DefaultArtifactTypeRegistry
+import org.gradle.api.internal.attributes.AttributeContainerInternal
+import org.gradle.api.internal.attributes.AttributesSchemaInternal
+import org.gradle.api.internal.attributes.EmptySchema
+import org.gradle.api.internal.attributes.ImmutableAttributes
 import org.gradle.api.internal.attributes.ImmutableAttributesFactory
+import org.gradle.api.internal.file.FileCollectionFactory
 import org.gradle.api.internal.file.FileCollectionInternal
+import org.gradle.api.internal.tasks.TaskDependencyContainer
 import org.gradle.api.specs.Specs
 import org.gradle.configurationcache.serialization.Codec
 import org.gradle.configurationcache.serialization.ReadContext
@@ -37,12 +53,18 @@ import org.gradle.configurationcache.serialization.encodePreservingSharedIdentit
 import org.gradle.configurationcache.serialization.readCollection
 import org.gradle.configurationcache.serialization.readNonNull
 import org.gradle.configurationcache.serialization.writeCollection
+import org.gradle.internal.Describables
+import org.gradle.internal.DisplayName
+import org.gradle.internal.Try
 import org.gradle.internal.component.local.model.LocalFileDependencyMetadata
+import org.gradle.internal.component.model.VariantResolveMetadata
 import org.gradle.internal.reflect.Instantiator
+import java.io.File
 
 class LocalFileDependencyBackedArtifactSetCodec(
     private val instantiator: Instantiator,
-    private val attributesFactory: ImmutableAttributesFactory
+    private val attributesFactory: ImmutableAttributesFactory,
+    private val fileCollectionFactory: FileCollectionFactory
 ) : Codec<LocalFileDependencyBackedArtifactSet> {
     override suspend fun WriteContext.encode(value: LocalFileDependencyBackedArtifactSet) {
         // TODO - When the set of files is fixed (eg is `gradleApi()` or some hard-coded list of files):
@@ -59,6 +81,17 @@ class LocalFileDependencyBackedArtifactSetCodec(
             writeCollection(mappings) {
                 writeString(it.name)
                 write(it.attributes)
+            }
+        }
+
+        for (artifactTypeDefinition in value.artifactTypeRegistry.create()!!) {
+            val sourceAttributes = value.artifactTypeRegistry.mapAttributesFor(File("thing.${artifactTypeDefinition.name}"))
+            val recordingSet = RecordingVariantSet(value.dependencyMetadata.files, sourceAttributes)
+            value.selector.select(recordingSet, recordingSet)
+            println("-> selected for ${artifactTypeDefinition.name}: ${recordingSet.targetAttributes} -> ${recordingSet.transformation?.displayName}")
+            write(recordingSet.targetAttributes)
+            if (recordingSet.targetAttributes != null) {
+                write(recordingSet.transformation)
             }
         }
     }
@@ -83,22 +116,117 @@ class LocalFileDependencyBackedArtifactSetCodec(
             registry
         }
 
-        val selector = FixedVariantSelector()
+        val transforms = mutableMapOf<ImmutableAttributes, TransformSpec>()
+        for (artifactTypeDefinition in artifactTypeRegistry.create()!!) {
+            val sourceAttributes = artifactTypeRegistry.mapAttributesFor(File("thing.${artifactTypeDefinition.name}"))
+            val targetAttributes = read() as ImmutableAttributes?
+            if (targetAttributes == null) {
+                continue
+            }
+            val transformation = readNonNull<Transformation>()
+            transforms.put(sourceAttributes, TransformSpec(targetAttributes, transformation))
+        }
+
+        val selector = FixedVariantSelector(transforms, fileCollectionFactory)
         return LocalFileDependencyBackedArtifactSet(FixedFileMetadata(componentId, files), Specs.satisfyAll(), selector, artifactTypeRegistry)
     }
 }
 
 
 private
-class FixedVariantSelector : VariantSelector {
-    override fun select(candidates: ResolvedVariantSet, factory: VariantSelector.Factory): ResolvedArtifactSet {
-        return candidates.variants.iterator().next().artifacts
+class RecordingVariantSet(
+    private val source: FileCollectionInternal,
+    private val attributes: ImmutableAttributes
+) : ResolvedVariantSet, ResolvedVariant, VariantSelector.Factory {
+    var targetAttributes: ImmutableAttributes? = null
+    var transformation: Transformation? = null
+
+    override fun asDescribable(): DisplayName {
+        return Describables.of(source)
+    }
+
+    override fun getSchema(): AttributesSchemaInternal {
+        return EmptySchema.INSTANCE
+    }
+
+    override fun getVariants(): Set<ResolvedVariant> {
+        return setOf(this)
+    }
+
+    override fun getOverriddenAttributes(): ImmutableAttributes {
+        return ImmutableAttributes.EMPTY
+    }
+
+    override fun getIdentifier(): VariantResolveMetadata.Identifier? {
+        return null
+    }
+
+    override fun getAttributes(): AttributeContainerInternal {
+        return attributes
+    }
+
+    override fun getArtifacts(): ResolvedArtifactSet {
+        return ResolvedArtifactSet.EMPTY
+    }
+
+    override fun asTransformed(sourceVariant: ResolvedVariant, targetAttributes: ImmutableAttributes, transformation: Transformation, dependenciesResolver: ExtraExecutionGraphDependenciesResolverFactory, transformedVariantFactory: TransformedVariantFactory): ResolvedArtifactSet {
+        this.transformation = transformation
+        this.targetAttributes = targetAttributes
+        return sourceVariant.artifacts
     }
 }
 
 
 private
-class FixedFileMetadata(val compId: ComponentIdentifier?, val source: FileCollectionInternal) : LocalFileDependencyMetadata {
+class TransformSpec(val targetAttributes: ImmutableAttributes, val transformation: Transformation)
+
+
+private
+class FixedVariantSelector(
+    private val transforms: Map<ImmutableAttributes, TransformSpec>,
+    private val fileCollectionFactory: FileCollectionFactory
+) : VariantSelector {
+    override fun select(candidates: ResolvedVariantSet, factory: VariantSelector.Factory): ResolvedArtifactSet {
+        require(candidates.variants.size == 1)
+        val variant = candidates.variants.first()
+        val transform = transforms.get(variant.attributes)
+        if (transform == null) {
+            return variant.artifacts
+        }
+        return factory.asTransformed(variant, transform.targetAttributes, transform.transformation, object : ExtraExecutionGraphDependenciesResolverFactory {
+            override fun create(componentIdentifier: ComponentIdentifier): ExecutionGraphDependenciesResolver {
+                return object : ExecutionGraphDependenciesResolver {
+                    override fun computeDependencyNodes(transformationStep: TransformationStep): TaskDependencyContainer {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun selectedArtifacts(transformer: Transformer): FileCollection {
+                        TODO("Not yet implemented")
+                    }
+
+                    override fun computeArtifacts(transformer: Transformer): Try<ArtifactTransformDependencies> {
+                        return Try.successful(DefaultArtifactTransformDependencies(fileCollectionFactory.empty()))
+                    }
+                }
+            }
+        }, object : TransformedVariantFactory {
+            override fun transformedExternalArtifacts(componentIdentifier: ComponentIdentifier, sourceVariant: ResolvedVariant, target: ImmutableAttributes, transformation: Transformation, dependenciesResolverFactory: ExtraExecutionGraphDependenciesResolverFactory): ResolvedArtifactSet {
+                TODO("Not yet implemented")
+            }
+
+            override fun transformedProjectArtifacts(componentIdentifier: ComponentIdentifier, sourceVariant: ResolvedVariant, target: ImmutableAttributes, transformation: Transformation, dependenciesResolverFactory: ExtraExecutionGraphDependenciesResolverFactory): ResolvedArtifactSet {
+                TODO("Not yet implemented")
+            }
+        })
+    }
+}
+
+
+private
+class FixedFileMetadata(
+    private val compId: ComponentIdentifier?,
+    private val source: FileCollectionInternal
+) : LocalFileDependencyMetadata {
     override fun getComponentId(): ComponentIdentifier? {
         return compId
     }
