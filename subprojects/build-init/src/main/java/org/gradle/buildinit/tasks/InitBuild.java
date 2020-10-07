@@ -51,7 +51,7 @@ import static org.gradle.buildinit.plugins.internal.PackageNameBuilder.toPackage
 public class InitBuild extends DefaultTask {
     private final Directory projectDir = getProject().getLayout().getProjectDirectory();
     private String type;
-    private final Property<Boolean> splitProject = getProject().getObjects().property(Boolean.class);
+    private final Property<String> splitProject = getProject().getObjects().property(String.class);
     private String dsl;
     private String testFramework;
     private String projectName;
@@ -71,7 +71,7 @@ public class InitBuild extends DefaultTask {
     }
 
     /**
-     * Should the build be split into multiple subprojects?
+     * Should the build be split into multiple subprojects? The crated projects will be split if the specified value is {@code true}.
      *
      * This property can be set via command-line option '--split-project'.
      *
@@ -81,7 +81,7 @@ public class InitBuild extends DefaultTask {
     @Input
     @Optional
     @Option(option = "split-project", description = "Split functionality across multiple subprojects?")
-    public Property<Boolean> getSplitProject() {
+    public Property<String> getSplitProject() {
         return splitProject;
     }
 
@@ -175,7 +175,7 @@ public class InitBuild extends DefaultTask {
 
         ModularizationOption modularizationOption;
         if (splitProject.isPresent()) {
-            modularizationOption = splitProject.get() ? ModularizationOption.WITH_LIBRARY_PROJECTS : ModularizationOption.SINGLE_PROJECT;
+            modularizationOption = splitProject.get().equals("true") ? ModularizationOption.WITH_LIBRARY_PROJECTS : ModularizationOption.SINGLE_PROJECT;
         } else if (initDescriptor.getModularizationOptions().size() == 1) {
             modularizationOption = initDescriptor.getModularizationOptions().iterator().next();
         } else {
