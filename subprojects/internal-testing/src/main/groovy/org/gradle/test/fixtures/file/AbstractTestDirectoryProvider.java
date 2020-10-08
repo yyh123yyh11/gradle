@@ -70,7 +70,7 @@ abstract class AbstractTestDirectoryProvider implements TestRule, TestDirectoryP
 
     public void cleanup() {
         if (cleanup && dir != null && dir.exists()) {
-            ConcurrentTestUtil.poll(new Closure(null, null) {
+            ConcurrentTestUtil.poll(60, new Closure(null, null) {
                 @SuppressWarnings("UnusedDeclaration")
                 void doCall() throws IOException {
                     dir.forceDeleteDir();
