@@ -16,6 +16,7 @@
 
 package org.gradle.tooling.internal.consumer.connection;
 
+import org.gradle.internal.concurrent.CompositeStoppable;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.UnsupportedVersionException;
 import org.gradle.tooling.internal.adapter.ProtocolToModelAdapter;
@@ -38,15 +39,18 @@ public class UnsupportedOlderVersionConnection implements ConsumerConnection {
     private final ProtocolToModelAdapter adapter;
     private final String version;
     private final ConnectionMetaDataVersion1 metaData;
+    private final ClassLoader serviceClassLoader;
 
-    public UnsupportedOlderVersionConnection(ConnectionVersion4 delegate, ProtocolToModelAdapter adapter) {
+    public UnsupportedOlderVersionConnection(ConnectionVersion4 delegate, ProtocolToModelAdapter adapter, ClassLoader serviceClassLoader) {
         this.adapter = adapter;
         this.version = delegate.getMetaData().getVersion();
         this.metaData = delegate.getMetaData();
+        this.serviceClassLoader = serviceClassLoader;
     }
 
     @Override
     public void stop() {
+        CompositeStoppable.stoppable(serviceClassLoader).stop();
     }
 
     @Override

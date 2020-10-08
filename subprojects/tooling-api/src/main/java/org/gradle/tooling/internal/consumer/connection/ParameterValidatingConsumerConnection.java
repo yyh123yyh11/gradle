@@ -15,6 +15,7 @@
  */
 package org.gradle.tooling.internal.consumer.connection;
 
+import org.gradle.internal.concurrent.CompositeStoppable;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.internal.consumer.PhasedBuildAction;
 import org.gradle.tooling.internal.consumer.TestExecutionRequest;
@@ -27,15 +28,17 @@ import java.util.List;
 public class ParameterValidatingConsumerConnection implements ConsumerConnection {
     private final VersionDetails targetVersionDetails;
     private final ConsumerConnection delegate;
+    private final ClassLoader serviceClassLoader;
 
-    public ParameterValidatingConsumerConnection(VersionDetails targetVersionDetails, ConsumerConnection connection) {
+    public ParameterValidatingConsumerConnection(VersionDetails targetVersionDetails, ConsumerConnection connection, ClassLoader serviceClassLoader) {
         this.targetVersionDetails = targetVersionDetails;
         this.delegate = connection;
+        this.serviceClassLoader = serviceClassLoader;
     }
 
     @Override
     public void stop() {
-        delegate.stop();
+        CompositeStoppable.stoppable(delegate, serviceClassLoader).stop();
     }
 
     @Override

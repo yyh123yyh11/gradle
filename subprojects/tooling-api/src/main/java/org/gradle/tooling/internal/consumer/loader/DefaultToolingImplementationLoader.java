@@ -85,17 +85,17 @@ public class DefaultToolingImplementationLoader implements ToolingImplementation
             ProtocolToModelAdapter adapter = new ProtocolToModelAdapter(new ConsumerTargetTypeProvider());
             ModelMapping modelMapping = new ModelMapping();
             if (connection instanceof InternalStopWhenIdleConnection) {
-                return createConnection(new StopWhenIdleConsumerConnection(connection, modelMapping, adapter), connectionParameters);
+                return createConnection(new StopWhenIdleConsumerConnection(connection, modelMapping, adapter), connectionParameters, serviceClassLoader);
             } else if (connection instanceof InternalInvalidatableVirtualFileSystemConnection) {
-                return createConnection(new NotifyDaemonsAboutChangedPathsConsumerConnection(connection, modelMapping, adapter), connectionParameters);
+                return createConnection(new NotifyDaemonsAboutChangedPathsConsumerConnection(connection, modelMapping, adapter), connectionParameters, serviceClassLoader);
             } else if (connection instanceof InternalPhasedActionConnection) {
-                return createConnection(new PhasedActionAwareConsumerConnection(connection, modelMapping, adapter), connectionParameters);
+                return createConnection(new PhasedActionAwareConsumerConnection(connection, modelMapping, adapter), connectionParameters, serviceClassLoader);
             } else if (connection instanceof InternalParameterAcceptingConnection) {
-                return createConnection(new ParameterAcceptingConsumerConnection(connection, modelMapping, adapter), connectionParameters);
+                return createConnection(new ParameterAcceptingConsumerConnection(connection, modelMapping, adapter), connectionParameters, serviceClassLoader);
             } else if (connection instanceof InternalTestExecutionConnection) {
-                return createConnection(new TestExecutionConsumerConnection(connection, modelMapping, adapter), connectionParameters);
+                return createConnection(new TestExecutionConsumerConnection(connection, modelMapping, adapter), connectionParameters, serviceClassLoader);
             } else {
-                return new UnsupportedOlderVersionConnection(connection, adapter);
+                return new UnsupportedOlderVersionConnection(connection, adapter, serviceClassLoader);
             }
         } catch (UnsupportedVersionException e) {
             throw e;
@@ -104,10 +104,10 @@ public class DefaultToolingImplementationLoader implements ToolingImplementation
         }
     }
 
-    private ConsumerConnection createConnection(AbstractConsumerConnection adaptedConnection, ConnectionParameters connectionParameters) {
+    private ConsumerConnection createConnection(AbstractConsumerConnection adaptedConnection, ConnectionParameters connectionParameters, ClassLoader serviceClassLoader) {
         adaptedConnection.configure(connectionParameters);
         VersionDetails versionDetails = adaptedConnection.getVersionDetails();
-        return new ParameterValidatingConsumerConnection(versionDetails, adaptedConnection);
+        return new ParameterValidatingConsumerConnection(versionDetails, adaptedConnection, serviceClassLoader);
     }
 
     private ClassLoader createImplementationClassLoader(Distribution distribution, ProgressLoggerFactory progressLoggerFactory, InternalBuildProgressListener progressListener, File userHomeDir, BuildCancellationToken cancellationToken) {

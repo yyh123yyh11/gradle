@@ -38,7 +38,7 @@ class UnsupportedOlderVersionConnectionTest extends Specification {
     }
 
     def "run fails"() {
-        def connection = new UnsupportedOlderVersionConnection(connection, adapter)
+        def connection = new UnsupportedOlderVersionConnection(connection, adapter, serviceClassLoader)
 
         when:
         connection.run(GradleProject.class, parameters)
@@ -49,7 +49,7 @@ class UnsupportedOlderVersionConnectionTest extends Specification {
     }
 
     def "partial BuildEnvironment"() {
-        def connection = new UnsupportedOlderVersionConnection(connection, adapter)
+        def connection = new UnsupportedOlderVersionConnection(connection, adapter, serviceClassLoader)
 
         when:
         def buildEnv = connection.run(BuildEnvironment.class, parameters)
