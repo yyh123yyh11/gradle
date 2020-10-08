@@ -50,7 +50,7 @@ class MultiProjectJvmApplicationInitIntegrationTest extends AbstractIntegrationS
         def buildFile = dsl.fileNameFor('build')
 
         when:
-        run('init', '--type', "${language}-application", '--split-project', '--dsl', dsl.id)
+        run('init', '--type', "${language}-application", '--split-project', 'true', '--dsl', dsl.id)
 
         then:
         targetDir.file(settingsFile).exists()
