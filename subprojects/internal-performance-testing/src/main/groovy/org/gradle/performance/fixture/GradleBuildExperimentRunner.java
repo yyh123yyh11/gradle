@@ -124,11 +124,16 @@ public class GradleBuildExperimentRunner extends AbstractBuildExperimentRunner {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if (connector != null) {
-                connector.disconnect();
-            }
-            ConnectorServices.reset();
+            toolingApiCleanup(connector);
         }
+    }
+
+    private void toolingApiCleanup(GradleConnector connector) {
+        if (connector != null) {
+            connector.disconnect();
+        }
+        ConnectorServices.reset();
+        System.gc();
     }
 
     private GradleScenarioInvoker createScenarioInvoker(File gradleUserHome) {
