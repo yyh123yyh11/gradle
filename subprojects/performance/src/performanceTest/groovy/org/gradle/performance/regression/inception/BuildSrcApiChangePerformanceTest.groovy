@@ -37,7 +37,6 @@ class BuildSrcApiChangePerformanceTest extends AbstractCrossVersionPerformanceTe
         given:
         runner.tasksToRun = ['help']
         runner.runs = determineNumberOfRuns(runner.testProject)
-        runner.gradleOpts = runner.projectMemoryOptions
 
         and:
         def changingClassFilePath = "buildSrc/src/main/groovy/ChangingClass.groovy"
@@ -55,7 +54,6 @@ class BuildSrcApiChangePerformanceTest extends AbstractCrossVersionPerformanceTe
         given:
         runner.tasksToRun = ['help']
         runner.runs = determineNumberOfRuns(runner.testProject)
-        runner.gradleOpts = runner.projectMemoryOptions
 
         and:
         def changingClassFilePath = "buildSrc/src/main/groovy/ChangingClass.groovy"
